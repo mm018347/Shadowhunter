@@ -68,23 +68,24 @@ class OldLogSnippet {
 
     val room_table = <table>
       <tr>
-        <th class="column">村No</th>
-        <th class="column">村名</th>
-        <th class="column">村莊說明</th>
+        <th class="column">房No</th>
+        <th class="column">房名</th>
+        <th class="column">附註</th>
         <th class="column">人數</th>
         <th class="column">勝</th>
-        <th class="column">選項</th>
       </tr>
       { for (room <- room_list) yield 
       <tr> 
-        <td align="right" valign="middle" class="row">{room.id.is.toString}</td> 
-        <td align="right" valign="middle" class="row">
-         <a href={"oldlog_view.html?room_no="+room.id.is.toString}>{room.room_name.is} 村</a>
+        <td class="number" rowspan="2">{room.id.is.toString}</td> 
+        <td class="title">
+         <a href={"oldlog_view.html?room_no="+room.id.is.toString}>{room.room_name.is}</a>
         </td> 
-        <td align="right" valign="middle" class="row"><small>～ {room.room_comment.is.toString} ～</small></td> 
-        <td align="center" valign="middle" class="row">[ {room.max_user.is.toString}人用 ]</td> 
-        <td align="center" valign="middle" class="row">[{victorys(room)}]</td>
-        <td valign="middle" class="row"><small>{room.option_text}</small></td>
+        <td class="comment side"><small>～ {room.room_comment.is.toString} ～</small></td> 
+        <td class="upper">[ {room.max_user.is.toString}人用]</td> 
+        <td class="time">[{victorys(room)}]</td>
+	  </tr>
+      <tr>
+        <td class="option" colspan="5"><small>{room.option_text}</small></td>
       </tr>
       }
     </table> 
@@ -107,7 +108,7 @@ class OldLogSnippet {
     }
     
     if (room_box.isEmpty) {
-      S.error(<b>找不到村莊</b>)
+      S.error(<b>找不到房間</b>)
       S.redirectTo("main.html")
     }
     

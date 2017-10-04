@@ -27,20 +27,20 @@ class Room extends LongKeyedMapper[Room] with CreatedUpdated with IdPK {
     override def validations = validPriority _ :: super.validations 
  
     def validPriority(in: String): List[FieldError] = 
-      List(if (in.length <= 0)       List(FieldError(this, <b>村子名稱不得為空白</b>))
-           else if (in.length > 20)  List(FieldError(this, <b>村子名稱過長＞２０</b>))
+      List(if (in.length <= 0)       List(FieldError(this, <b>房間名稱不得為空白</b>))
+           else if (in.length > 20)  List(FieldError(this, <b>房間名稱過長＞２０</b>))
            else Nil,
-           if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>村子名稱包含控制碼</b>)) else Nil).flatten
+           if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>房間名稱包含控制碼</b>)) else Nil).flatten
   }
 
   object room_comment  extends MappedString(this, 60) {
     override def validations = validPriority _ :: super.validations 
  
     def validPriority(in: String): List[FieldError] = 
-      List(if (in.length <= 0)       List(FieldError(this, <b>村子說明不得為空白</b>))
-           else if (in.length > 60)  List(FieldError(this, <b>村子說明過長＞６０</b>))
+      List(if (in.length <= 0)       List(FieldError(this, <b>房間說明不得為空白</b>))
+           else if (in.length > 60)  List(FieldError(this, <b>房間說明過長＞６０</b>))
            else Nil,
-           if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>村子名稱包含控制碼</b>)) else Nil).flatten
+           if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>房間說明包含控制碼</b>)) else Nil).flatten
   }
 
   object max_user      extends MappedInt(this) {

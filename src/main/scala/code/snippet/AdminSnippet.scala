@@ -208,6 +208,6 @@ class AdminSnippet {
                               Full(font_type),  x => font_type = x) &
     "#send_message"        #> SHtml.submit("全體訊息",  () =>send_message) &
     "#send_private_message" #> send_private_message_tag &
-    "#abandon"             #> SHtml.submit(" 廢  村 ",  () =>abandon, "id" -> "abandon")
+    "#abandon"             #> SHtml.submit(" 廢  止 ",  () =>abandon, "id" -> "abandon")
   }
 }

@@ -36,18 +36,18 @@ object RoomFlagEnum extends Enumeration {
   val BLACKCARD_LAMIRROR   = Value("B02")
   
   val FLAGNAME_MAP   = Map(
-    TEST_MODE      -> "(測)",
-    WISH_ALIGN     -> "(希)",
-    WISH_ALIGN     -> "(希職)",
+    TEST_MODE      -> "｛測試模式｝",
+    WISH_ALIGN     -> "<希陣>",
+    WISH_ALIGN     -> "<希職>",
     //DEATH_LOOK     -> "(靈)",
-    EXPANSION_ROLE -> "(職1)",
-    CUSTOM_ROLE    -> "(職2)",
-    NO_CHESHIRE    -> "(無貓)",
-    NO_DETECTIVE    -> "(無莉可)",
+    EXPANSION_ROLE -> "【擴職】",
+    CUSTOM_ROLE    -> "【自職】",
+    NO_CHESHIRE    -> "【無貓】",
+    NO_DETECTIVE    -> "【無莉可】",
 
-    INIT_LOCATION   -> "(初位)",
-    INIT_GREEN      -> "(初綠)",
-    RANDOM_POSITION -> "(亂位)",
+    INIT_LOCATION   -> "{初位}",
+    INIT_GREEN      -> "{初綠}",
+    RANDOM_POSITION -> "{亂位}",
     FOUR_NEUTRAL    -> "(四中)",
     ULTRASOUL_RAY   -> "(究)",
     UNSEEN_RESIST   -> "(隱)",

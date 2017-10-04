@@ -41,7 +41,7 @@ class TestSnippet {
   }
   
   def create_test1 = {
-    val room = Room.create.room_name("測試用").room_comment("8人測試用村")
+    val room = Room.create.room_name("測試用").room_comment("8人測試用房間")
                    .max_user(8)
                    .move_time(999).action_time(999).reaction_time(999)
                    .room_flags(all_enum.map(_.toString).mkString("",",",""))
@@ -65,7 +65,7 @@ class TestSnippet {
     room_phase.save
         
     val talk = Talk.create.roomround_id(game_hall.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
-                   .message("村莊建立 " + (new java.util.Date).toString)
+                   .message("房間建立 " + (new java.util.Date).toString)
     talk.save
     
     // 加入7人

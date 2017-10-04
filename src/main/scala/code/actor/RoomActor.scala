@@ -118,7 +118,7 @@ object RoomActor extends LiftActor with Logger {
           if (roomround.round_no.is == 0) {
             // 更新廢村時間
             val roomphase = RoomPhase.find(By(RoomPhase.roomround_id, roomround.id.is), OrderBy(RoomPhase.phase_no, Descending)).get
-            roomphase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 10)).save
+            roomphase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 15)).save
           }
         case xs => ;
       }

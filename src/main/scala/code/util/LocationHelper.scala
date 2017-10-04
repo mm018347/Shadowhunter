@@ -63,12 +63,12 @@ object LocationHelper {
     
       val locations = location_str.toList.map(_.toString).grouped(2)
     
-      Seq (<table border="1"> {
+      Seq (<table class="map_table" border="1"> {
         for (location_group <- locations) yield
-        <tr> { 
+        <tr class="map_tr"> { 
           for (location <- location_group) yield
-          Seq(<td>{LocationEnum.get_cname(location)}</td>,
-              <td>{userentrys.filter(_.location.is == location).map(_.handle_name.is).mkString("　")}</td>)
+          Seq(<td class="map_td">{LocationEnum.get_cname(location)}</td>,
+              <td class="map_td">{userentrys.filter(_.location.is == location).map(_.handle_name.is).mkString("　")}</td>)
         } </tr>
       } </table> )
     }

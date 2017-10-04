@@ -107,9 +107,9 @@ object MessageHelper {
         handle_name = talk.message.is
 
       generated_message = handle_name + (mtype match {
-        case MTypeEnum.MESSAGE_COME      => " 來到村莊大廳"
-        case MTypeEnum.MESSAGE_LEAVE     => " 離開這個村莊了"
-        case MTypeEnum.MESSAGE_KICKED    => " 人間蒸發、被轉學了"
+        case MTypeEnum.MESSAGE_COME      => " 加入遊戲"
+        case MTypeEnum.MESSAGE_LEAVE     => " 離開遊戲"
+        case MTypeEnum.MESSAGE_KICKED    => " 被踢出遊戲"
         case xs                          => ""
       })
     } else if (mtype == MTypeEnum.VOTE_KICK) {
@@ -137,15 +137,15 @@ object MessageHelper {
       case MTypeEnum.TALK_DAY            => simple_talk_tag(talk, userentrys)
       
       case MTypeEnum.MESSAGE_GENERAL     => simple_message_tag(talk.message.is)
-      case MTypeEnum.MESSAGE_COME        => simple_message_tag(useractioner.handle_name.is + " 來到村莊大廳")
-      case MTypeEnum.MESSAGE_LEAVE       => simple_message_tag(useractioner.handle_name.is +" 離開這個村莊了")
-      case MTypeEnum.MESSAGE_KICKED      => simple_message_tag(useractioner.handle_name.is +" 人間蒸發、被轉學了")
+      case MTypeEnum.MESSAGE_COME        => simple_message_tag(useractioner.handle_name.is + " 加入遊戲")
+      case MTypeEnum.MESSAGE_LEAVE       => simple_message_tag(useractioner.handle_name.is +" 離開遊戲")
+      case MTypeEnum.MESSAGE_KICKED      => simple_message_tag(useractioner.handle_name.is +" 被踢出遊戲")
       case MTypeEnum.MESSAGE_REVOTE0     => simple_message_tag("＜投票重新開始 請儘速重新投票＞")
       case MTypeEnum.MESSAGE_LAST2MIN    => simple_message_tag("最後 2 分還不投票將會暴斃")
       case MTypeEnum.MESSAGE_DEATHSUDDEN => simple_message_tag(useractioner.handle_name.is + "  突然暴斃死亡")
       case MTypeEnum.MESSAGE_REVOTE      => simple_message_tag("＜投票結果有問題 請重新投票＞")
       case MTypeEnum.MESSAGE_TIMEOUT     => simple_message_tag(useractioner.handle_name.is +" 超過時限，放棄回合")
-      case MTypeEnum.MESSAGE_DEATH       => simple_message_tag(useractioner.handle_name.is + "  淒慘的死狀被發現")
+      case MTypeEnum.MESSAGE_DEATH       => simple_message_tag(useractioner.handle_name.is + "  死亡")
         
       case MTypeEnum.RESULT_MOVE         => simple_message_tag(talk.message.is, true, "move-do")
       case MTypeEnum.RESULT_ATTACK       => simple_message_tag(talk.message.is, true, "attack-do")
@@ -164,11 +164,11 @@ object MessageHelper {
       case MTypeEnum.RESULT_BLACKCARD    => simple_message_tag(talk.message.is, true, "black-do")
         
       case MTypeEnum.OBJECTION_MALE                =>
-          Seq(<tr><td class="objection-male" colspan="2">　　　　　{useractioner.handle_name.is} 要求廢村</td></tr>)
-          //Seq(<tr><td width="1000" colspan="3" align="left" style="background-color:#336699;color:white;font-weight:bold;border-top: silver 1px dashed;">　　　　　{user_entry.handle_name.is} 要求廢村</td></tr>)
+          Seq(<tr><td class="objection-male" colspan="2">　　　　　{useractioner.handle_name.is} 要求廢止</td></tr>)
+          //Seq(<tr><td width="1000" colspan="3" align="left" style="background-color:#336699;color:white;font-weight:bold;border-top: silver 1px dashed;">　　　　　{user_entry.handle_name.is} 要求廢止</td></tr>)
       case MTypeEnum.OBJECTION_FEMALE              =>
-          Seq(<tr><td class="objection-male" colspan="2">　　　　　{useractioner.handle_name.is} 要求廢村</td></tr>)
-          //Seq(<tr><td width="1000" colspan="3" align="left" style="background-color:#FF0099;color:white;font-weight:bold;border-top: silver 1px dashed;">　　　　　{user_entry.handle_name.is} 要求廢村</td></tr>)
+          Seq(<tr><td class="objection-male" colspan="2">　　　　　{useractioner.handle_name.is} 要求廢止</td></tr>)
+          //Seq(<tr><td width="1000" colspan="3" align="left" style="background-color:#FF0099;color:white;font-weight:bold;border-top: silver 1px dashed;">　　　　　{user_entry.handle_name.is} 要求廢止</td></tr>)
 
       case MTypeEnum.ACTION_KICK             => simple_message_tag(useractioner.handle_name.is + " 對 " + useractionee.handle_name.is + " 投票踢出", true, "kick-do")
       case MTypeEnum.ACTION_FLIP             => simple_message_tag(useractioner.handle_name.is + " 翻開角色卡", true, "flip-do")

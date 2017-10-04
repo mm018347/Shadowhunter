@@ -51,7 +51,7 @@ class GameCheckSnippet {
     }
     
     if (room_box.isEmpty) {
-      S.error(<b>找不到村莊</b>)
+      S.error(<b>找不到房間</b>)
       S.redirectTo("main.html")
     }
     
@@ -189,7 +189,7 @@ class GameViewSnippet {
     "#refresh [href]" #> ("game_view.html?room_no=" + room_no) &
     "#refresh-list"   #> auto_reload_seq &
     "#room-register" #> (if (room.status.is == RoomStatusEnum.WAITING.toString)
-                        <a href={"room_register.html?room_no=" + room_no}>[住民登錄]</a> 
+                        <a href={"room_register.html?room_no=" + room_no}>[加入遊戲]</a> 
                       else <span/>) &
     "#time-table *"      #> time_table &
     "#user-table *"      #> user_table &

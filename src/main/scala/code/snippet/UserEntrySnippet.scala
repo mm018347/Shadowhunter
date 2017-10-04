@@ -53,7 +53,7 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
         S.redirectTo("main.html")
       case Full(room) =>  CurrentRoom.set(Box !! room)
       case _         =>
-        S.error(<b>找不到村莊</b>)
+        S.error(<b>找不到房間</b>)
         S.redirectTo("main.html")
     }
     
@@ -118,7 +118,7 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
                                          By(UserEntry.revoked, false))
         
         if (user_count >= room.max_user.is) {
-          S.error(<b>村民已滿</b>)
+          S.error(<b>玩家已滿</b>)
           return S.redirectTo("room_register.html?room_no=" + room_id)
         }
 
@@ -262,7 +262,7 @@ class UserEntryLoginSnippet {
           case  _       => login(room)
         }
       case _          =>
-        S.error(<b>找不到村莊</b>)
+        S.error(<b>找不到房間</b>)
         S.redirectTo("main.html")
     }
   }

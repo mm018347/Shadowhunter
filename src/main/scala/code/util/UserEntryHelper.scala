@@ -37,10 +37,10 @@ object UserEntryHelper {
     if (userentry.live.is)
       result ++= <td valign="top" class={if (userentry.has_room_flag(UserEntryRoomFlagEnum.VOTED)) "voted" else ""}>
       <img src={user_icon.icon_filename.is} width={user_icon.icon_width.is.toString} height={user_icon.icon_height.is.toString} border="2" style={"border-color:" + user_icon.color.is} /><br/><span>
-      {"損傷:" + userentry.damaged.is}</span></td>
+      {"損傷：" + userentry.damaged.is}</span></td>
     else
       result ++= <td valign="top" class="dead"><img src="images/grave.gif"   border="2"  onMouseover={"this.src='" + user_icon.icon_filename.is + "'"} onMouseout="this.src='images/grave.gif'"  style={"border-color:" + user_icon.color.is} /><br/><span>
-      {"損傷:" + userentry.damaged.is}</span></td>
+      {"損傷：" + userentry.damaged.is}</span></td>
 
     // <img src={"http://identicon.relucks.org/" + user_entry.ip_address_md5.is} />
     val result2 = <td class={if (!userentry.live.is) "dead" 
@@ -56,7 +56,7 @@ object UserEntryHelper {
              <strong>{userentry.get_role_field}</strong>
             else <strong>[？？]</strong>}
           {if (userentry.revealed) "[開]" else "[蓋]"}<br/>
-          {id_icon}({ if (userentry.live.is) "生存中" else "死亡" }){
+          {id_icon}({ if (userentry.live.is) "生存" else "死亡" }){
              if (userentry.has_user_flag(UserEntryFlagEnum.LOVER)) <span class="lover">戀</span> else NodeSeq.Empty}{
              if (userentry.has_user_flag(UserEntryFlagEnum.SEALED)) <span class="hunter">封</span> else NodeSeq.Empty}{
              if (userentry.has_user_flag(UserEntryFlagEnum.POISON)) {
@@ -108,7 +108,7 @@ object UserEntryHelper {
            <strong>{userentry.get_role_field}</strong>
           {if (userentry.revealed) "[開]" else "[蓋]"}<br/>
           {Seq(<input type="checkbox" id={"id" + userentry.user_no.is} name={"id" + userentry.user_no.is} />)}
-          {id_icon}({ if (userentry.live.is) "生存中" else "死亡" }){
+          {id_icon}({ if (userentry.live.is) "生存" else "死亡" }){
              if (userentry.has_user_flag(UserEntryFlagEnum.LOVER)) <span class="lover">戀</span> else NodeSeq.Empty}{
              if (userentry.has_user_flag(UserEntryFlagEnum.SEALED)) <span class="hunter">封</span> else NodeSeq.Empty}{
              if (userentry.has_user_flag(UserEntryFlagEnum.POISON)) {
@@ -155,7 +155,7 @@ object UserEntryHelper {
           }
 
           {Seq(<input type="checkbox" id={"id" + user_entry.user_no.is} name={"id" + user_entry.user_no.is} />)}
-          {id_icon}({ if (user_entry.live.is) "生存中" else "死亡" })
+          {id_icon}({ if (user_entry.live.is) "生存" else "死亡" })
           {if (user_entry.has_flag(UserEntryFlagEnum.RELIGION) ) Seq(<font color="#EEAA55">教</font>) else NodeSeq.Empty}
          </td>
 

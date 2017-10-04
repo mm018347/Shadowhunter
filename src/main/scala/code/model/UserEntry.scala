@@ -78,7 +78,7 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     override def validations = validPriority _ :: super.validations
 
     def validPriority(in: String): List[FieldError] =
-      List(if (in.length() < 6)          List(FieldError(this, <b>密碼過短＜６</b>))
+      List(if (in.length() < 5)          List(FieldError(this, <b>密碼過短＜５</b>))
              else if (in.length() > 20)  List(FieldError(this, <b>密碼過長＞２０</b>))
              else Nil,
            if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>密碼包含控制碼</b>)) else Nil).flatten

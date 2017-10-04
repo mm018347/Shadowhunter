@@ -478,7 +478,7 @@ class GameComet extends CometActor with Logger {
     var room_box = Room.find(By(Room.id, Room_R.get.id.is)) 
     
     if (room_box.isEmpty) {
-      S.error(<b>找不到村莊</b>)
+      S.error(<b>找不到房間</b>)
       return JsCmds.RedirectTo("main.html")
     }
     

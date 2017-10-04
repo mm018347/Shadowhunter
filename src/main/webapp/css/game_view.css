@@ -6,7 +6,19 @@
   border-color:black;
   border-style:dotted;
 }
-
+.map_table {
+  margin: 10px 0px 20px 0px;
+  border: 1px solid;
+  border-collapse: collapse;
+}
+.map_tr, .map_td {
+  padding: 5px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.map_td {
+  font-size: 90%;
+}
 .voted {background-color: #FF50FF}
 .dead {background-color: #992222}
 .player-mark {background-color: #CCFFFF}
@@ -104,9 +116,6 @@
   border-collapse: collapse;
   width: 100%
 }
-.normal{  /* 通常發言 */
-  font-size:12pt;
-}
 .red {  /* 紅色発言 */
   color: #CC0000;
 }
@@ -124,16 +133,16 @@
 }
 
 .large {  /* 大聲 */
-  font-size: 20pt;
+  font-size: 18pt;
   font-family: bold;
 }
 
 .slightlarge{  /* 稍大聲 */
-  font-size: 16pt;
+  font-size: 15pt;
 }
 
 .normal{ /* 一般 */
-  font-size: 12pt;
+  font-size: 11pt;
 }
 
 .small{ /* 小聲 */
@@ -148,11 +157,11 @@
   vertical-align: middle;
 }
 .user-talk td{border-bottom: 1px dashed #C0C0C0;}
-.user-name{width: 200px;} /* 玩家名名 */
+.user-name{width: 100px;} /* 玩家名名 */
 .user-name span{font-size: 8pt;} /* 獨自發言 */
 .say{ /* 發言內容 */
   margin-left: 1px;
-  width: 1000px;
+  width: 600px;
   /* 草対策：ブラウザ依存があるのでひとまず不使用
   word-wrap: break-word;
   word-break:break-all;
@@ -162,7 +171,7 @@
 .system-message{text-align: left;} /* 系統訊息 */
 .system-message td{
   border-top: 1px dashed #C0C0C0;
-  width: 1000px;
+  width: 600px;
   padding-left: 6em;
   color: #FFFAFA;
   font-weight: bold;
@@ -201,14 +210,14 @@
 .duelist-do{      background-color: #D04060;} /* 決闘者 */
 .mania-do{        background-color: #C0A060;} /* 神話マニア */
 .system-user{ /* 系統玩家 */
-  width: 1000px;
-  padding-left: 6em;
+  width: 600px;
+  padding-left: 2em;
   background-color: #EFEFEF;
   color: #000000;
   font-weight: bold;
 }
 .dummy-boy{ /* 替身君發言 */
-  width: 1000px;
+  width: 600px;
   /* padding-left: 6em; */
   background-color: #F0F8FF;
   color: #000000;
@@ -241,7 +250,7 @@
   font-size: 80%;
 }
 .lastwords-body{ /* 本文 */
-  width: 1000px;
+  width: 600px;
   vertical-align: top;
 }
 /* OutputLastWords() */

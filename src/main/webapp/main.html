@@ -14,7 +14,7 @@
       // ]]>
     </script>
   </head>  
-  <div class="comment">暗影獵人～鸚鵡實驗站</div>
+  <div class="comment">暗影獵人（鸚鵡實驗站）</div>
   <noscript>＜＜請安裝JavaScript＞＞</noscript>
   <table class="main">
     <tr>
@@ -29,63 +29,61 @@
           <li><a href="icon_upload.html">頭像上傳</a></li>
           <li><a href="faq.html">Ｑ＆Ａ</a></li>
           <li><a href="stat.html">統計資料</a>(<a href="stat.html?count=25">25</a>、<a href="stat.html?count=50">50</a>、<a href="stat.html?count=100">100</a>)</li>
-          <li><a href="bbs_list.html">討論區</a></li>
+          <!-- <li><a href="bbs_list.html">討論區</a></li> -->
         </ul>
-        <div class="menu">外部連線</div>
-        <ul>
-          <li><a href="http://pc357308.no-ip.org">小緯伺服器</a></li>
+		<div class="menu">交流</div>
+		<ul>
+		  <li><a href="https://www.facebook.com/groups/789475714409882/">Facebook社團</a></li>
+		</ul>
+		<div class="menu">外部</div>
+		<ul>
+		  <li><a href="http://diam.ngct.net/">鑽石伺服器（人狼）</a></li>
+		  <li><a href="http://jigokutushin.net/jinro/">地獄通信伺服器（人狼）</a></li>
+		  <li><a href="http://higurashi.nctucs.org/">寒蟬伺服器（人狼）</a></li>
+		  <li><a href="http://touhou.jigokutushin.net/touhou/index.php">幻想鄉伺服器（人狼）</a></li>
+          <li><a href="http://cheshire.pinomeng.com:82/main.html">鸚鵡實驗站（人狼）</a></li>
+          <li><a href="http://cheshire.pinomeng.com:83/main.html">鸚鵡備份站（人狼）</a></li>
+          <li><a href="http://jinroh.twbbs.org/cabala/sow.cgi">人狼物語</a></li>
+		  <li><a href="http://cheshire.pinomeng.com:85/">紫月人狼</a></li>
         </ul>
       </td>
       <td>
+		<font size="3"><h2></h2></font>
         <fieldset>
-          <legend>伺服器公告</legend>
+          <legend>公告</legend>
           <div class="information"><h2>▉版本 0.2.5A Build 1020106</h2>
-          <h3>本伺服器M群：group576934@msnzone.cn(備用落葉M群：group434262@msnzone.cn)</h3>
-          <h1>▉公告</h1>
-          <font size="4">
+          <font size="2">
             目前遊戲於DEBUG MODE下執行，速度會比正式版慢，<br/>
-            登入遊戲後會自動更新，請不要按 F5。<br/>
-            但若發言或按鈕沒反應時，可能為登出狀態，可按 F5 重新登入。<br/>
+            登入遊戲後會自動更新，請不要按 F5，但若發言或按鈕沒反應時，可能為登出狀態，可按 F5 重新登入。<br/>
+            鸚鵡版調整：奪取或給予裝備時僅針對角色，無法選擇裝備。<br/>
           </font>
+          <h2>▉已知問題</h2>
           <font size="2">
-            目前版本的內容：<br/>
-            1.角色目前只會出現已完成角色(下方之角色選項目前無作用)。<br/>
-            2.鸚鵡版調整：奪取或給予裝備時僅針對角色，無法選擇裝備。<br/>
-          </font>
-          <br/>
-          <h1>▉已知問題(研究中)</h1>
-          <font size="2">
-            1.登入時有時會變成以上一次的資料登入(如上一村)，目前請先重開瀏覽器或更換瀏覽器(應該已修正)。<br/>
+            1.登入時有時會變成以上一次的資料登入(如上一房)。<br/>
             2.行動若快速輸入二次或剛好回合逾時時，會造成回合判斷錯誤(應該已修正，發言重複不擋)。<br/>
             3.回合逾時時，會跳過目前必要性的行動(如翻開卡之後必須要使用，持有妖刀時必須要攻擊)(惡意放棄者直接暴斃)。<br/>
             4.目前程式放入太多資料在Session中，因此遊戲一旦登入之後，不要開其他遊戲視窗(包含觀看其他村或是看過去紀錄)(應該已修正)。<br/>
           </font>
-          <br/>
-          <h1>▉預告</h1>
           <font size="2">
-          </font>
-          <br/>
-          <font size="2">
-          <h4>▉製作＆管理 <span class="parrot">鸚鵡</span> <span class="neutral">柴郡貓</span> 小緯<br/>
-            ▉構想提供 <br/>
+          <h4>▉製作＆管理 <span class="parrot">鸚鵡</span>、<span class="neutral">柴郡貓</span>
           </h4></font></div>
         </fieldset>
         <fieldset>
-          <legend>村莊一覽</legend>
+          <legend>房間一覽</legend>
           <div class="lift:RoomListSnippet">
           </div>
         </fieldset>
         <div class="lift:Msgs?showAll=true"></div>
         <fieldset>
-        <legend>村莊建立</legend>
+        <legend>房間建立</legend>
         <div id="form" class="lift:RoomCreateSnippet?form=post"> 
         <table>
         <tr>
-          <td><label>村莊名稱(20字)：</label></td>
-          <td><input name="room_name"    size="45"/> 村</td>
+          <td><label>房間名稱(20字)：</label></td>
+          <td><input name="room_name"    size="45"/> <small class="explain">村</small></td>
         </tr>
         <tr>
-          <td><label>村莊附註(20字)：</label></td>
+          <td><label>房間附註(20字)：</label></td>
           <td><input name="room_comment" size="45"/></td>
         </tr>
         <tr>
@@ -98,14 +96,14 @@
         </tr>
         <tr>
           <td><label>希望陣營：</label></td>
-          <td><input name="wish_align"/>(可選擇希望的陣營，1/6失敗率)</td>
+          <td><input name="wish_align"/><small class="explain">(可選擇希望的陣營，1/6失敗率)</small></td>
         </tr>
         <tr>
           <td><label>希望職業：</label></td>
-          <td><input name="wish_role"/>(可選擇希望的職業，1/6失敗率，優先於希望陣營)</td>
+          <td><input name="wish_role"/><small class="explain">(可選擇希望的職業，1/6失敗率，優先於希望陣營)</small></td>
         </tr>
         <tr>
-          <td><label>限制時間：</label></td>
+          <td><label>時間限制：</label></td>
           <td>移動：<input name="move_time"     value="15" size="3"/>秒
               行動：<input name="action_time"   value="15" size="3"/>秒
               反應：<input name="reaction_time" value="15" size="3"/>秒
@@ -113,113 +111,113 @@
         </tr>
         <tr>
           <td><label>擴充集職業：</label></td>
-          <td><input name="expansion_role"/></td>
+          <td><input name="expansion_role"/><small class="explain">(開啟擴充職業，詳細請參閱遊戲規則)</small></td>
         </tr>
         <tr>
           <td><label>自製職業：</label></td>
-          <td><input name="custom_role"/></td>
+          <td><input name="custom_role"/><small class="explain">(開啟自製職業1和2，詳細請參閱遊戲規則)</small></td>
         </tr>
         <tr>
           <td><label>無柴郡貓：</label></td>
-          <td><input name="no_cheshire"/></td>
+          <td><input name="no_cheshire"/><small class="explain">(禁止柴郡貓登場)</small></td>
         </tr>
         <tr>
           <td><label>無莉可：</label></td>
-          <td><input name="no_detective"/></td>
+          <td><input name="no_detective"/><small class="explain">(禁止莉可登場)</small></td>
         </tr>
         <tr>
           <td><label>初期位置：</label></td>
-          <td><input name="init_location"/>(每人一開始時亂數於某個地點)</td>
+          <td><input name="init_location"/><small class="explain">(每人一開始時隨機位於某個地點)</small></td>
         </tr>
         <tr>
           <td><label>初期綠卡：</label></td>
-          <td><input name="init_green"/>(每人一開始時對上一家使用綠卡)</td>
+          <td><input name="init_green"/><small class="explain">(每人一開始時對上一家使用綠卡)</small></td>
         </tr>
         <tr>
           <td><label>亂數位置：</label></td>
-          <td><input name="random_position"/>(遊戲開始時，重新調整每人行動位置)</td>
+          <td><input name="random_position"/><small class="explain">(遊戲開始時，重新調整每人行動位置)</small></td>
         </tr>
         <tr>
           <td><label>四中立死亡：</label></td>
-          <td><input name="four_neutral"/>(十人村時，暗影獲勝條件中立死亡人數變更為四人)</td>
+          <td><input name="four_neutral"/><small class="explain">(玩家總數為十人時，暗影獲勝條件的中立死亡人數上修為四人)</small></td>
         </tr>
         <tr>
           <td><label>究極靈魂光線：</label></td>
-          <td><input name="ultrasoul_ray"/>(究極靈魂可使用普通光線，1 點損傷但不限時空之門)</td>
+          <td><input name="ultrasoul_ray"/><small class="explain">(究極靈魂可使用普通光線，1 點損傷但不限時空之門)</small></td>
         </tr>
         <tr>
           <td><label>隱形人抗性：</label></td>
-          <td><input name="unseen_resist"/>(怪異森林的損傷效果對隱形人改為 1 點)</td>
+          <td><input name="unseen_resist"/><small class="explain">(怪異森林的損傷效果對隱形人改為 1 點)</small></td>
         </tr>
         <tr>
           <td><label>吸血鬼吸血調整：</label></td>
-          <td><input name="vampire_weaken"/>(吸血鬼裝備機槍時，吸血改為 1 點)</td>
+          <td><input name="vampire_weaken"/><small class="explain">(吸血鬼裝備機槍時，吸血效果下修為 1 點)</small></td>
         </tr>
         <tr>
           <td><label>女武神攻擊強化：</label></td>
-          <td><input name="valkyrie_enhance"/>(女武神之攻擊力改為 1D6)</td>
+          <td><input name="valkyrie_enhance"/><small class="explain">(女武神之攻擊力改為 1D6)</small></td>
         </tr>
         <tr>
           <td><label>復仇鬼範圍擴大：</label></td>
-          <td><input name="vghost_expand"/>(復仇鬼之復仇範圍改為同區域)</td>
+          <td><input name="vghost_expand"/><small class="explain">(復仇鬼之復仇範圍改為同區域)</small></td>
         </tr>
         <tr>
           <td><label>艾米攻擊強化：</label></td>
-          <td><input name="emi_enhance"/>(艾米開卡後未傳送時，攻擊成功後攻擊力 +1)</td>
+          <td><input name="emi_enhance"/><small class="explain">(艾米開卡後未傳送時，攻擊成功後攻擊力 +1)</small></td>
         </tr>
         <tr>
           <td><label>艾蓮回復之鍊：</label></td>
-          <td><input name="ellen_heal"/>(禁咒之鍊對未開卡之對象使用時，自己回復損傷 4 點)</td>
+          <td><input name="ellen_heal"/><small class="explain">(禁咒之鍊對未開卡之對象使用時，自己回復損傷 4 點)</small></td>
         </tr>
         <tr>
           <td><label>伊凡翻卡回復：</label></td>
-          <td><input name="evan_heal"/>(伊凡因戀人而翻卡時，自己及戀人全回復)</td>
+          <td><input name="evan_heal"/><small class="explain">(伊凡因戀人而翻卡時，自己及戀人全回復)</small></td>
         </tr>
         <tr>
           <td><label>弗蘭克林強化：</label></td>
-          <td><input name="franklin_reuse"/>(弗蘭克林閃電打出1或2時，下回可再使用)</td>
+          <td><input name="franklin_reuse"/><small class="explain">(弗蘭克林閃電打出1或2時，下回可再使用)</small></td>
         </tr>
         <tr>
           <td><label>喬治強化：</label></td>
-          <td><input name="george_reuse"/>(喬治粉碎打出1時，下回可再使用)</td>
+          <td><input name="george_reuse"/><small class="explain">(喬治粉碎打出1時，下回可再使用)</small></td>
         </tr>
         <tr>
           <td><label>天使重生選擇：</label></td>
-          <td><input name="angel_choose"/>(可自選重生對象)</td>
+          <td><input name="angel_choose"/><small class="explain">(可自選重生對象)</small></td>
         </tr>
         <tr>
           <td><label>詛咒人偶嘲弄：</label></td>
-          <td><input name="adecoy_intimate"/>(可使用嘲弄)</td>
+          <td><input name="adecoy_intimate"/><small class="explain">(可使用嘲弄)</small></td>
         </tr>
         <tr>
           <td><label>貝爾多娜攻擊轉職：</label></td>
-          <td><input name="bellandona_choose"/>(攻擊已開卡之玩家攻擊力2以上(須自己已開卡且未被封印)亦可取得職業)</td>
+          <td><input name="bellandona_choose"/><small class="explain">(攻擊已開卡之玩家攻擊力2以上(須自己已開卡且未被封印)亦可取得職業)</small></td>
         </tr>
         <tr>
           <td><label>額外黑卡：匕首</label></td>
-          <td><input name="blackcard_dagger"/>(裝備，自己上一次攻擊失敗時，本次攻擊力為 5，已開卡獵人修正為 6)</td>
+          <td><input name="blackcard_dagger"/><small class="explain">(裝備：自己上一次攻擊失敗時，本次攻擊力為 5，已開卡獵人修正為 6)</small></td>
         </tr>
         <tr>
           <td><label>額外黑卡：拉之鏡</label></td>
-          <td><input name="blackcard_lamirror"/>(指定對象翻開角色卡)</td>
+          <td><input name="blackcard_lamirror"/><small class="explain">(指定對象翻開角色卡)</small></td>
         </tr>
         <tr>
           <td><label>額外白卡：分解茶</label></td>
-          <td><input name="whitecard_tea"/>(沒有裝備時回復 3 點損傷，否則每件裝備造成 1 點損傷)</td>
+          <td><input name="whitecard_tea"/><small class="explain">(沒有裝備時回復 3 點損傷，否則每件裝備造成 1 點損傷)</small></td>
         </tr>
         <tr>
           <td><label>額外白卡：天秤</label></td>
-          <td><input name="whitecard_balance"/>(裝備/道具，回合開始時，可以指定一個目標，和目標均分損傷，尾數捨去)</td>
+          <td><input name="whitecard_balance"/><small class="explain">(裝備/道具：回合開始時，可以指定一個目標，和目標均分損傷，尾數捨去)</small></td>
         </tr>
         <tr>
           <td><label>額外綠卡：獵人回二</label></td>
-          <td><input name="greencard_hunterheal2"/>(新增一張綠卡獵人回二)</td>
+          <td><input name="greencard_hunterheal2"/><small class="explain">(新增一張綠卡獵人回二)</small></td>
         </tr>
         <tr>
           <td><label>額外綠卡：弱者回二</label></td>
-          <td><input name="greencard_lifeunder11_2"/>(新增一張綠卡弱者回二)</td>
+          <td><input name="greencard_lifeunder11_2"/><small class="explain">(新增一張綠卡弱者回二)</small></td>
         </tr>
-        <tr><td class="make" colspan="2"><input id="submit" type="submit" value=" 作成 "/></td></tr>
+        <tr><td class="make" colspan="2"><input id="submit" type="submit" value=" 建立 "/></td></tr>
         </table>
         </div>
         </fieldset>

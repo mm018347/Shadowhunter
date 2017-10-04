@@ -35,3 +35,97 @@ div img{margin: 0;}
 .member   {border: 2px;}
 .location {border: 2px;}
 .card      {border: 2px;}
+h1, h2, h3, h4, h5 {
+  filter: alpha(opacity=80, enabled=80);
+  -moz-opacity: 0.8;
+  opacity: 0.8;
+  margin: 0px;
+  padding: 5px 0px;
+}
+h1 {
+  background-color: #CCFFCC;
+  font-size: 200%;
+}
+h2 {
+  background-color: #CCFFFF;
+  font-size: 150%;
+}
+h3 {
+  background-color: #FFDDDD;
+  font-size: 120%;
+}
+h4 {
+  background-color: #DDDDEE;
+  font-size: 100%;
+}
+h5 {
+  background-color: #DDDDDD;
+  font-size: 90%;
+}
+img {
+  margin-bottom: 1em;
+}
+div {
+  margin: 0.5em 0em 1em 0em;
+}
+div img {
+  margin: 0;
+}
+.member, .member th, .member td {
+  border: 1px solid;
+}
+.member {
+  margin: 20px 20px;
+  padding: 3px;
+  border-collapse: collapse;
+  text-align: right;
+}
+.worning {
+  color: #FF0000;
+}
+.role {
+  margin-left: 20px;
+  padding: 3px;
+}
+.role td {
+  text-align: left;
+}
+.view {
+  margin: 0;
+  border: 0;
+}
+.view img {
+  margin: 0;
+}
+table {
+  margin: 10px 0px 20px 0px;
+  border: 1px solid;
+  border-collapse: collapse;
+}
+caption {
+  margin-left: 1em;
+  color: #CC0000;
+  font-size: 120%;
+  font-weight: bold;
+  text-align: left;
+}
+th, td {
+  padding: 5px;
+  border: 1px solid;
+  text-align: center;
+  white-space: nowrap;
+}
+td {
+  font-size: 90%;
+}
+pre {
+  padding-bottom: 10px;
+}
+ol {
+  line-height: 150%;
+}
+ul {
+  margin-left: -20px;
+  *margin-left: 8px; /* IE6 対応 */
+  list-style-type: circle;
+}

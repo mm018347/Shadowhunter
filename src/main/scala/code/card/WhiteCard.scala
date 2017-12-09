@@ -34,7 +34,7 @@ object WCardBlessing          extends WhiteCard(CardEnum.W_BLESSING, "祝福") w
 object WCardConcealedKnowledge extends WhiteCard(CardEnum.W_CONCEALED_KNOWLEDGE, "隱藏的智慧")
 object WCardGuardianAngel      extends WhiteCard(CardEnum.W_GUARDIAN_ANGEL, "守護天使")
 object WCardFlareOfJudgement  extends WhiteCard(CardEnum.W_FLARE_OF_JUDGEMENT, "閃電制裁")
-object WCardDisenchantedMirror extends WhiteCard(CardEnum.W_DISENCHANTED_MIRROR, "照妖鏡")
+object WCardDisenchantedMirror extends WhiteCard(CardEnum.W_DISENCHANTED_MIRROR, "真實之鏡")
 object WCardFirstAid          extends WhiteCard(CardEnum.W_FIRST_AID, "急救箱") with UserEntryTargetable {
   override def targetable_users(room:Room, roomround:RoomRound, roomphase:RoomPhase, currentuserentry:UserEntry, userentrys_rr:List[UserEntry]) : List[UserEntry] = {
     //val userentrys = UserEntrys_RR.get
@@ -47,6 +47,8 @@ object WCardTea extends WhiteCard(CardEnum.W_TEA, "分解茶")
 object WCardBalance extends WhiteCard(CardEnum.W_BALANCE, "天秤") with Equipment {
   override def equip_name = "秤"
 }
+
+object WCardGoddess extends WhiteCard(CardEnum.W_GODDESS, "療癒女神")
 /*
  * 治療聖水：
 
@@ -93,7 +95,7 @@ object WCardBalance extends WhiteCard(CardEnum.W_BALANCE, "天秤") with Equipme
 
 除了使用者，其他玩家皆扣兩格血量。
 
-照妖鏡：
+真實之鏡：
 
 如果使用者是：吸血鬼、狼人，就必須亮出身分。
 

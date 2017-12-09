@@ -172,10 +172,8 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     if (has_user_flag(UserEntryFlagEnum.BARRIER))
       false
     else {
-      damaged(damaged.is + in)
-      
       val actioner_role = actioner.get_role
-      if ((!is_attack) && (actioner != this) && (actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+      if ((!is_attack) && (actioner != this) && (actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
          (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (in >= 2) ) {
         if (items.length > 0) {
           val robbed_item = GameProcessor.rob_single(actioner, this)
@@ -183,6 +181,31 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
           GameProcessor.check_item_victory(actioner)
         }
       }
+      //特羅修
+      if((get_role == RoleLion) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK))){
+        damaged(damaged.is + math.max(0, in - 1))
+      } else {
+        damaged(damaged.is + in)
+      }
+      
+      true
+    }  
+  }
+  
+  def inflict_g_damage(in : Int, actioner : UserEntry, is_attack : Boolean = false) : Boolean = {
+    if (has_user_flag(UserEntryFlagEnum.BARRIER))
+      false
+    else {
+      val actioner_role = actioner.get_role
+      if ((!is_attack) && (actioner != this) && (actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
+         (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (in >= 2) ) {
+        if (items.length > 0) {
+          val robbed_item = GameProcessor.rob_single(actioner, this)
+          actioner.save
+          GameProcessor.check_item_victory(actioner)
+        }
+      }
+      damaged(damaged.is + in)
       
       true
     }  
@@ -190,17 +213,38 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
   
   def inflict_card_damage(in : Int, actioner : UserEntry) = {
     val result = inflict_damage(in, actioner)
+
     
     if (result && (actioner.get_role == RoleWitch) && (actioner.revealed.is) &&
-        (!actioner.has_user_flag(UserEntryFlagEnum.SEALED) && (this != actioner)))
+        (!actioner.has_user_flag(UserEntryFlagEnum.SEALED) && (this != actioner)) &&
+        (!actioner.has_item(CardEnum.B_MASK) && (this != actioner)))
       add_user_flag(UserEntryFlagEnum.FROG)
       
     result
   }
   
-  def lower_damage(in : Int) = 
-    damaged(math.max(0, damaged.is - in)).remove_user_flag(UserEntryFlagEnum.POISON)
+  def inflict_g_card_damage(in : Int, actioner : UserEntry) = {
+    val result = inflict_g_damage(in, actioner)
+    
+    if (result && (actioner.get_role == RoleWitch) && (actioner.revealed.is) &&
+        (!actioner.has_user_flag(UserEntryFlagEnum.SEALED) && (this != actioner)) &&
+        (!actioner.has_item(CardEnum.B_MASK) && (this != actioner)))
+      add_user_flag(UserEntryFlagEnum.FROG)
+      
+    result
+  }
   
+  def lower_damage(in : Int, userentrys : List[UserEntry]) = {
+    damaged(math.max(0, damaged.is - in)).remove_user_flag(UserEntryFlagEnum.POISON)
+    
+    if((get_role == RoleArsis) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK))){
+      val hunters = userentrys.filter(x => (x.live.is) && (x.get_role.role_side == RoleSideEnum.HUNTER) && (x.revealed.is))
+        hunters.foreach { hunter =>
+          hunter.damaged(math.max(0, hunter.damaged.is - 1))
+          hunter.save
+      }
+    }
+  }
   def get_user_icon : UserIcon = {
     UserIconCache.getOr(user_icon_id.is) { () => 
       UserIcon.find(By(UserIcon.id, user_icon_id.is)) match {

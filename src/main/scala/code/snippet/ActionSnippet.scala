@@ -142,11 +142,11 @@ class ActionSnippet extends Logger {
       
       val action = 
       if ((currentuserentry.get_role == RoleDespair) && (currentuserentry.revealed.is) &&
-          (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)))  
+          (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))  //絕望
         Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString)
                                .actioner_id(currentuserentry.id.is)    
       else if (currentuserentry.has_item(CardEnum.B_MACHINE_GUN))
-        Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString)
+        Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString) //機槍
                                .actioner_id(currentuserentry.id.is)
       else  
         Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ATTACK.toString)
@@ -200,8 +200,11 @@ class ActionSnippet extends Logger {
       else if (actionee.has_item(CardEnum.W_FORTUNE_BROOCH))
         action.action_flags(CardEnum.W_FORTUNE_BROOCH.toString)
       else if ((room.has_flag(RoomFlagEnum.UNSEEN_RESIST) && (actionee.get_role == RoleUnseen) && (actionee.revealed.is) &&
-               (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED))))
+               (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))))
         action.action_flags(RoleEnum.UNSEEN.toString)
+      else if ((actionee.get_role == RoleLion) && (actionee.revealed.is) &&
+               (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)))
+        action.action_flags(RoleEnum.LION.toString)
       
       
       RoomActor ! SignalAction(action)
@@ -1121,5 +1124,34 @@ class ActionSnippet extends Logger {
          "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str1 = x)),
          "balance" -> ajaxSubmit("確定", () => { process; Unblock }),
          "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def strike(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionFighterStrike.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      val target_id : Long = try {
+        target_str.toLong 
+      } catch {case e: Exception => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_FIGHTER_STRIKE.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id).action_flags((random.nextInt(4)+1).toString)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "strike"            -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
 }

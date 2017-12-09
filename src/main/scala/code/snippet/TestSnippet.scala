@@ -60,7 +60,7 @@ class TestSnippet {
     game_hall.save
         
     val room_phase = RoomPhase.create.roomround_id(game_hall.id.is).phase_no(0).phase_type(RoomPhaseEnum.GAMEHALL.toString)
-    room_phase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 10))
+    room_phase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 30))
         
     room_phase.save
         

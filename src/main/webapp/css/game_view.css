@@ -1,4 +1,10 @@
 @import url(core.css);
+@import url("//fonts.googleapis.com/earlyaccess/notosanstc.css");
+@import url("//fonts.googleapis.com/earlyaccess/notosansjp.css");
+
+input, button, select, textarea, body{
+  font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+}
 
 .userentry_table {
   font-size:10pt;
@@ -19,8 +25,8 @@
 .map_td {
   font-size: 90%;
 }
-.voted {background-color: #FF50FF}
-.dead {background-color: #992222}
+.voted {background-color: #ffcdff}
+.dead {background-color: rgba(0,0,0,0.1)}
 .player-mark {background-color: #CCFFFF}
 
 .decor_none {text-decoration: none;}
@@ -147,7 +153,7 @@
 
 .small{ /* 小聲 */
   font-size: 8pt;
-  font-weight: lighter;
+  /*font-weight: lighter;*/
 }
 
 .add-role{font-size: 8pt;} /* 角色表示選項用 */

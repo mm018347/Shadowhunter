@@ -143,7 +143,7 @@ object ActionFlip extends ActionData(MTypeEnum.ACTION_FLIP, "翻開")  {
     
     (roomphase.phase_type.is != RoomPhaseEnum.GAMEHALL.toString) &&
     (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
-    ((role != RoleDaniel) || (currentuserentry.has_user_flag(UserEntryFlagEnum.SEALED))) &&
+    ((role != RoleDaniel) || (currentuserentry.has_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.has_item(CardEnum.B_MASK))) &&
     (!currentuserentry.revealed) &&
     ((role != RoleUnknown) || (currentuserentry.damaged.is < 11))
   }
@@ -436,7 +436,7 @@ object ActionAttack extends ActionData(MTypeEnum.ACTION_ATTACK, "攻擊") with U
 
     val userentrys2 =
       if ((currentuserentry.get_role == RoleDespair) && (currentuserentry.revealed.is) &&
-          (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+          (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))
         userentrys1
       else if (currentuserentry.has_item(CardEnum.B_HANDGUN))
         userentrys1.filter(x => (x.location.is != neighbor) &&
@@ -454,7 +454,7 @@ object ActionAttack extends ActionData(MTypeEnum.ACTION_ATTACK, "攻擊") with U
       userentrys_decoys
     else if (userentrys2.length > 1)
       userentrys2.filterNot(x => (x.get_role == RoleUnseen) && (x.revealed.is) &&
-                                 (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+                                 (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
     else
       userentrys2
   }
@@ -476,7 +476,7 @@ object ActionMultiAttack extends ActionData(MTypeEnum.ACTION_MULTIATTACK, "範�
 
     val userentrys2 =
       if ((currentuserentry.get_role == RoleDespair) && (currentuserentry.revealed.is) &&
-          (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+          (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))
         userentrys1
       else if (currentuserentry.has_item(CardEnum.B_HANDGUN))
         userentrys1.filter(x => (x.location.is != neighbor) &&
@@ -494,7 +494,7 @@ object ActionMultiAttack extends ActionData(MTypeEnum.ACTION_MULTIATTACK, "範�
     //  userentrys_decoys
     else if (userentrys2.length > 1)
       userentrys2.filterNot(x => (x.get_role == RoleUnseen) && (x.revealed.is) &&
-                                 (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+                                 (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
     else
       userentrys2
   }
@@ -605,7 +605,7 @@ object ActionWerewolfAmbush extends ActionData(MTypeEnum.ACTION_WEREWOLF_AMBUSH,
     (roomphase.phase_type.is != RoomPhaseEnum.GAMEHALL.toString) &&
     (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (!currentuserentry.revealed)
   }
   
@@ -620,7 +620,7 @@ object ActionAllieMotherLove extends ActionData(MTypeEnum.ACTION_ALLIE_MOTHERLOV
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -635,7 +635,7 @@ object ActionUltrasoulRay extends ActionData(MTypeEnum.ACTION_ULTRASOUL_RAY, "�
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed) 
   }
   
@@ -657,7 +657,7 @@ object ActionUltrasoulUray extends ActionData(MTypeEnum.ACTION_ULTRASOUL_URAY, "
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed) 
   }
   
@@ -680,7 +680,7 @@ object ActionEllenCurseChain extends ActionData(MTypeEnum.ACTION_ELLEN_CURSECHAI
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -702,7 +702,7 @@ object ActionFranklinLightning extends ActionData(MTypeEnum.ACTION_FRANKLIN_LIGH
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -723,7 +723,7 @@ object ActionFukaDynamiteHeal extends ActionData(MTypeEnum.ACTION_FUKA_DYNAMITEH
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -752,7 +752,7 @@ object ActionGeorgeDemolish extends ActionData(MTypeEnum.ACTION_GEORGE_DEMOLISH,
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -773,7 +773,7 @@ object ActionGregorBarrier extends ActionData(MTypeEnum.ACTION_GREGOR_BARRIER, "
     (roomphase.phase_type.is == RoomPhaseEnum.POST_ATTACK.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -787,7 +787,7 @@ object ActionWightManipulate extends ActionData(MTypeEnum.ACTION_WIGHT_MANIPULAT
     (roomphase.phase_type.is == RoomPhaseEnum.POST_ATTACK.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }  
   
@@ -821,7 +821,7 @@ object ActionCharlesBloodfeast extends ActionData(MTypeEnum.ACTION_CHARLES_BLOOD
     (roomphase.phase_type.is == RoomPhaseEnum.POST_ATTACK.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.damaged.is < 9) && 
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }  
 
@@ -846,7 +846,7 @@ object ActionDavidGravedig extends ActionData(MTypeEnum.ACTION_DAVID_GRAVEDIG, "
     (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -873,7 +873,7 @@ object ActionFatherOconnelPray extends ActionData(MTypeEnum.ACTION_FATHEROCONNEL
     (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
   
@@ -898,7 +898,7 @@ object ActionCassandraFateChange extends ActionData(MTypeEnum.ACTION_CASSANDRA_F
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.player.is == currentuserentry.id.is) &&
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
     (currentuserentry.revealed) &&
     (currentuserentry.items.length != 0)
@@ -942,7 +942,7 @@ object ActionBombBomb extends ActionData(MTypeEnum.ACTION_BOMB_BOMB, "炸彈") w
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
     (currentuserentry.revealed)
   }
@@ -958,7 +958,7 @@ object ActionAngelReincarnate extends ActionData(MTypeEnum.ACTION_ANGEL_REINCARN
     (room.has_flag(RoomFlagEnum.ANGEL_CHOOSE)) &&
     (roomphase.phase_type.is != RoomPhaseEnum.GAMEHALL.toString) &&
     (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED))
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK))
   }
   
   override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
@@ -977,7 +977,7 @@ object ActionEvanBraceup extends ActionData(MTypeEnum.ACTION_EVAN_BRACEUP, "振�
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed) &&
     (userentrys_rr.filter(x => (x.has_user_flag(UserEntryFlagEnum.LOVER)) && (x.live.is)).length <= 1)
   }
@@ -999,7 +999,7 @@ object ActionFengKikou extends ActionData(MTypeEnum.ACTION_FENG_KIKOU, "氣功")
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.phase_type.is == RoomPhaseEnum.ATTACK.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.FROG)) &&
     (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.TAUNT)) &&
     (currentuserentry.revealed) &&
@@ -1015,7 +1015,7 @@ object ActionADecoyTaunt extends ActionData(MTypeEnum.ACTION_ADECOY_TAUNT, "嘲�
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
     (currentuserentry.revealed) 
   }
@@ -1029,7 +1029,7 @@ object ActionGodfatExchange extends ActionData(MTypeEnum.ACTION_GODFAT_EXCHANGE,
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
     (currentuserentry.revealed) 
   }
@@ -1051,7 +1051,7 @@ object ActionDetectiveReasonA extends ActionData(MTypeEnum.ACTION_DETECTIVE_REAS
     (roomround.round_no.is != 1) &&
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
-    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED))
   }
   
@@ -1094,5 +1094,26 @@ object ActionWhiteCardBalance extends ActionData(MTypeEnum.ACTION_WHITECARD_BALA
   }
   
   override def js_command : JsCmd = js_dialog("balance_dialog")
+}
+
+object ActionFighterStrike extends ActionData(MTypeEnum.ACTION_FIGHTER_STRIKE, "嗜天斬") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.revealed)
+  }
+  
+  /* override def targetable_users : List[UserEntry] = {
+    val currentuserentry = CurrentUserEntry_R.get
+    val userentrys = UserEntrys_RR.get
+    
+    userentrys.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is))
+  } */
+  
+  override def js_command : JsCmd = js_dialog("strike_dialog")
 }
 

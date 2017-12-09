@@ -1,4 +1,10 @@
 @import url(icon.css);
+@import url("//fonts.googleapis.com/earlyaccess/notosanstc.css");
+@import url("//fonts.googleapis.com/earlyaccess/notosansjp.css");
+
+input, button, select, textarea, body{
+  font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+}
 /* body{background-image: url("../img/entry_user/bg2.gif");} */
 table.main{
   /* background-image:url("../img/entry_user/bg.gif"); */

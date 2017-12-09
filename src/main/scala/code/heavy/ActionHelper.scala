@@ -154,14 +154,34 @@ object ActionHelper extends Logger {
         }
         
         if (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) {
-          if ((role == RoleCatherine) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
-            actioner.lower_damage(1)
-          if ((role == RoleGinger) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+          if ((role == RoleCatherine) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)))
+            actioner.lower_damage(1, userentrys)
+          if ((role == RoleGinger) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
             val shadow_rl = userentrys.filter(x => (x.live.is) && (!x.revoked.is) && (x.get_role.role_side == RoleSideEnum.SHADOW)) 
             val hunter_rl = userentrys.filter(x => (x.live.is) && (!x.revoked.is) && (x.get_role.role_side == RoleSideEnum.HUNTER)) 
             if (shadow_rl.length > hunter_rl.length)
-              actioner.lower_damage(2)
+              actioner.lower_damage(2, userentrys)
             }
+          //審判淨化
+          if ((role == RoleJudgment) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && (roomphase.player.is == actioner.id.is)) {
+            val userall_rl = userentrys.filter(x => (x.live.is) && (!x.revoked.is) && (x.get_role != RoleJudgment))
+            userall_rl.foreach { userentry =>
+              userentry.damaged(7)
+              userentry.save
+            }
+            val talk = Talk.create.roomround_id(action.roomround_id.is).actioner_id(actioner.id.is)
+                                 .mtype(MTypeEnum.ACTION_JUDGMENTACK.toString)
+            talk.save
+            talk.send(actioner.room_id.is)
+          }
+          //多提
+          if ((role == RoleHunsoul) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && (roomphase.player.is == actioner.id.is)) {
+            actioner.lower_damage(4, userentrys)
+            val talk = Talk.create.roomround_id(action.roomround_id.is).actioner_id(actioner.id.is)
+                                 .mtype(MTypeEnum.ACTION_HUNSOULLOWER.toString)
+            talk.save
+            talk.send(actioner.room_id.is)
+          }
         }
         
         //val role = actioner.get_role
@@ -190,7 +210,7 @@ object ActionHelper extends Logger {
         
         actioner.revealed(true)
         actioner.save
-        
+        //全員翻開
         val live_unrevealed = userentrys.filter(x => (x.get_role != RoleDetective) &&(x.live.is) && (!x.revealed.is) && (!x.revoked.is))
         if (live_unrevealed.length == 0) {
           val live_detectives = userentrys.filter(x =>(x.get_role == RoleDetective) && (x.live.is))
@@ -199,6 +219,14 @@ object ActionHelper extends Logger {
             live_detective.damaged(99)
             GameProcessor.check_death(live_detective, live_detective, action, userentrys)
             live_detective.damaged(saved_damaged).save
+          }
+        }
+        val live_unrevealed2 = userentrys.filter(x => (x.live.is) && (!x.revealed.is) && (!x.revoked.is))
+        if (live_unrevealed2.length == 0) {
+          val live_judgments = userentrys.filter(x =>(x.get_role == RoleJudgment) && (x.live.is))
+          live_judgments.foreach { live_judgment =>
+            live_judgment.add_user_flag(UserEntryFlagEnum.VICTORY)
+            live_judgment.save
           }
         }
 
@@ -230,7 +258,7 @@ object ActionHelper extends Logger {
               //(LocationHelper.neighbor(room, actioner.location.is.toString) == action.action_flags.is.toString) &&
               ((LocationHelper.left(room, actioner.location.is.toString) == action.action_flags.is.toString) ||
                (LocationHelper.right(room, actioner.location.is.toString) == action.action_flags.is.toString)) &&
-              (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+              (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)))
             (action.action_flags.is.toString, LocationEnum.TELEPORT.toString)
           else  {
             if ((actioner.get_role == RoleEmi) && (actioner.revealed) &&
@@ -255,7 +283,7 @@ object ActionHelper extends Logger {
            ((room.has_flag(RoomFlagEnum.VGHOST_EXPAND)) && (x.location.is == LocationHelper.neighbor(room, new_location_str))))
           &&
           (x.live.is) && (x.revealed.is) && (x.get_role == RoleVengefulGhost) &&
-          (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+          (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
         
         var update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE)
          
@@ -263,8 +291,13 @@ object ActionHelper extends Logger {
           if (((!actioner.revealed) || (actioner.get_role.role_side != RoleSideEnum.SHADOW)) && (vengeful_ghosts.length != 0)) {
             if (actioner.inflict_damage(2, vengeful_ghosts(0))) {
               GameProcessor.check_death(actioner, vengeful_ghosts(0), action, userentrys)
-              update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
-              "，並受到 2 點損傷"
+              if((actioner.get_role == RoleLion) && (actioner.revealed)){
+                update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
+                "，並受到 1 點損傷(特羅修)"
+              } else {
+                update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
+                "，並受到 2 點損傷"
+              }
             } else ""
           } else ""
         
@@ -272,6 +305,25 @@ object ActionHelper extends Logger {
                        .message("1D6=" + random1d6 + ",1D4=" + random1d4 + " 移動結果：" + LocationEnum.get_cname(display_location_str) + vengeful_ghost_str)
         talk.save
         talk.send(actioner.room_id.is)
+        //火馬
+        if (actioner.has_item(CardEnum.B_FIREHORSE)) {
+          val location_users = userentrys.filter(x => ((x.location.is == LocationHelper.neighbor(room, new_location_str)) || (x.location.is == new_location_str)) && (x.id.is != actioner.id.is) && (x.hasnt_item(CardEnum.W_TALISMAN)))
+          location_users.foreach { location_user =>
+            val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_MOVE.toString)
+                       .message("駕駕！ " + location_user.handle_name.is + " 受到 1 點損傷(煉獄馬)")
+            talk.save
+            talk.send(actioner.room_id.is)
+            if ((location_user.get_role == RoleLion) && (location_user.revealed.is) && (location_user.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (location_user.hasnt_item(CardEnum.B_MASK))) {
+              val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(location_user.id.is)
+              talk.save
+              talk.send(actioner.room_id.is)
+            }
+            if (location_user.inflict_damage(1, location_user)) {
+              GameProcessor.check_death(location_user, location_user, action, userentrys)
+              location_user.save
+            }
+          }
+        }
         
         actioner.save
 
@@ -310,12 +362,20 @@ object ActionHelper extends Logger {
             GameProcessor.check_death(actioner, actionee, action, userentrys)
           if (!actioner.live.is)
             actionee.add_user_flag(UserEntryFlagEnum.VICTORY).save
-        }
-        else if (actionee.inflict_damage(attack_power, actioner, true))
+        } else if ((actioner.get_role == RoleBorogove) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+          if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is)) {
+            //波若哥夫
+            val lower_power = attack_power / 2
+            actionee.lower_damage(lower_power, userentrys)
+          } else {
+            actionee.inflict_damage(attack_power, actioner, true)
+            GameProcessor.check_death(actionee, actioner, action, userentrys)
+          }
+        } else if (actionee.inflict_damage(attack_power, actioner, true))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
         
         val is_ambush =         
-          if ((!actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+          if ((!actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)) &&
               (actionee.has_role_flag(UserEntryRoleFlagEnum.AMBUSH))){
             GameProcessor.flip(actionee, action, userentrys)
             true  
@@ -324,12 +384,12 @@ object ActionHelper extends Logger {
         val is_adecoy =
           ((room.has_flag(RoomFlagEnum.ADECOY_INTIMATE)) &&
            (actioner.get_role == RoleADecoy) && (actioner.revealed.is) &&
-           (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (attack_power == 0))
+           (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && (attack_power == 0))
         
         val is_actionee_live = (actionee.live.is)
           
         // 狼人反擊
-        if (is_adecoy || ((actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)))) {
+        if (is_adecoy || ((actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)))) {
           val action1 = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_WEREWOLF_COUNTER.toString)
                               .actioner_id(actionee.id.is).actionee_id(actioner.id.is)
           action1.save
@@ -386,7 +446,7 @@ object ActionHelper extends Logger {
             new_roomround.save
 
             val talk = Talk.create.roomround_id(new_roomround.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
-                           .message("第 " + (new_roomround.round_no.is.toString) + " 日 "+ (new java.util.Date).toString)
+                           .message("第 " + (new_roomround.round_no.is.toString) + " 回合 "+ (new java.util.Date).toString)
             talk.save
           } else
             player_index = player_index + 1
@@ -420,12 +480,17 @@ object ActionHelper extends Logger {
         
         if (actionee.inflict_damage(kikou_damage, actioner))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
-        
+      
+        if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+          talk.save
+          talk.send(actioner.room_id.is)
+        }
         // 檢查遊戲是否結束
         if (!GameProcessor.check_victory(room, roomround, userentrys)) {
           post_attack_or_next_player(room, roomround, roomphase, userentrys)
         }  
-        
+        //範圍攻擊
       case MTypeEnum.ACTION_MULTIATTACK =>
         val actionee_s = ActionMultiAttack.targetable_users(room, roomround, roomphase, actioner, userentrys)
         val death_number = userentrys.filter(x => !x.live.is).length
@@ -443,11 +508,20 @@ object ActionHelper extends Logger {
               GameProcessor.check_death(actioner, actionee, action, userentrys)
             if (!actioner.live.is)
               actionee.add_user_flag(UserEntryFlagEnum.VICTORY).save
+          } else if ((actioner.get_role == RoleBorogove) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+            if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is)) {
+              //波若哥夫
+              val lower_power = attack_power / 2
+              actionee.lower_damage(lower_power, userentrys)
+            } else {
+              actionee.inflict_damage(attack_power, actioner, true)
+              GameProcessor.check_death(actionee, actioner, action, userentrys)
+            }
           } else if (actionee.inflict_damage(attack_power, actioner, true))
             GameProcessor.check_death(actionee, actioner, action, userentrys)
         
           val is_ambush =         
-          if ((!actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+          if ((!actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)) &&
               (actionee.has_role_flag(UserEntryRoleFlagEnum.AMBUSH))){
             GameProcessor.flip(actionee, action, userentrys)
             true  
@@ -456,12 +530,12 @@ object ActionHelper extends Logger {
           val is_adecoy =
             ((room.has_flag(RoomFlagEnum.ADECOY_INTIMATE)) &&
              (actioner.get_role == RoleADecoy) && (actioner.revealed.is) &&
-             (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (attack_power == 0))
+             (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && (attack_power == 0))
 
           val is_actionee_live = (actionee.live.is)
           
           // 狼人反擊
-          if (is_adecoy || ((actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)))) {
+          if (is_adecoy || ((actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)))) {
             val action1 = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_WEREWOLF_COUNTER.toString)
                                .actioner_id(actionee.id.is).actionee_id(actioner.id.is)
             action1.save
@@ -526,15 +600,22 @@ object ActionHelper extends Logger {
         if (actionee.hasnt_item(CardEnum.W_FORTUNE_BROOCH)) {
           val locdamage_damage = 
             if ((actionee.get_role == RoleUnseen) && (actionee.revealed.is) &&
-               (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)))1
+               (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)))1
             else 2
           
           if (actionee.inflict_damage(locdamage_damage, actioner)) {
             if ((actioner.get_role == RoleWitch) && (actioner.revealed.is) &&
-                (!actioner.has_user_flag(UserEntryFlagEnum.SEALED))) 
+                (!actioner.has_user_flag(UserEntryFlagEnum.SEALED)) && (!actioner.has_item(CardEnum.B_MASK))) 
               actionee.add_user_flag(UserEntryFlagEnum.FROG)
             GameProcessor.check_death(actionee, actioner, action, userentrys)
           }
+          /*
+          if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+            val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+            talk.save
+            talk.send(actioner.room_id.is)
+          }
+          */
         }
         
         if (!GameProcessor.check_victory(room, roomround, userentrys)) {
@@ -552,8 +633,14 @@ object ActionHelper extends Logger {
         val actionee_id = action.actionee_id.is
         val actionee : UserEntry = UserEntry.get(actionee_id, userentrys)
 
-        actionee.lower_damage(1)
+        actionee.lower_damage(1, userentrys)
         actionee.save
+        
+        if ((actionee.get_role == RoleArsis) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actioner.id.is)
+          talk_a.save
+          talk_a.send(actioner.room_id.is)
+        }
         
         val new_phase = RoomPhase.create.roomround_id(roomround.id.is).phase_no(roomphase.phase_no.is + 1).additional(roomphase.additional.is)
                                  .phase_type(RoomPhaseEnum.ATTACK.toString).player(roomphase.player.is)
@@ -636,6 +723,12 @@ object ActionHelper extends Logger {
 
         if (actionee.inflict_damage(1, actioner))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
+      
+        if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+          talk.save
+          talk.send(actioner.room_id.is)
+        }
 
         // 檢查死亡和勝利條件
         actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED).save
@@ -661,6 +754,12 @@ object ActionHelper extends Logger {
 
         if (actionee.inflict_damage(3, actioner))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
+      
+        if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+          talk.save
+          talk.send(actioner.room_id.is)
+        }
 
         // 檢查死亡和勝利條件
         actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED).save
@@ -687,7 +786,7 @@ object ActionHelper extends Logger {
         actionee.save
         
         if (room.has_flag(RoomFlagEnum.ELLEN_HEAL) && (!actionee.revealed.is))
-          actioner.lower_damage(4)
+          actioner.lower_damage(4, userentrys)
         actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED).save
         roomphase.deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.reaction_time.is)).save
         
@@ -706,6 +805,12 @@ object ActionHelper extends Logger {
 
         if (actionee.inflict_damage(damage, actioner))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
+      
+        if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+          talk.save
+          talk.send(actioner.room_id.is)
+        }
 
         // 檢查死亡和勝利條件
         if (room.has_flag(RoomFlagEnum.FRANKLIN_REUSE) &&(damage <= 2))
@@ -762,12 +867,67 @@ object ActionHelper extends Logger {
 
         if (actionee.inflict_damage(damage, actioner))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
+      
+        if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+          talk.save
+          talk.send(actioner.room_id.is)
+        }
 
         // 檢查死亡和勝利條件
         if (room.has_flag(RoomFlagEnum.GEORGE_REUSE) && (damage <= 1))
           actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)
         else
           actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)
+        actioner.save
+        roomphase.deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.reaction_time.is)).save
+
+        //val room = Room.find(By(Room.id, actioner.room_id.is)).get
+        //val userentrys = UserEntry.findAll(By(UserEntry.room_id, actioner.room_id.is))
+        //val roomround = RoomRound.find(By(RoomRound.room_id, room.id.is),
+        //                               OrderBy(RoomRound.round_no, Descending)).get
+        //val roomphase = RoomPhase.find(By(RoomPhase.roomround_id, roomround.id.is),
+        //                               OrderBy(RoomPhase.phase_no, Descending)).get
+
+        if (!GameProcessor.check_victory(room, roomround, userentrys)) {
+          RoomActor.sendRoomMessage(actioner.room_id.is, SessionVarSet(room = room, userentrys = userentrys))
+          RoomActor.sendRoomMessage(actioner.room_id.is, RoomForceUpdate(actioner.room_id.is ,List(ForceUpdateEnum.USER_TABLE)))
+          RoomActor.sendUserEntryMessage(actioner.id.is, UserEntryForceUpdate(actioner.id.is, List(ForceUpdateEnum.ACTION_BAR)))
+        }
+      //嗜天斬
+      case MTypeEnum.ACTION_FIGHTER_STRIKE =>
+        //val actioner  = UserEntry.find(By(UserEntry.id, actioner_id)).get
+        val actionee_id = action.actionee_id.is
+        val actionee : UserEntry = UserEntry.get(actionee_id, userentrys)
+
+        val damage = try {
+          action.action_flags.is.toInt}
+          catch {case e : Exception => 0}
+        val actionee_equips = actionee.items
+
+        if (actionee.inflict_damage(damage + actionee_equips.length, actioner)){
+          if (actionee_equips.length > 0) {
+            val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_FIGHTER_STRIKE2.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+                                  .message_flags(actionee_equips.length.toString)
+            talk.save
+            talk.send(actioner.room_id.is)
+            actionee.items.foreach { actionee_item =>
+            val card = CardPool.find(By(CardPool.room_id, actionee.room_id.is),
+                                    By(CardPool.card, actionee_item.card_enum.toString)).get
+              card.owner_id(0).discarded(true).save
+            }
+            actionee.item_flags("")
+          }
+          if ((actionee.get_role == RoleLion) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+            val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+            talk.save
+            talk.send(actioner.room_id.is)
+          }
+          GameProcessor.check_death(actionee, actioner, action, userentrys)
+        }
+
+        // 檢查死亡和勝利條件
+        actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)
         actioner.save
         roomphase.deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.reaction_time.is)).save
 
@@ -802,7 +962,7 @@ object ActionHelper extends Logger {
       
       case MTypeEnum.ACTION_NEXTROUND =>
         GameProcessor.next_player(room, roomround, roomphase, userentrys)  
-        
+        //血祭
       case MTypeEnum.ACTION_CHARLES_BLOODFEAST =>
         val actionee_id = action.actionee_id.is
         val actionee : UserEntry = UserEntry.get(actionee_id, userentrys)
@@ -821,18 +981,19 @@ object ActionHelper extends Logger {
             actionee.add_user_flag(UserEntryFlagEnum.VICTORY).save
         } else if (actionee.inflict_damage(attack_power, actioner, true))
           GameProcessor.check_death(actionee, actioner, action, userentrys)
+      
         if (actioner.inflict_damage(2, actioner))
           GameProcessor.check_death(actioner, actioner, action, userentrys)
 
         val is_ambush =         
-          if ((!actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) &&
+          if ((!actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)) &&
               (actionee.has_role_flag(UserEntryRoleFlagEnum.AMBUSH))){
             GameProcessor.flip(actionee, action, userentrys)
             true  
           } else false
         
         // 狼人反擊
-        if ((actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+        if ((actionee.revealed.is) && (actionee.get_role == RoleWerewolf) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
           val action1 = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_WEREWOLF_COUNTER.toString)
                               .actioner_id(actionee.id.is).actionee_id(actioner.id.is)
           action1.save
@@ -1129,7 +1290,7 @@ object ActionHelper extends Logger {
         actionee.damaged(total_damage / 2).save
         roomphase.deadline(PlummUtil.dateAddSecond(new java.util.Date(), room.reaction_time.is)).save
         
-        GameProcessor.check_death(actioner, actionee, action, userentrys)
+        GameProcessor.check_death(actionee, actioner, action, userentrys)
         GameProcessor.check_death(actioner, actioner, action, userentrys)
         GameProcessor.check_victory(room, roomround, userentrys)
         

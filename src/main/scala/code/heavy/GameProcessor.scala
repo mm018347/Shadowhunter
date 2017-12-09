@@ -38,6 +38,12 @@ object GameProcessor extends Logger{
             result = CardEnum.B_DAGGER :: result
           if (room.has_flag(RoomFlagEnum.BLACKCARD_LAMIRROR))
             result = CardEnum.B_LAMIRROR :: result
+          if (room.has_flag(RoomFlagEnum.BLACKCARD_MASK))
+            result = CardEnum.B_MASK :: result
+          if (room.has_flag(RoomFlagEnum.BLACKCARD_DECLINE))
+            result = CardEnum.B_DECLINE :: result
+          if (room.has_flag(RoomFlagEnum.BLACKCARD_FIREHORSE))
+            result = CardEnum.B_FIREHORSE :: result
           result
         case CardTypeEnum.WHITE => 
           var result = CardEnum.WHITE_LIST
@@ -212,7 +218,15 @@ object GameProcessor extends Logger{
   def dispatch_role(room : Room, userentrys : List[UserEntry]) {
     val random = new scala.util.Random
         
-    val shadow_hunter_number = if (userentrys.length>=8) 3 else 2
+    val shadow_hunter_number = 
+      if ((userentrys.length>=10) && (room.has_flag(RoomFlagEnum.NEUTRAL_BACK_2)))
+        5
+      else if ((userentrys.length>=8) && (room.has_flag(RoomFlagEnum.NEUTRAL_BACK_1)))
+        4
+      else if (userentrys.length>=8)
+        3
+      else 
+        2
     val neutral_number       = userentrys.length - 2 * shadow_hunter_number
     
     // 先產生職業清單
@@ -225,6 +239,11 @@ object GameProcessor extends Logger{
         all_role_list = all_role_list filterNot(_ == RoleEnum.CHESHIRE)
       if (room.has_flag(RoomFlagEnum.NO_DETECTIVE))
         all_role_list = all_role_list filterNot(_ == RoleEnum.DETECTIVE)
+    }
+    if (room.has_flag(RoomFlagEnum.CUSTOM_CAT_ROLE)) {
+      all_role_list = all_role_list ++ RoleEnum.CUSTOM_CAT_ROLE_LIST
+      if (room.has_flag(RoomFlagEnum.NO_STARS))
+        all_role_list = all_role_list filterNot(_ == RoleEnum.STARS)
     }
    
     /* var all_role_list = List(
@@ -378,7 +397,7 @@ object GameProcessor extends Logger{
     align_text.append(userentrys_rr.filter(x => RoleEnum.get_role(x.role.is).role_side == RoleSideEnum.NEUTRAL).length)
 
     val talk = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
-                          .message("第 " + (new_round.round_no.is.toString) + " 日 "+ (new java.util.Date).toString)
+                          .message("第 " + (new_round.round_no.is.toString) + " 回合 "+ (new java.util.Date).toString)
     talk.save
     
     val talk2 = Talk.create.roomround_id(new_round.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
@@ -398,7 +417,7 @@ object GameProcessor extends Logger{
                        .actioner_id(userentry.id.is).actionee_id(targetuserentry.id.is).message_flags(card.card.is.toString)
         talk3.save
         
-        val talk4 = CardHelper.process_green_internal(userentry, targetuserentry, CardEnum.get_card(card.card.is.toString))
+        val talk4 = CardHelper.process_green_internal(userentry, targetuserentry, CardEnum.get_card(card.card.is.toString), userentrys_rr)
         talk4.roomround_id(new_round.id.is).save
         
         targetuserentry.save
@@ -410,7 +429,7 @@ object GameProcessor extends Logger{
     
     //RoomActor ! NewRoomRound(room_i, new_round)
   }
-  
+  //死亡處理
   def check_death(actionee : UserEntry, actioner : UserEntry, action : Action, userentrys : List[UserEntry]) : Boolean = {
     val role = actionee.get_role
     //val actioner = userentrys.filter(_.id.is == action.actioner_id.is)(0)
@@ -418,7 +437,7 @@ object GameProcessor extends Logger{
     
     val is_dead =
       if ((role == RoleUnknown) && (!actionee.revealed.is) && (actionee.damaged.is < 14) &&
-          (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
+          (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)))
         false
       else  if (actionee.damaged.is >= role.life)
         true
@@ -496,13 +515,40 @@ object GameProcessor extends Logger{
           val death_number2 = userentrys.filter(x => !x.live.is).length
           if (death_number2 - death_number >= 1)
             actionee.add_user_flag(UserEntryFlagEnum.VICTORY)
+          //多堤
+        } else if (role == RoleHunsoul) {
+          val live_hunter_rs = userentrys.filter(x => (x.live.is) && (x.get_role.role_side == RoleSideEnum.HUNTER) && (x.revealed.is))
+          live_hunter_rs.foreach { live_hunter_r =>
+            val saved_damaged = live_hunter_r.damaged.is
+            live_hunter_r.damaged(99)
+            GameProcessor.check_death(live_hunter_r, actioner, action, userentrys)
+            live_hunter_r.damaged(saved_damaged).save
+            
+            val talk = Talk.create.roomround_id(action.roomround_id.is).actioner_id(actioner.id.is).actionee_id(live_hunter_r.id.is)
+                                 .mtype(MTypeEnum.ACTION_HUNSOULACK.toString)
+            talk.save
+            talk.send(live_hunter_r.room_id.is)
+          }
+          //朵伊
+        } else if (role == RoleShaHeart) {
+          val live_shadow_rs = userentrys.filter(x => (x.live.is) && (x.get_role.role_side == RoleSideEnum.SHADOW) && (x.revealed.is))
+          live_shadow_rs.foreach { live_shadow_r =>
+            val heal1d6 = GameProcessor.random.nextInt(6) + 1
+            live_shadow_r.inflict_damage(heal1d6, actionee)
+            GameProcessor.check_death(live_shadow_r, actioner, action, userentrys)
+
+            val talk = Talk.create.roomround_id(action.roomround_id.is).actioner_id(actioner.id.is).actionee_id(live_shadow_r.id.is)
+                                 .mtype(MTypeEnum.ACTION_SHAHEARTACK.toString).message_flags(heal1d6.toString)
+            talk.save
+            talk.send(live_shadow_r.room_id.is)
+          }
         }
       
         if (actioner_role == RoleBryan) {
           if (role.role_life >= 13) {
             actioner.add_user_flag(UserEntryFlagEnum.VICTORY) 
             actioner.save
-          } else if ((!actioner.revealed) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+          } else if ((!actioner.revealed) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
             flip(actioner, action, userentrys)
           }
         } else if (actioner_role == RoleCharles) {
@@ -521,7 +567,7 @@ object GameProcessor extends Logger{
         }
       
         val live_daniels = userentrys.filter(x => (x.id.is != actionee.id.is) &&
-          (!x.revoked.is) && (x.live.is) && (x.get_role == RoleDaniel) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED) && (!x.revealed.is)))
+          (!x.revoked.is) && (x.live.is) && (x.get_role == RoleDaniel) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK) && (!x.revealed.is)))
         live_daniels.foreach { live_daniel =>
           val action1 = Action.create.roomround_id(action.roomround_id.is).actioner_id(live_daniel.id.is)
                               .mtype(MTypeEnum.ACTION_FLIP.toString)
@@ -567,6 +613,14 @@ object GameProcessor extends Logger{
             live_detective.damaged(99)
             GameProcessor.check_death(live_detective, live_detective, action, userentrys)
             live_detective.damaged(saved_damaged).save
+          }
+        }
+        val live_unrevealed2 = userentrys.filter(x => (x.live.is) && (!x.revealed.is) && (!x.revoked.is))
+        if (live_unrevealed2.length == 0) {
+          val live_judgments = userentrys.filter(x =>(x.get_role == RoleJudgment) && (x.live.is))
+          live_judgments.foreach { live_judgment =>
+            live_judgment.add_user_flag(UserEntryFlagEnum.VICTORY)
+            live_judgment.save
           }
         }
 
@@ -631,7 +685,7 @@ object GameProcessor extends Logger{
     val actionee_equips = actionee.items
     
     if (!actioner.live.is) {
-    } else if (((actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) ||
+    } else if (((actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) ||
         (actioner.has_item(CardEnum.W_SILVER_ROSARY))) {
 
       actioner.item_flags(actioner.item_flags.is.toString + actionee.item_flags.is.toString).save
@@ -764,6 +818,12 @@ object GameProcessor extends Logger{
             val userentrys_live = userentrys_r.filter(_.live.is)
             if ((userentry.live.is) && (userentrys_live.length <= 2))
               userentry.add_user_flag(UserEntryFlagEnum.VICTORY).save
+          case RoleShaHeart =>
+            if (userentrys_r_hunter.length == 0)
+              userentry.add_user_flag(UserEntryFlagEnum.VICTORY).save
+          case RoleHunsoul =>
+            if (userentrys_r_shadow.length == 0)
+              userentry.add_user_flag(UserEntryFlagEnum.VICTORY).save
           case xs => ;
         }
       }
@@ -850,7 +910,7 @@ object GameProcessor extends Logger{
     val userentrys_rl = userentrys.filter(x => (!x.revoked.is) && 
                                            (((x.live.is) && (x.hasnt_room_flag(UserEntryRoomFlagEnum.SKIPPED)))
                                             || (x.id.is == roomphase.player.is)
-                                            || ((x.get_role == RoleUndead) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_room_flag(UserEntryRoomFlagEnum.SUDDENDEATH)))
+                                            || ((x.get_role == RoleUndead) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)) && (x.hasnt_room_flag(UserEntryRoomFlagEnum.SUDDENDEATH)))
                                             ))
     val currentplayer = userentrys.filter(x => x.id.is == roomphase.player.is)(0)
     val old_player_index = userentrys_rl.map(_.id.is).indexOf(roomphase.player.is)
@@ -876,14 +936,14 @@ object GameProcessor extends Logger{
           new_roomround.save
 
           val talk = Talk.create.roomround_id(new_roomround.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
-                         .message("第 " + (new_roomround.round_no.is.toString) + " 日 "+ (new java.util.Date).toString)
+                         .message("第 " + (new_roomround.round_no.is.toString) + " 回合 "+ (new java.util.Date).toString)
           talk.save
         }
         
         val next_player1 = userentrys_rl(player_index)
         if ((!next_player1.live.is) && (next_player1.get_role == RoleUndead) &&
-            (next_player1.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
-          next_player1.lower_damage(1)
+            (next_player1.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (next_player1.hasnt_item(CardEnum.B_MASK))) {
+          next_player1.lower_damage(1, userentrys)
           if (next_player1.damaged.is < RoleUndead.life) {
             next_player1.damaged(8).live(true)
                         .add_user_flag(UserEntryFlagEnum.REVIVED)
@@ -926,13 +986,13 @@ object GameProcessor extends Logger{
       currentplayer.remove_role_flag(UserEntryRoleFlagEnum.ENHANCED)
     currentplayer.save
     
-    if ((next_player.revealed) && (next_player.get_role == RoleCatherine) && (next_player.hasnt_user_flag(UserEntryFlagEnum.SEALED)))
-      next_player.lower_damage(1)
-    if ((next_player.revealed) && (next_player.get_role == RoleGinger) && (next_player.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+    if ((next_player.revealed) && (next_player.get_role == RoleCatherine) && (next_player.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (next_player.hasnt_item(CardEnum.B_MASK)))
+      next_player.lower_damage(1, userentrys)
+    if ((next_player.revealed) && (next_player.get_role == RoleGinger) && (next_player.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (next_player.hasnt_item(CardEnum.B_MASK))) {
       val shadow_rl = userentrys_rl.filter(x => (x.live.is) && (x.get_role.role_side == RoleSideEnum.SHADOW)) // (x.revealed.is) && 
       val hunter_rl = userentrys_rl.filter(x => (x.live.is) && (x.get_role.role_side == RoleSideEnum.HUNTER)) // (x.revealed.is) && 
       if (shadow_rl.length > hunter_rl.length)
-        next_player.lower_damage(2)
+        next_player.lower_damage(2, userentrys)
     }
     if (next_player.has_user_flag(UserEntryFlagEnum.POISON)) {
       next_player.inflict_damage(next_player.user_flags.is.count(_.toString == UserEntryFlagEnum.POISON.toString), 
@@ -963,7 +1023,7 @@ object GameProcessor extends Logger{
       }
     }
   }
-  
+  //翻開處理
   def flip(actioner : UserEntry, action : Action, userentrys : List[UserEntry]) : Unit = {
     val action1 = Action.create.roomround_id(action.roomround_id.is).actioner_id(actioner.id.is)
                                .mtype(MTypeEnum.ACTION_FLIP.toString)
@@ -1014,6 +1074,14 @@ object GameProcessor extends Logger{
         live_detective.damaged(saved_damaged).save
       }
     }
+    val live_unrevealed2 = userentrys.filter(x => (x.live.is) && (!x.revealed.is) && (!x.revoked.is))
+    if (live_unrevealed2.length == 0) {
+      val live_judgments = userentrys.filter(x =>(x.get_role == RoleJudgment) && (x.live.is))
+      live_judgments.foreach { live_judgment =>
+        live_judgment.add_user_flag(UserEntryFlagEnum.VICTORY)
+        live_judgment.save
+      }
+    }
     
     actioner
   }
@@ -1043,7 +1111,7 @@ object GameProcessor extends Logger{
       attack_power = 5
       attack_str = ("攻擊力：" + attack_power)
     } else if (((actioner.revealed.is) && (actioner.get_role == RoleValkyrie) 
-               && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) ||
+               && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) ||
               (actioner.has_item(CardEnum.B_MASAMUNE))) {
       Room.find(By(Room.id, actioner.room_id.is)) match {
         case Full(room) if (room.has_flag(RoomFlagEnum.VALKYRIE_ENHANCE) &&
@@ -1060,6 +1128,7 @@ object GameProcessor extends Logger{
     }
         
     var is_append = false
+    var is_append_text = false
     if (actioner.has_item(CardEnum.W_HOLY_ROBE) || actionee.has_item(CardEnum.W_HOLY_ROBE)) {
       attack_power = math.max(0, attack_power - 1)
       attack_str += "-1(袍)"
@@ -1076,6 +1145,14 @@ object GameProcessor extends Logger{
         attack_str += "-1(闇)"
         is_append = true
       }
+    }
+    
+    if ((actionee.get_role == RoleLion) && (actionee.revealed) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))){
+        //attack_power = math.max(0, attack_power - 1)
+        //減傷已經在最後實際給予損傷時處理
+        attack_str += "-1(特羅)"
+        is_append = true
+        is_append_text = true
     }
     
     
@@ -1095,7 +1172,7 @@ object GameProcessor extends Logger{
       is_append = true
     }
     if (((actioner.revealed.is) && (actioner.get_role == RoleValkyrie) 
-          && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) &&
+          && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) &&
          (actioner.has_item(CardEnum.B_MASAMUNE))) {
       attack_power += 1
       attack_str += "+1(妖)"
@@ -1111,9 +1188,17 @@ object GameProcessor extends Logger{
     //    (!actioner.has_user_flag(UserEntryFlagEnum.SEALED))) 
     //  actionee.add_user_flag(UserEntryFlagEnum.FROG)
     
+    if ((attack_power > 0) && (actioner.get_role.role_side == RoleSideEnum.HUNTER) && (actioner.revealed.is)){
+      val Arsisr = userentrys.filter(x => (x.live.is) && (x.get_role == RoleArsis) && (x.revealed.is) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
+      if(Arsisr.length != 0){
+        attack_power += 1
+        attack_str += "+1(阿爾)"
+        is_append = true
+      }
+    }
     
     if ((attack_power > 0) && (actioner.revealed.is) && (actioner != actionee) &&
-        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
       if ((actioner.get_role == RoleFeng) && (actioner.items.length == 0)){
         if (actionee.items.length <= 1) {
           attack_power += 2
@@ -1127,6 +1212,17 @@ object GameProcessor extends Logger{
         attack_power += 1
         attack_str += "+1(艾米)"
         is_append = true
+      } else if ((actioner.get_role == RoleMars) && (actioner.items.length != 0)){
+        val itemsl = actioner.items.length
+        attack_power += itemsl
+        attack_str += "+" + itemsl + "(修特)"
+        is_append = true
+      } else if ((actioner.get_role == RoleBorogove)){
+        if(!actionee.revealed.is){
+          attack_power += 3
+          attack_str += "+3(波若)"
+          is_append = true
+        }
       } else if (actioner.get_role == RoleWicked) {
         if ((actionee.location.is == LocationEnum.GRAVEYARD.toString) || 
             (actionee.location.is == LocationEnum.WIERD_WOODS.toString)) {
@@ -1167,29 +1263,58 @@ object GameProcessor extends Logger{
         actionee.add_user_flag(UserEntryFlagEnum.POISON)
       }
     }
-    
-    
+    var attack_power_text = attack_power - 1
+    if ((actionee.has_user_flag(UserEntryFlagEnum.BARRIER)) || (actionee.has_user_flag(UserEntryFlagEnum.GUARDIAN)) {
+      is_append = false
+    }
     if (is_append) {
-      attack_str += "=" + attack_power
-    }  
+      if (is_append_text) {
+        attack_str += "=" + attack_power_text
+      } else {
+        attack_str += "=" + attack_power
+      }
+    }
         
     // 吸血鬼回復 HP
     if ((actioner.revealed.is) && (actioner.get_role == RoleVampire) && (attack_power != 0) &&
-        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
-      Room.find(By(Room.id, actioner.room_id.is)) match {
-        case Full(room) if (room.has_flag(RoomFlagEnum.VAMPIRE_WEAKEN) &&
-          actioner.has_item(CardEnum.B_MACHINE_GUN)) => 
-          actioner.lower_damage(1)
-          attack_str += "，並回復 1 點損傷"
-        case xs =>  
-          actioner.lower_damage(2)
-          attack_str += "，並回復 2 點損傷"
+        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+      if ((is_append_text) && (attack_power >= 2)) {
+        Room.find(By(Room.id, actioner.room_id.is)) match {
+          case Full(room) if (room.has_flag(RoomFlagEnum.VAMPIRE_WEAKEN) &&
+            actioner.has_item(CardEnum.B_MACHINE_GUN)) => 
+            actioner.lower_damage(1, userentrys)
+            attack_str += "，並回復 1 點損傷"
+          case xs =>  
+            actioner.lower_damage(2, userentrys)
+            attack_str += "，並回復 2 點損傷"
+        }
+        actioner.save
+      } else if (!is_append_text) {
+        Room.find(By(Room.id, actioner.room_id.is)) match {
+          case Full(room) if (room.has_flag(RoomFlagEnum.VAMPIRE_WEAKEN) &&
+            actioner.has_item(CardEnum.B_MACHINE_GUN)) => 
+            actioner.lower_damage(1, userentrys)
+            attack_str += "，並回復 1 點損傷"
+          case xs =>  
+            actioner.lower_damage(2, userentrys)
+            attack_str += "，並回復 2 點損傷"
+        }
+        actioner.save
       }
-      actioner.save
+    }
+    
+    // 波若哥夫回復 HP
+    if ((actioner.revealed.is) && (actioner.get_role == RoleBorogove) && (attack_power != 0) &&
+        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+      if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is)) {
+        var lower_power = attack_power / 2
+        attack_str += "，將攻擊力轉化為回復 " + lower_power + " 點(波若哥夫)"
+        //傷害回復在最後階段處理
+      }
     }
     
     // 鮑伯搶奪
-    if (((actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) &&
+    if (((actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) &&
        // (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && 
        (attack_power != 0) ) {
       if (actionee.items.length > 0) {
@@ -1212,6 +1337,34 @@ object GameProcessor extends Logger{
       actioner.add_user_flag(UserEntryFlagEnum.MISSED).save
     } else if (attack_power > 0) {
       actioner.remove_user_flag(UserEntryFlagEnum.MISSED).save
+    }
+    
+    //魔渦
+    if ((attack_power > 0) && (actioner_role == RoleBane) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+      val live_hunters = userentrys.filter(x => (x.live.is) && (x.revealed.is) && (!x.revoked.is) && (x.get_role.role_side == RoleSideEnum.HUNTER) && (x.id.is != actionee.id.is))
+      if (live_hunters.length != 0) {
+        live_hunters.foreach { live_hunter =>
+          live_hunter.inflict_damage(2, actioner)
+          live_hunter.save
+        }
+        attack_str += "，其他翻牌的獵人受到 2 點傷害"
+        is_append = true
+      }
+    }
+    
+    //咒封之假面轉移
+    if ((attack_power > 0) && (actioner.has_item(CardEnum.B_MASK))) {
+      actioner.remove_item(CardEnum.B_MASK)
+      actionee.add_item(CardEnum.B_MASK)
+      /*
+      val card = CardPool.find(By(CardPool.room_id, actionee.room_id.is),
+                                 By(CardPool.card, CardEnum.B_MASK.toString)).get
+      card.owner_id(actionee.id.is).discarded(true).save
+      */
+      actioner.save
+      actionee.save
+      attack_str += "，轉移咒封之假面"
+      is_append = true
     }
         
     (attack_power, attack_str)

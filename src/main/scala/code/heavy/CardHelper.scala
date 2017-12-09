@@ -37,13 +37,14 @@ object CardHelper extends Logger {
       val green_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.GREEN.toString))
       
       <span>
-        牌庫剩餘：黑：{black_remains.length.toString} 白：{white_remains.length.toString} 綠：{green_remains.length.toString}
-        棄牌區：黑：{black_discards.length.toString} 白：{white_discards.length.toString} 綠：{green_discards.length.toString}    
+        牌庫：黑：{black_remains.length.toString} 白：{white_remains.length.toString} 綠：{green_remains.length.toString}
+        <br/>
+        棄牌：黑：{black_discards.length.toString} 白：{white_discards.length.toString} 綠：{green_discards.length.toString}    
       </span>
     }
   }
   
-  def process_green_internal(actioner : UserEntry, actionee : UserEntry, card : Card) : Talk = {
+  def process_green_internal(actioner : UserEntry, actionee : UserEntry, card : Card, userentrys: List[UserEntry]) : Talk = {
     //val actioner_role = actioner.get_role
     val actionee_role = actionee.get_hermit_role
     
@@ -59,23 +60,24 @@ object CardHelper extends Logger {
                         .actioner_id(actioner.id.is).actionee_id(actionee.id.is)
        talk1                 
     } else {
+      var arsis_skill = false
       val message =
         card.card_enum match {
           case CardEnum.G_SHADOW_LOSE1        => 
             if (actionee_role.role_side == RoleSideEnum.SHADOW) {
-              if (actionee.inflict_card_damage(1, actioner))
+              if (actionee.inflict_g_card_damage(1, actioner))
                 actionee.handle_name.is + " 受到 1 點損傷"
               else ""
             } else ""
           case CardEnum.G_SHADOW_LOSE2        => 
             if (actionee_role.role_side == RoleSideEnum.SHADOW) {
-              if (actionee.inflict_card_damage(2, actioner))
+              if (actionee.inflict_g_card_damage(2, actioner))
                 actionee.handle_name.is + " 受到 2 點損傷"
               else ""
             } else ""
           case CardEnum.G_HUNTER_LOSE1         => 
             if (actionee_role.role_side == RoleSideEnum.HUNTER) {
-              if (actionee.inflict_card_damage(1, actioner))
+              if (actionee.inflict_g_card_damage(1, actioner))
                 actionee.handle_name.is + " 受到 1 點損傷"
               else ""
             } else ""
@@ -83,7 +85,7 @@ object CardHelper extends Logger {
             if ((actionee_role.role_side == RoleSideEnum.SHADOW) ||
                 (actionee_role.role_side == RoleSideEnum.HUNTER)) {
               if (actionee.item_preferred.is == CardEnum.PREFER_LIFE.toString) {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               } else if ((actionee.item_preferred.is != "") &&
@@ -97,7 +99,7 @@ object CardHelper extends Logger {
                 actionee.save
                 actionee.handle_name.is + " 被搶奪 " + robbed_item.card_name
               } else {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               }
@@ -106,7 +108,7 @@ object CardHelper extends Logger {
             if ((actionee_role.role_side == RoleSideEnum.SHADOW) ||
                 (actionee_role.role_side == RoleSideEnum.NEUTRAL)) {
               if (actionee.item_preferred.is == CardEnum.PREFER_LIFE.toString) {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               } else if ((actionee.item_preferred.is != "") &&
@@ -120,7 +122,7 @@ object CardHelper extends Logger {
                 actionee.save
                 actionee.handle_name.is + " 被搶奪 " + robbed_item.card_name
               } else {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               }
@@ -129,7 +131,7 @@ object CardHelper extends Logger {
             if ((actionee_role.role_side == RoleSideEnum.HUNTER) ||
                 (actionee_role.role_side == RoleSideEnum.NEUTRAL)) {
               if (actionee.item_preferred.is == CardEnum.PREFER_LIFE.toString) {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               } else if ((actionee.item_preferred.is != "") &&
@@ -143,7 +145,7 @@ object CardHelper extends Logger {
                 actionee.save
                 actionee.handle_name.is + " 被搶奪 " + robbed_item.card_name
               } else {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               }
@@ -152,11 +154,11 @@ object CardHelper extends Logger {
             if ((actionee_role.role_side == RoleSideEnum.SHADOW) ||
                 ((actionee_role.role_side == RoleSideEnum.NONE) && (actionee.damaged.is != 0))) {
               if (actionee.damaged.is == 0) {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               } else {
-                actionee.lower_damage(1)
+                actionee.lower_damage(1, userentrys)
                 actionee.handle_name.is + " 回復 1 點損傷"
               } 
             } else ""
@@ -164,35 +166,43 @@ object CardHelper extends Logger {
             if ((actionee_role.role_side == RoleSideEnum.HUNTER) ||
                 ((actionee_role.role_side == RoleSideEnum.NONE) && (actionee.damaged.is != 0))) {
               if (actionee.damaged.is == 0) {
-                if (actionee.inflict_card_damage(2, actioner))
+                if (actionee.inflict_g_card_damage(2, actioner))
                   actionee.handle_name.is + " 受到 2 點損傷"
                 else ""
               } else {
-                actionee.lower_damage(2)
+                if ((actionee_role == RoleArsis) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+                  arsis_skill = true
+                }
+                actionee.lower_damage(2, userentrys)
                 actionee.handle_name.is + " 回復 2 點損傷"
+
               } 
             } else ""
           case CardEnum.G_HUNTER_HEAL1         => 
             if ((actionee_role.role_side == RoleSideEnum.HUNTER) ||
                 ((actionee_role.role_side == RoleSideEnum.NONE) && (actionee.damaged.is != 0))) {
               if (actionee.damaged.is == 0) {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               } else {
-                actionee.lower_damage(1)
+                if ((actionee_role == RoleArsis) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+                  arsis_skill = true
+                }
+                actionee.lower_damage(1, userentrys)
                 actionee.handle_name.is + " 回復 1 點損傷"
+
               } 
             } else ""  
           case CardEnum.G_NEUTRAL_HEAL1        => 
             if ((actionee_role.role_side == RoleSideEnum.NEUTRAL) ||
                 ((actionee_role.role_side == RoleSideEnum.NONE) && (actionee.damaged.is != 0))) {
               if (actionee.damaged.is == 0) {
-                if (actionee.inflict_card_damage(1, actioner))
+                if (actionee.inflict_g_card_damage(1, actioner))
                   actionee.handle_name.is + " 受到 1 點損傷"
                 else ""
               } else {
-                actionee.lower_damage(1)
+                actionee.lower_damage(1, userentrys)
                 actionee.handle_name.is + " 回復 1 點損傷"
               } 
             } else ""
@@ -200,27 +210,33 @@ object CardHelper extends Logger {
             if ((actionee_role.role_life <= 11) ||
                 ((actionee_role.role_side == RoleSideEnum.NONE) && (actionee.damaged.is != 0))) {
               if (actionee.damaged.is == 0) {
-                if (actionee.inflict_card_damage(2, actioner))
+                if (actionee.inflict_g_card_damage(2, actioner))
                   actionee.handle_name.is + " 受到 2 點損傷"
                 else ""
               } else {
-                actionee.lower_damage(2)
+                actionee.lower_damage(2, userentrys)
                 actionee.handle_name.is + " 回復 2 點損傷"
               } 
             } else ""  
           case CardEnum.G_LIFE_OVER12          => 
             if ((actionee_role.role_life >= 12) && (actionee_role != RoleNoEffect))  {
-              if (actionee.inflict_card_damage(2, actioner))
+              if (actionee.inflict_g_card_damage(2, actioner))
                 actionee.handle_name.is + " 受到 2 點損傷"
               else ""
             } else ""
           case CardEnum.G_LIFE_UNDER11         => 
             if ((actionee_role.role_life <= 11) && (actionee_role != RoleNoEffect))  {
-              if (actionee.inflict_card_damage(1, actioner))
+              if (actionee.inflict_g_card_damage(1, actioner))
                 actionee.handle_name.is + " 受到 1 點損傷"
               else ""
             } else ""
         }
+      if (arsis_skill == true) {
+        val talka = Talk.create.mtype(MTypeEnum.ACTION_ARSIS.toString)
+                      .actioner_id(actioner.id.is)
+        talka.save
+	    talka.send(actioner.room_id.is)
+      }
       val talk1_message = if (message == "") "但是什麼也沒發生" else message
       val talk1 = Talk.create.mtype(MTypeEnum.RESULT_GREENCARD.toString)
                       .message(talk1_message)
@@ -248,7 +264,7 @@ object CardHelper extends Logger {
         
     val card = CardEnum.get_card(roomphase.phase_flags.is.toString)
     
-    val talk1 = process_green_internal(actioner, actionee, card)    
+    val talk1 = process_green_internal(actioner, actionee, card, userentrys)    
     talk1.roomround_id(roomround.id.is)
     talk1.save
     talk1.send(actioner.room_id.is)
@@ -271,11 +287,34 @@ object CardHelper extends Logger {
   
   def process_drawwhite(action: Action, room: Room, roomround: RoomRound,
                           roomphase:RoomPhase, actioner: UserEntry, userentrys: List[UserEntry]) = {
-    if ((actioner.get_role == RoleEmma) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+    if ((actioner.get_role == RoleEmma) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
       val live_hunters = userentrys.filter (x => (x.get_role.role_side == RoleSideEnum.HUNTER) &&
                                                  (x.live.is) && (x.revealed.is))
-      live_hunters.foreach { _.lower_damage(1).save }
+      live_hunters.foreach { live_hunter =>
+        live_hunter.lower_damage(1, userentrys)
+        live_hunter.save
+        
+        if ((live_hunter.get_role == RoleArsis) && (live_hunter.revealed.is) && (live_hunter.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (live_hunter.hasnt_item(CardEnum.B_MASK))) {
+          val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actioner.id.is)
+          talk_a.save
+          talk_a.send(actioner.room_id.is)
+        }
+      }
     }
+    
+    //菲爾特白卡回血
+    val live_starss = userentrys.filter (x => (x.get_role == RoleStars) &&
+                                                 (x.live.is) && (x.revealed.is) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
+    if((live_starss.length > 0) && (actioner.get_role != RoleStars) && (actioner.revealed.is) && (actioner.get_role.role_side == RoleSideEnum.SHADOW)){
+      live_starss.foreach { live_stars =>
+        live_stars.lower_damage(1, userentrys)
+        live_stars.save
+        val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_STARS_LOWER.toString).actioner_id(live_stars.id.is)
+        talk_a.save
+        talk_a.send(live_stars.room_id.is)
+      }
+    }
+    
     
     val card = CardEnum.get_card(action.action_flags.is)
     
@@ -290,7 +329,7 @@ object CardHelper extends Logger {
       } else {
         card.card_enum match {
           case CardEnum.W_HOLY_WATER_OF_HEALING =>
-            actioner.lower_damage(2)
+            actioner.lower_damage(2, userentrys)
             actioner.save
           case CardEnum.W_ADVENT                =>
             val role = actioner.get_role
@@ -337,16 +376,49 @@ object CardHelper extends Logger {
           case CardEnum.W_DISENCHANTED_MIRROR   =>
             val role = actioner.get_role
             if ((!actioner.revealed) && (role.role_side == RoleSideEnum.SHADOW) &&
-                (role.role_life >= 12)) {
+                (role.role_life >= 12) && (role != RoleUnknown)) {
               GameProcessor.flip(actioner, action, userentrys)
             }
           case CardEnum.W_TEA   =>
             val items_num = actioner.items.length
-            if (items_num == 0)
-              actioner.lower_damage(3).save
-            else {
+            if (items_num == 0){
+              actioner.lower_damage(3, userentrys)
+              actioner.save
+              
+              val talk_t = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString).actioner_id(actioner.id.is)
+                               .message(actioner.handle_name.is + " 回復 3 點損傷")
+              talk_t.save
+              talk_t.send(actioner.room_id.is)
+              
+              if ((actioner.get_role == RoleArsis) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+                val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actioner.id.is)
+                talk_a.save
+                talk_a.send(actioner.room_id.is)
+              }
+
+            } else {
+              val talk_t = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString).actioner_id(actioner.id.is)
+                               .message(actioner.handle_name.is + " 受到 " + items_num + " 點損傷")
+              talk_t.save
+              talk_t.send(actioner.room_id.is)
               if (actioner.inflict_card_damage(items_num, actioner))
                 GameProcessor.check_death(actioner, actioner, action, userentrys)
+            }
+          case CardEnum.W_GODDESS   =>
+            val l_users = userentrys.filter(x => (x.location.is == LocationHelper.neighbor(room, actioner.location.is)) ||
+                               (x.location.is == actioner.location.is))
+            l_users.foreach { l_user =>
+              l_user.lower_damage(3, userentrys)
+              l_user.save
+              val talk_t = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString).actioner_id(l_user.id.is)
+                               .message(l_user.handle_name.is + " 回復 3 點損傷")
+              talk_t.save
+              talk_t.send(l_user.room_id.is)
+              if ((l_user.get_role == RoleArsis) && (l_user.revealed.is) && (l_user.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (l_user.hasnt_item(CardEnum.B_MASK))) {
+                val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(l_user.id.is)
+                talk_a.save
+                talk_a.send(l_user.room_id.is)
+              }
             }
               
             
@@ -384,14 +456,22 @@ object CardHelper extends Logger {
       case CardEnum.W_BLESSING =>
         val heal1d6 = GameProcessor.random.nextInt(6) + 1
 
-        actionee.lower_damage(heal1d6)
+        actionee.lower_damage(heal1d6, userentrys)
         actionee.save
+
         
         val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString)
                         .message("1D6=" + heal1d6 + "," + actionee.handle_name.is + " 回復 " + heal1d6 + " 點損傷")
                         .actioner_id(actionee.id.is).actionee_id(actioner.id.is)
         talk1.save
         talk1.send(actioner.room_id.is)
+        
+        if ((actionee.get_role == RoleArsis) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actioner.id.is)
+          talk_a.save
+          talk_a.send(actioner.room_id.is)
+          
+        }
 
       case CardEnum.W_FIRST_AID =>
 
@@ -423,13 +503,28 @@ object CardHelper extends Logger {
   
   def process_drawblack(action: Action, room: Room, roomround: RoomRound,
                           roomphase:RoomPhase, actioner: UserEntry, userentrys: List[UserEntry]) = {
-    if ((actioner.get_role == RoleEmma) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED))) {
+    if ((actioner.get_role == RoleEmma) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
       val live_shadows = userentrys.filter (x => (x.get_role.role_side == RoleSideEnum.SHADOW) &&
                                                  (x.live.is) && (x.revealed.is))
       live_shadows.foreach { live_shadow =>
         live_shadow.inflict_damage(1, actioner)
         GameProcessor.check_death(live_shadow, actioner, action, userentrys)
       }
+    }
+    
+    val live_starss = userentrys.filter (x => (x.get_role == RoleStars) &&
+                                                 (x.live.is) && (x.revealed.is) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
+    if((live_starss.length > 0) && (actioner.get_role != RoleStars)){
+      val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_STARS_DAMAGE.toString).actioner_id(actioner.id.is)
+      talk_a.save
+      talk_a.send(actioner.room_id.is)
+      actioner.inflict_damage(2, actioner)
+      if ((actioner.get_role == RoleLion) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+        val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actioner.id.is)
+        talk.save
+        talk.send(actioner.room_id.is)
+      }
+      GameProcessor.check_death(actioner, actioner, action, userentrys)
     }
     
     if (actioner.get_role != RoleCheshire) {
@@ -509,12 +604,49 @@ object CardHelper extends Logger {
               if (actioner.inflict_card_damage(1, actioner))
                 GameProcessor.check_death(actioner, actioner, action, userentrys)
     
-              val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
+              if((actioner.get_role == RoleLion) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))){
+                val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
+                              .message(actioner.handle_name.is + " 受到 1-1 點損傷(特羅修)")
+                talk1.save
+                talk1.send(actioner.room_id.is)
+              } else {
+                val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
                               .message(actioner.handle_name.is + " 受到 1 點損傷")
-              talk1.save
-              talk1.send(actioner.room_id.is)
+                talk1.save
+                talk1.send(actioner.room_id.is)
+              }
+              
             }
             actioner.save
+          case CardEnum.B_PUPIL   =>
+            val role = actioner.get_role
+            if ((!actioner.revealed) && (role.role_side == RoleSideEnum.HUNTER) &&
+                (role.role_life >= 11)) {
+              GameProcessor.flip(actioner, action, userentrys)
+            }
+          case CardEnum.B_DECLINE   =>
+            val live_userentrys = userentrys.filter(x => (!x.revoked.is) && (x.live.is))
+            var max_d = 0
+            var min_d = 14
+            live_userentrys.foreach { live_userentry =>
+              if (live_userentry.damaged.is > max_d){
+                max_d = live_userentry.damaged.is
+              }
+              if (live_userentry.damaged.is < min_d){
+                min_d = live_userentry.damaged.is
+              }
+            }
+            val min_userentrys = userentrys.filter(x => (!x.revoked.is) && (x.live.is) && (x.damaged.is == min_d) && (x.hasnt_item(CardEnum.W_TALISMAN)))
+            min_userentrys.foreach { min_userentry =>
+              val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
+                              .message(min_userentry.handle_name.is + " 的損傷值設定為 " + max_d + " 點")
+              talk1.save
+              talk1.send(min_userentry.room_id.is)
+              
+              min_userentry.damaged(max_d)
+              GameProcessor.check_death(min_userentry, min_userentry, action, userentrys)
+              min_userentry.save
+            }
         }
         RoomPhaseEnum.ATTACK
       }
@@ -546,8 +678,13 @@ object CardHelper extends Logger {
         if (actionee.hasnt_item(CardEnum.W_TALISMAN)) {
           if (actionee.inflict_card_damage(2, actioner))
             GameProcessor.check_death(actionee, actioner, action, userentrys)
-          actioner.lower_damage(1)
+          actioner.lower_damage(1, userentrys)
           actioner.save
+          if ((actioner.get_role == RoleArsis) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+            val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actioner.id.is)
+            talk_a.save
+            talk_a.send(actioner.room_id.is)
+          }
         }
       case CardEnum.B_BLOODTHIRSTY_SPIDER    =>
         val death_number = userentrys.filter(x => !x.live.is).length
@@ -581,16 +718,47 @@ object CardHelper extends Logger {
         val random1d6 = GameProcessor.random.nextInt(6) + 1
         val target = if (random1d6 < 5) actionee else actioner
         
-        val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
+        if((actioner.get_role == RoleLion) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))){
+          val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
+                              .message("1D6=" + random1d6 + ", " + target.handle_name.is + " 受到 3-1 點損傷(特羅修)")
+          talk1.save
+          talk1.send(actioner.room_id.is)
+        } else {
+          val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
                               .message("1D6=" + random1d6 + ", " + target.handle_name.is + " 受到 3 點損傷")
-        talk1.save
-        talk1.send(actioner.room_id.is)
+          talk1.save
+          talk1.send(actioner.room_id.is)
+        }
         
         if (target.inflict_card_damage(3, actioner))
           GameProcessor.check_death(target, actioner, action, userentrys)
       case CardEnum.B_LAMIRROR          =>
         if (!actionee.revealed.is)
           GameProcessor.flip(actionee, action, userentrys)
+      case CardEnum.B_GIVEBLOOD          =>
+        val random1d4 = GameProcessor.random.nextInt(4) + 1
+        val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
+                              .message("1D4=" + random1d4 + " ， " + actioner.handle_name.is + " 受到 " + random1d4 + " 點損傷，" + actionee.handle_name.is + " 回復 " + random1d4 + " 點損傷")
+        talk1.save
+        talk1.send(actioner.room_id.is)
+        if ((actioner.get_role == RoleLion) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+              val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(actioner.id.is)
+              talk.save
+              talk.send(actioner.room_id.is)
+        }
+        if (actioner.hasnt_item(CardEnum.W_TALISMAN)) {
+          if (actioner.inflict_card_damage(random1d4, actioner)) {
+            GameProcessor.check_death(actioner, actioner, action, userentrys)
+          }
+        }
+        actionee.lower_damage(random1d4, userentrys)
+        actionee.save
+        if ((actionee.get_role == RoleArsis) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+          val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actionee.id.is)
+          talk_a.save
+          talk_a.send(actioner.room_id.is)
+        }
+        
     }
 
     if (!GameProcessor.check_victory(room, roomround, userentrys)) {

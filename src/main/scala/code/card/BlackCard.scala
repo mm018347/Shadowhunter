@@ -59,7 +59,19 @@ object BCardDagger             extends BlackCard(CardEnum.B_DAGGER, "匕首") wi
 object BCardLaMirror            extends BlackCard(CardEnum.B_LAMIRROR, "拉之鏡") with UserEntryTargetable {
 }
 
+object BCardMask          extends BlackCard(CardEnum.B_MASK, "咒封之假面") with Equipment {
+  override def equip_name = "面"
+}
+object BCardPupil          extends BlackCard(CardEnum.B_PUPIL, "萬瞳")
 
+object BCardDeclne          extends BlackCard(CardEnum.B_DECLINE, "殞落")
+
+object BCardGiveBlood        extends BlackCard(CardEnum.B_GIVEBLOOD, "輸血") with UserEntryTargetable {
+}
+
+object BCardFireHorse          extends BlackCard(CardEnum.B_FIREHORSE, "煉獄馬") with Equipment {
+  override def equip_name = "馬"
+}
 /*
  * 電鋸、菜刀、斧頭(裝備卡)：
 

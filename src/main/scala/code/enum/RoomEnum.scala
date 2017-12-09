@@ -7,8 +7,12 @@ object RoomFlagEnum extends Enumeration {
   //val DEATH_LOOK     = Value("DL_")
   val EXPANSION_ROLE = Value("R1_")
   val CUSTOM_ROLE     = Value("R2_")
+  val CUSTOM_CAT_ROLE     = Value("RC_")
   val NO_CHESHIRE     = Value("NCR")
   val NO_DETECTIVE    = Value("NDT")
+  val NO_STARS        = Value("NSA")
+  val NEUTRAL_BACK_1  = Value("NB1")
+  val NEUTRAL_BACK_2  = Value("NB2")
 
   val INIT_LOCATION     = Value("IL_")
   val INIT_GREEN        = Value("IG_")
@@ -33,17 +37,24 @@ object RoomFlagEnum extends Enumeration {
   val WHITECARD_TEA      = Value("W01")
   val WHITECARD_BALANCE  = Value("W02")
   val BLACKCARD_DAGGER   = Value("B01")
-  val BLACKCARD_LAMIRROR   = Value("B02")
+  val BLACKCARD_LAMIRROR = Value("B02")
+  val BLACKCARD_MASK     = Value("B03")
+  val BLACKCARD_DECLINE  = Value("B04")
+  val BLACKCARD_FIREHORSE = Value("B05")
   
   val FLAGNAME_MAP   = Map(
     TEST_MODE      -> "｛測試模式｝",
     WISH_ALIGN     -> "<希陣>",
-    WISH_ALIGN     -> "<希職>",
+    WISH_ALIGN     -> "<希角>",
     //DEATH_LOOK     -> "(靈)",
-    EXPANSION_ROLE -> "【擴職】",
-    CUSTOM_ROLE    -> "【自職】",
+    EXPANSION_ROLE -> "【擴角】",
+    CUSTOM_ROLE    -> "【自角】",
+    CUSTOM_CAT_ROLE    -> "【參角】",
     NO_CHESHIRE    -> "【無貓】",
     NO_DETECTIVE    -> "【無莉可】",
+    NO_STARS        -> "【無菲】",
+    NEUTRAL_BACK_1    -> "【暗獵+1】",
+    NEUTRAL_BACK_2   -> "【暗獵+2】",
 
     INIT_LOCATION   -> "{初位}",
     INIT_GREEN      -> "{初綠}",
@@ -62,12 +73,15 @@ object RoomFlagEnum extends Enumeration {
     ANGEL_CHOOSE    -> "(天)",
     ADECOY_INTIMATE   -> "(詛)",
     BELLANDONA_CHOOSE -> "(貝)",
-    GREENCARD_HUNTERHEAL2  -> "[綠1]",
-    GREENCARD_LIFEUNDER11_2 -> "[綠2]",
-    BLACKCARD_DAGGER  -> "[黑1]",
-    BLACKCARD_LAMIRROR  -> "[黑2]",
-    WHITECARD_TEA     -> "[白1]",
-    WHITECARD_BALANCE -> "[白2]"
+    GREENCARD_HUNTERHEAL2  -> "[綠獵]",
+    GREENCARD_LIFEUNDER11_2 -> "[綠弱]",
+    BLACKCARD_DAGGER  -> "[黑匕]",
+    BLACKCARD_LAMIRROR  -> "[黑拉]",
+    BLACKCARD_MASK  -> "[黑面]",
+    BLACKCARD_DECLINE  -> "[黑殞]",
+    BLACKCARD_FIREHORSE -> "[黑馬]",
+    WHITECARD_TEA     -> "[白茶]",
+    WHITECARD_BALANCE -> "[白秤]"
   )
   
   def flag_name(flag : RoomFlagEnum.Value) = {

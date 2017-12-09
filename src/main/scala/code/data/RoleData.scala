@@ -58,6 +58,16 @@ object RoleWitch extends RoleShadow(RoleEnum.WITCH, "女巫", 14)
 
 object RoleWicked extends RoleShadow(RoleEnum.WICKED, "邪惡", 14)
 
+object RoleBane extends RoleShadow(RoleEnum.BANE, "弒魔", 13)
+
+object RoleStars extends RoleShadow(RoleEnum.STARS, "菲爾特", 11)
+
+object RoleFighter extends RoleShadow(RoleEnum.FIGHTER, "伽門羅", 13) {
+  override def movement_skill = List(ActionFighterStrike)
+}
+
+object RoleBorogove extends RoleShadow(RoleEnum.BOROGOVE, "波若哥夫", 13)
+
 // Hunter
 object RoleEllen extends RoleHunter(RoleEnum.ELLEN, "艾蓮", 10) {
   override def movement_skill = List(ActionEllenCurseChain)
@@ -94,6 +104,12 @@ object RoleGinger extends RoleHunter(RoleEnum.GINGER, "金格", 14)
 object RoleGodfat extends RoleHunter(RoleEnum.GODFAT, "哥德法", 14) {
   override def movement_skill = List(ActionGodfatExchange)
 }
+
+object RoleMars extends RoleHunter(RoleEnum.MARS, "修特", 14) 
+
+object RoleLion extends RoleHunter(RoleEnum.LION, "特羅修", 12) 
+
+object RoleArsis extends RoleHunter(RoleEnum.ARSIS, "阿爾西斯", 12) 
 
 // Neutral
 object RoleAgnes extends RoleNeutral(RoleEnum.AGNES, "愛格妮絲", 8)
@@ -144,4 +160,13 @@ object RoleDespair extends RoleNeutral(RoleEnum.DESPAIR, "絕望", 13)
 object RoleDetective extends RoleNeutral(RoleEnum.DETECTIVE, "莉可", 13) {
   override def movement_skill = List(ActionDetectiveReasonA, ActionDetectiveReasonR)
 }
+//自製 Judgment
+//
+object RoleJudgment extends RoleNeutral(RoleEnum.JUDGMENT, "審判", 12)
+
+object RoleShaHeart extends RoleNeutral(RoleEnum.SHAHEART, "朵伊", 8)
+
+object RoleHunsoul extends RoleNeutral(RoleEnum.HUNSOUL, "多提", 13)
+
+//object RoleJudgment extends RoleNeutral(RoleEnum.JUDGMENT, "朵伊", 8)
 

@@ -120,7 +120,7 @@ class RoomCreateSnippet extends StatefulSnippet with Logger{
         game_hall.save
         
         val room_phase = RoomPhase.create.roomround_id(game_hall.id.is).phase_no(0).phase_type(RoomPhaseEnum.GAMEHALL.toString)
-        room_phase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 10))
+        room_phase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 30))
         
         room_phase.save
         
@@ -160,10 +160,14 @@ class RoomCreateSnippet extends StatefulSnippet with Logger{
     //"name=death_look"     #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.DEATH_LOOK)) &
     "name=expansion_role" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.EXPANSION_ROLE)) &
     "name=custom_role"    #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.CUSTOM_ROLE)) &
-    "name=no_cheshire"    #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.NO_CHESHIRE)) &
+    "name=custom_cat_role"    #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.CUSTOM_CAT_ROLE)) &
+    "name=no_cheshire"    #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.NO_CHESHIRE)) &
     "name=no_detective"   #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.NO_DETECTIVE)) &
+    "name=no_stars"       #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.NO_STARS)) &
+    "name=neutral_back_1"   #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.NEUTRAL_BACK_1)) &
+    "name=neutral_back_2"   #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.NEUTRAL_BACK_2)) &
     "name=init_location"  #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.INIT_LOCATION)) &
-    "name=init_green"     #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.INIT_GREEN)) &
+    "name=init_green"     #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.INIT_GREEN)) &
     "name=random_position" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.RANDOM_POSITION)) &
     "name=four_neutral"   #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.FOUR_NEUTRAL)) &
     "name=ultrasoul_ray"  #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.ULTRASOUL_RAY)) &
@@ -176,12 +180,15 @@ class RoomCreateSnippet extends StatefulSnippet with Logger{
     "name=evan_heal"      #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.EVAN_HEAL)) &
     "name=franklin_reuse" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.FRANKLIN_REUSE)) &
     "name=george_reuse"   #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.GEORGE_REUSE)) &
-    "name=angel_choose"   #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.ANGEL_CHOOSE)) &
+    "name=angel_choose"   #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.ANGEL_CHOOSE)) &
     "name=adecoy_intimate" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.ADECOY_INTIMATE)) &
-    "name=bellandona_choose" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.BELLANDONA_CHOOSE)) &
+    "name=bellandona_choose" #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.BELLANDONA_CHOOSE)) &
     "name=blackcard_dagger" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.BLACKCARD_DAGGER)) &
     "name=blackcard_lamirror" #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.BLACKCARD_LAMIRROR)) &
-    "name=whitecard_tea"    #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.WHITECARD_TEA)) &
+    "name=blackcard_mask" #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.BLACKCARD_MASK)) &
+    "name=blackcard_decline" #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.BLACKCARD_DECLINE)) &
+    "name=blackcard_firehorse" #> SHtml.checkbox(false, if (_) option_list = option_list ::: List(RoomFlagEnum.BLACKCARD_FIREHORSE)) &
+    "name=whitecard_tea"    #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.WHITECARD_TEA)) &
     "name=whitecard_balance"    #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.WHITECARD_BALANCE)) &
     "name=greencard_hunterheal2"  #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.GREENCARD_HUNTERHEAL2)) &
     "name=greencard_lifeunder11_2" #> SHtml.checkbox(true, if (_) option_list = option_list ::: List(RoomFlagEnum.GREENCARD_LIFEUNDER11_2)) &

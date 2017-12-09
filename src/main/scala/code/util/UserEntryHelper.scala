@@ -210,7 +210,7 @@ object UserEntryHelper {
     val user_groups = userentrys.grouped(5).toList
     //room:Room, current_user:UserEntry, user_entrys: List[UserEntry], 
 
-    <table border="0" cellpadding="0" cellspacing="5" class="userentry_table"> <tbody>   
+    <table border="0" cellpadding="0" class="userentry_table"> <tbody>   
     { for (user_group <- user_groups) yield <tr> { 
        for (userentry <- user_group) yield user_cell(room, roomphase, currentuserentry, userentry, reveal)
     } </tr> } </tbody></table> 
@@ -226,7 +226,7 @@ object UserEntryHelper {
     val targettable_radios = SHtml.radio(targettable_id_list, Full(targettable_id_list(0)), callback(_))
     
         
-    <table border="0" cellpadding="0" cellspacing="5" class="userentry_table"><tbody>
+    <table border="0" cellpadding="0" class="userentry_table"><tbody>
     { for (user_group <- user_groups) yield <tr> { 
        for (userentry <- user_group) yield {
          val index = targettable_list.indexOf(userentry)
@@ -247,7 +247,7 @@ object UserEntryHelper {
     //val targettable_radios = SHtml.radio(targettable_id_list, Full(targettable_id_list(0)), callback(_))
     
         
-    <table border="0" cellpadding="0" cellspacing="5" class="userentry_table"><tbody>
+    <table border="0" cellpadding="0" class="userentry_table"><tbody>
     { for (user_group <- user_groups) yield <tr> { 
        for (userentry <- user_group) yield {
          val index = targettable_list.indexOf(userentry)
@@ -264,7 +264,7 @@ object UserEntryHelper {
   def user_admin_table(room:Room, roomphase:RoomPhase, userentrys: List[UserEntry]) : NodeSeq = {
     val user_groups = userentrys.grouped(5).toList
 
-    return <table border="0" cellpadding="0" cellspacing="5" style="userentry_table">
+    return <table border="0" cellpadding="0" style="userentry_table">
     { for (user_group <- user_groups) yield <tr> {
        for (userentry <- user_group) yield user_admin_cell(room, roomphase, userentry)
     } </tr> } </table> }

@@ -118,7 +118,7 @@ object RoomActor extends LiftActor with Logger {
           if (roomround.round_no.is == 0) {
             // 更新廢村時間
             val roomphase = RoomPhase.find(By(RoomPhase.roomround_id, roomround.id.is), OrderBy(RoomPhase.phase_no, Descending)).get
-            roomphase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 15)).save
+            roomphase.deadline(PlummUtil.dateAddMinute(new java.util.Date(), 30)).save
           }
         case xs => ;
       }
@@ -244,9 +244,9 @@ object RoomActor extends LiftActor with Logger {
                   userentry1.add_user_flag(UserEntryFlagEnum.VICTORY).save
               }
             }
-		  
+		    //丹尼爾尖叫
             val live_daniels = userentrys.filter(x => (x.id.is != userentry.id.is) &&
-              (!x.revoked.is) && (x.live.is) && (x.get_role == RoleDaniel) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED) && (!x.revealed.is)))
+              (!x.revoked.is) && (x.live.is) && (x.get_role == RoleDaniel) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK) && (!x.revealed.is)))
             live_daniels.foreach { live_daniel =>
               val action1 = Action.create.roomround_id(roomround.id.is).actioner_id(live_daniel.id.is)
                                          .mtype(MTypeEnum.ACTION_FLIP.toString)
@@ -283,6 +283,14 @@ object RoomActor extends LiftActor with Logger {
                 live_detective.damaged(99)
                 GameProcessor.check_death(live_detective, live_detective, action, userentrys)
                 live_detective.damaged(saved_damaged).save
+              }
+            }
+            val live_unrevealed2 = userentrys.filter(x => (x.live.is) && (!x.revealed.is) && (!x.revoked.is))
+            if (live_unrevealed2.length == 0) {
+              val live_judgments = userentrys.filter(x =>(x.get_role == RoleJudgment) && (x.live.is))
+              live_judgments.foreach { live_judgment =>
+                live_judgment.add_user_flag(UserEntryFlagEnum.VICTORY)
+                live_judgment.save
               }
             }
           }  

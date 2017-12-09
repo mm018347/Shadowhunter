@@ -63,6 +63,10 @@ object RoleEnum extends Enumeration {
   val WIGHT     = Value("WI")
   val WITCH      = Value("WT")
   val WICKED     = Value("WC")
+  val BANE     = Value("BN")
+  val STARS     = Value("SA")
+  val FIGHTER     = Value("FH")
+  val BOROGOVE     = Value("BG")
 
   val ELLEN      = Value("EL")
   val EMI        = Value("EM")
@@ -76,6 +80,9 @@ object RoleEnum extends Enumeration {
   val GREGOR    = Value("GR")
   val GINGER     = Value("GI")
   val GODFAT     = Value("GF")
+  val MARS      = Value("MR")
+  val LION      = Value("LO")
+  val ARSIS     = Value("AR")
 
   val AGNES     = Value("AG")
   val ALLIE      = Value("AL")
@@ -93,6 +100,9 @@ object RoleEnum extends Enumeration {
   val DANIEL   = Value("DN")
   val DESPAIR  = Value("DE")
   val DETECTIVE = Value("DT")
+  val JUDGMENT = Value("JM")
+  val SHAHEART = Value("SH")
+  val HUNSOUL = Value("HS")
   
   val ROLE_MAP   = scala.collection.immutable.TreeMap(
     NOEFFECT  -> RoleNoEffect,
@@ -107,8 +117,12 @@ object RoleEnum extends Enumeration {
     VIPER     -> RoleViper, 
     WEREWOLF  -> RoleWerewolf,
     WIGHT     -> RoleWight,
-    WITCH      -> RoleWitch,
-    WICKED     -> RoleWicked,
+    WITCH     -> RoleWitch,
+    WICKED    -> RoleWicked,
+    BANE      -> RoleBane,
+    STARS     -> RoleStars,
+    FIGHTER   -> RoleFighter,
+    BOROGOVE  -> RoleBorogove,
 
     ELLEN     -> RoleEllen,
     EMI       -> RoleEmi,
@@ -120,8 +134,11 @@ object RoleEnum extends Enumeration {
     FUKA      -> RoleFuka,
     GEORGE    -> RoleGeorge,
     GREGOR    -> RoleGregor,
-    GINGER     -> RoleGinger,
-    GODFAT     -> RoleGodfat,
+    GINGER    -> RoleGinger,
+    GODFAT    -> RoleGodfat,
+    MARS      -> RoleMars,
+    LION      -> RoleLion,
+    ARSIS     -> RoleArsis,
 
     AGNES     -> RoleAgnes,
     ALLIE     -> RoleAllie,
@@ -138,81 +155,89 @@ object RoleEnum extends Enumeration {
     DAVID     -> RoleDavid,
     DANIEL    -> RoleDaniel,
     DESPAIR   -> RoleDespair,
-    DETECTIVE -> RoleDetective
+    DETECTIVE -> RoleDetective,
+    JUDGMENT   -> RoleJudgment,
+    SHAHEART   -> RoleShaHeart,
+    HUNSOUL   -> RoleHunsoul
   )
-  
+  //不明欺騙
   val UNKNOWN_DECEIVE_LIST = List(
     UNKNOWN, NOEFFECT, VAMPIRE, WEREWOLF, EMI, FRANKLIN,
      GEORGE, ALLIE, BOB, CHARLES, DANIEL,
      ULTRASOUL, VALKYRIE, WIGHT, ELLEN, FUKA, GREGOR, 
      AGNES, BRYAN, CATHERINE, DAVID,
-     UNSEEN, UNDEAD, VENGEFUL_GHOST, VIPER, WITCH, WICKED, 
-     EVAN, EMMA, FATHER_OCONNEL, FENG, GINGER, GODFAT,
+     UNSEEN, UNDEAD, VENGEFUL_GHOST, VIPER, WITCH, WICKED, BANE, STARS, FIGHTER, BOROGOVE,
+     EVAN, EMMA, FATHER_OCONNEL, FENG, GINGER, GODFAT, MARS, LION, ARSIS,
      ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-     ADECOY, BOMB, CHESHIRE, DETECTIVE)
-  
+     ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+  //標準職業
   val STANDARD_ROLE_LIST = List(
     UNKNOWN, VAMPIRE, WEREWOLF, EMI, FRANKLIN, GEORGE,
     ALLIE, BOB, CHARLES, DANIEL)
-  
+  //擴充職業
   val EXPANSION_ROLE_LIST = List(
     ULTRASOUL, VALKYRIE, WIGHT, ELLEN, FUKA, GREGOR, 
     AGNES, BRYAN, CATHERINE, DAVID)
-  
+  //自製職業
   val CUSTOM_ROLE_LIST = List(
     UNSEEN, UNDEAD, VENGEFUL_GHOST, VIPER, WITCH, WICKED, 
     EVAN, EMMA, FATHER_OCONNEL, FENG, GINGER, GODFAT,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
     ADECOY, BOMB, CHESHIRE, DETECTIVE)
-  
+  //參考職業
+  val CUSTOM_CAT_ROLE_LIST = List(
+    BANE, STARS, FIGHTER, BOROGOVE,
+    MARS, LION, ARSIS,
+    JUDGMENT, SHAHEART, HUNSOUL)
+  //全部職業
   val ALL_ROLE_LIST = List(
     UNKNOWN, VAMPIRE, WEREWOLF, 
     ULTRASOUL, VALKYRIE, WIGHT, 
     UNSEEN, VENGEFUL_GHOST, WITCH, 
-    UNDEAD, VIPER, WICKED,
+    UNDEAD, VIPER, WICKED, BANE, STARS, FIGHTER, BOROGOVE,
     
     EMI, FRANKLIN, GEORGE,
     ELLEN, FUKA, GREGOR, 
     EVAN, FATHER_OCONNEL, GINGER,
-    EMMA, FENG, GODFAT, 
+    EMMA, FENG, GODFAT, MARS, LION, ARSIS,
     
     ALLIE, BOB, CHARLES, DANIEL,
     AGNES, BRYAN, CATHERINE, DAVID,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-    ADECOY, BOMB, CHESHIRE, DETECTIVE)
-  
+    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+  //希望職業
   val WISH_ROLE_LIST = List(
     NONE, UNKNOWN, VAMPIRE, WEREWOLF, 
     ULTRASOUL, VALKYRIE, WIGHT, 
     UNSEEN, VENGEFUL_GHOST, WITCH, 
-    UNDEAD, VIPER, WICKED,
+    UNDEAD, VIPER, WICKED, BANE, STARS, FIGHTER, BOROGOVE,
     
     EMI, FRANKLIN, GEORGE,
     ELLEN, FUKA, GREGOR, 
     EVAN, FATHER_OCONNEL, GINGER,
-    EMMA, FENG, GODFAT, 
+    EMMA, FENG, GODFAT, MARS, LION, ARSIS,
     
     ALLIE, BOB, CHARLES, DANIEL,
     AGNES, BRYAN, CATHERINE, DAVID,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-    ADECOY, BOMB, CHESHIRE, DETECTIVE)
-  
+    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+  //不包含中立
   val NO_NEUTRAL_LIST = List(
     UNKNOWN, VAMPIRE, WEREWOLF, 
     ULTRASOUL, VALKYRIE, WIGHT, 
     UNSEEN, VENGEFUL_GHOST, WITCH, 
-    UNDEAD, VIPER, WICKED,
+    UNDEAD, VIPER, WICKED, BANE, STARS, FIGHTER,
     
     EMI, FRANKLIN, GEORGE,
     ELLEN, FUKA, GREGOR, 
     EVAN, FATHER_OCONNEL, GINGER,
-    EMMA, FENG, GODFAT)
-  
+    EMMA, FENG, GODFAT, MARS, LION, ARSIS)
+  //僅有中立
    val NEUTRAL_LIST = List(
     ALLIE, BOB, CHARLES, DANIEL,
     AGNES, BRYAN, CATHERINE, DAVID,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-    ADECOY, BOMB, CHESHIRE, DETECTIVE)
+    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
   
   def get_role(role : RoleEnum.Value) : RoleData = {
     val result = ROLE_MAP.get(role) 

@@ -1,4 +1,11 @@
 @import url(core.css);
+@import url("//fonts.googleapis.com/earlyaccess/notosanstc.css");
+@import url("//fonts.googleapis.com/earlyaccess/notosansjp.css");
+
+input, button, select, textarea, body{
+  font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+}
+
 body{
   background-color: #FFFFFF;
   /* background-image: url("../img/rule_bg.jpg");*/

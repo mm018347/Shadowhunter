@@ -103,6 +103,8 @@ object RoleEnum extends Enumeration {
   val JUDGMENT = Value("JM")
   val SHAHEART = Value("SH")
   val HUNSOUL = Value("HS")
+  val ADRIATIC = Value("AA")
+  val MICAH = Value("MA")
   
   val ROLE_MAP   = scala.collection.immutable.TreeMap(
     NOEFFECT  -> RoleNoEffect,
@@ -158,7 +160,9 @@ object RoleEnum extends Enumeration {
     DETECTIVE -> RoleDetective,
     JUDGMENT   -> RoleJudgment,
     SHAHEART   -> RoleShaHeart,
-    HUNSOUL   -> RoleHunsoul
+    HUNSOUL   -> RoleHunsoul,
+    ADRIATIC   -> RoleAdriatic,
+    MICAH      ->RoleMicah
   )
   //不明欺騙
   val UNKNOWN_DECEIVE_LIST = List(
@@ -169,7 +173,7 @@ object RoleEnum extends Enumeration {
      UNSEEN, UNDEAD, VENGEFUL_GHOST, VIPER, WITCH, WICKED, BANE, STARS, FIGHTER, BOROGOVE,
      EVAN, EMMA, FATHER_OCONNEL, FENG, GINGER, GODFAT, MARS, LION, ARSIS,
      ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-     ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+     ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL, ADRIATIC, MICAH)
   //標準職業
   val STANDARD_ROLE_LIST = List(
     UNKNOWN, VAMPIRE, WEREWOLF, EMI, FRANKLIN, GEORGE,
@@ -188,7 +192,7 @@ object RoleEnum extends Enumeration {
   val CUSTOM_CAT_ROLE_LIST = List(
     BANE, STARS, FIGHTER, BOROGOVE,
     MARS, LION, ARSIS,
-    JUDGMENT, SHAHEART, HUNSOUL)
+    JUDGMENT, SHAHEART, HUNSOUL, MICAH)
   //全部職業
   val ALL_ROLE_LIST = List(
     UNKNOWN, VAMPIRE, WEREWOLF, 
@@ -204,7 +208,7 @@ object RoleEnum extends Enumeration {
     ALLIE, BOB, CHARLES, DANIEL,
     AGNES, BRYAN, CATHERINE, DAVID,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL, ADRIATIC, MICAH)
   //希望職業
   val WISH_ROLE_LIST = List(
     NONE, UNKNOWN, VAMPIRE, WEREWOLF, 
@@ -220,7 +224,7 @@ object RoleEnum extends Enumeration {
     ALLIE, BOB, CHARLES, DANIEL,
     AGNES, BRYAN, CATHERINE, DAVID,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL, ADRIATIC, MICAH)
   //不包含中立
   val NO_NEUTRAL_LIST = List(
     UNKNOWN, VAMPIRE, WEREWOLF, 
@@ -237,7 +241,7 @@ object RoleEnum extends Enumeration {
     ALLIE, BOB, CHARLES, DANIEL,
     AGNES, BRYAN, CATHERINE, DAVID,
     ANGEL, BELLANDONA, CASSANDRA, DESPAIR, 
-    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL)
+    ADECOY, BOMB, CHESHIRE, DETECTIVE, JUDGMENT, SHAHEART, HUNSOUL, ADRIATIC, MICAH)
   
   def get_role(role : RoleEnum.Value) : RoleData = {
     val result = ROLE_MAP.get(role) 

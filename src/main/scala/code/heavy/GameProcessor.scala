@@ -744,6 +744,23 @@ object GameProcessor extends Logger{
   def check_victory(room: Room, roomround: RoomRound, userentrys : List[UserEntry]) : Boolean = {
     if (room.status.is == RoomStatusEnum.ENDED)
       return true
+  
+    //夏彌加勝利判定
+    val cardpools = CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending))
+    val room_users = userentrys.filter (x => (!x.revoked.is))
+    val live_micahs = userentrys.filter (x => (x.get_role == RoleMicah) && (x.live.is) && (x.revealed.is))
+    val black_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.BLACK.toString))
+    val white_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.WHITE.toString))
+    if(((black_discards.length + white_discards.length) > (room_users.length * 2.5)) && (live_micahs.length > 0)){
+        live_micahs.foreach { live_micah =>
+        live_micah.add_user_flag(UserEntryFlagEnum.VICTORY)
+        live_micah.save
+        val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_NEUTRAL.toString).actioner_id(live_micah.id.is)
+                                .message("黑白棄牌合計 大於 玩家人數 2.5 倍： (" + (black_discards.length + white_discards.length) + " > " + (room_users.length * 2.5) + ")，夏彌加勝利")
+        talk_a.save
+        talk_a.send(live_micah.room_id.is)
+      }
+    }
     
     val userentrys_r  = userentrys.filter(x => (!x.revoked.is))
     val userentrys_rl = userentrys_r.filter(x => (x.live.is))
@@ -976,6 +993,7 @@ object GameProcessor extends Logger{
     if (next_player.get_role == RoleWerewolf)
       next_player.remove_role_flag(UserEntryRoleFlagEnum.AMBUSH)
     next_player.remove_user_flag(UserEntryFlagEnum.GUARDIAN)
+    next_player.remove_user_flag(UserEntryFlagEnum.ENCHANTMENT)
     next_player.remove_user_flag(UserEntryFlagEnum.BARRIER)
     currentplayer.remove_user_flag(UserEntryFlagEnum.ADVENT)
     currentplayer.remove_user_flag(UserEntryFlagEnum.CHOCOLATE)
@@ -1264,7 +1282,7 @@ object GameProcessor extends Logger{
       }
     }
     var attack_power_text = attack_power - 1
-    if ((actionee.has_user_flag(UserEntryFlagEnum.BARRIER)) || (actionee.has_user_flag(UserEntryFlagEnum.GUARDIAN)) {
+    if ((actionee.has_user_flag(UserEntryFlagEnum.BARRIER)) || (actionee.has_user_flag(UserEntryFlagEnum.GUARDIAN))) {
       is_append = false
     }
     if (is_append) {
@@ -1304,9 +1322,10 @@ object GameProcessor extends Logger{
     }
     
     // 波若哥夫回復 HP
+    val live_evans = userentrys.filter(x => (x.live.is) && (x.revealed.is) && (!x.revoked.is) && (x.get_role == RoleEvan) && (x.has_user_flag(UserEntryFlagEnum.LOVER)))
     if ((actioner.revealed.is) && (actioner.get_role == RoleBorogove) && (attack_power != 0) &&
-        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
-      if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is)) {
+        (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && ((actioner.hasnt_user_flag(UserEntryFlagEnum.LOVER)) && (live_evans.length == 0))) {
+      if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is) && ((actionee.hasnt_user_flag(UserEntryFlagEnum.LOVER)) && (live_evans.length == 0))) {
         var lower_power = attack_power / 2
         attack_str += "，將攻擊力轉化為回復 " + lower_power + " 點(波若哥夫)"
         //傷害回復在最後階段處理
@@ -1344,10 +1363,15 @@ object GameProcessor extends Logger{
       val live_hunters = userentrys.filter(x => (x.live.is) && (x.revealed.is) && (!x.revoked.is) && (x.get_role.role_side == RoleSideEnum.HUNTER) && (x.id.is != actionee.id.is))
       if (live_hunters.length != 0) {
         live_hunters.foreach { live_hunter =>
-          live_hunter.inflict_damage(2, actioner)
+          if (actioner.hasnt_item(CardEnum.B_MACHINE_GUN)) {
+            live_hunter.inflict_damage(2, actioner)
+            attack_str += "，其他翻牌的獵人受到 2 點傷害"
+          } else {
+            live_hunter.inflict_damage(1, actioner)
+            attack_str += "，其他翻牌的獵人受到 1 點傷害(機槍修正)"
+          }
           live_hunter.save
         }
-        attack_str += "，其他翻牌的獵人受到 2 點傷害"
         is_append = true
       }
     }
@@ -1363,6 +1387,7 @@ object GameProcessor extends Logger{
       */
       actioner.save
       actionee.save
+      GameProcessor.check_item_victory(actionee)
       attack_str += "，轉移咒封之假面"
       is_append = true
     }

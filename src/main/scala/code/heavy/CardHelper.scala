@@ -235,7 +235,7 @@ object CardHelper extends Logger {
         val talka = Talk.create.mtype(MTypeEnum.ACTION_ARSIS.toString)
                       .actioner_id(actioner.id.is)
         talka.save
-	    talka.send(actioner.room_id.is)
+	    talka.send(actionee.room_id.is)
       }
       val talk1_message = if (message == "") "但是什麼也沒發生" else message
       val talk1 = Talk.create.mtype(MTypeEnum.RESULT_GREENCARD.toString)
@@ -290,14 +290,19 @@ object CardHelper extends Logger {
     if ((actioner.get_role == RoleEmma) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
       val live_hunters = userentrys.filter (x => (x.get_role.role_side == RoleSideEnum.HUNTER) &&
                                                  (x.live.is) && (x.revealed.is))
+      if (live_hunters.length > 0) {
+        val talk_e = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_EMMA_W.toString).actioner_id(actioner.id.is)
+        talk_e.save
+        talk_e.send(actioner.room_id.is)
+      }
       live_hunters.foreach { live_hunter =>
         live_hunter.lower_damage(1, userentrys)
         live_hunter.save
         
         if ((live_hunter.get_role == RoleArsis) && (live_hunter.revealed.is) && (live_hunter.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (live_hunter.hasnt_item(CardEnum.B_MASK))) {
-          val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actioner.id.is)
+          val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(live_hunter.id.is)
           talk_a.save
-          talk_a.send(actioner.room_id.is)
+          talk_a.send(live_hunter.room_id.is)
         }
       }
     }
@@ -314,7 +319,6 @@ object CardHelper extends Logger {
         talk_a.send(live_stars.room_id.is)
       }
     }
-    
     
     val card = CardEnum.get_card(action.action_flags.is)
     
@@ -347,7 +351,16 @@ object CardHelper extends Logger {
               case RoleSideEnum.SHADOW => 11
               case RoleSideEnum.HUNTER => 11
             }
-            
+            if (role == RoleCheshire) {
+                val talk_t = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString).actioner_id(actioner.id.is)
+                               .message("貓咪不可以吃巧克力！")
+                talk_t.save
+                talk_t.send(actioner.room_id.is)
+                actioner.damaged(99)
+                GameProcessor.check_death(actioner, actioner, action, userentrys)
+                actioner.damaged(0)
+                actioner.save 
+            }
             if (role.role_life <= life_thresh) {
               if (actioner.revealed) 
                 actioner.damaged(0) 
@@ -420,6 +433,9 @@ object CardHelper extends Logger {
                 talk_a.send(l_user.room_id.is)
               }
             }
+          case CardEnum.W_ENCHANTMENT  =>
+            actioner.add_user_flag(UserEntryFlagEnum.ENCHANTMENT)
+            actioner.save
               
             
         }
@@ -756,9 +772,20 @@ object CardHelper extends Logger {
         if ((actionee.get_role == RoleArsis) && (actionee.revealed.is) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
           val talk_a = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ARSIS.toString).actioner_id(actionee.id.is)
           talk_a.save
-          talk_a.send(actioner.room_id.is)
+          talk_a.send(actionee.room_id.is)
         }
-        
+      case CardEnum.B_SPLINTERED          =>
+        val userentry_equips = actionee.items
+        if (userentry_equips.length > 0) {
+          actionee.items.foreach { userentry_item =>
+            val card = CardPool.find(By(CardPool.room_id, actionee.room_id.is),
+                                     By(CardPool.card, userentry_item.card_enum.toString)).get
+            card.owner_id(0).discarded(true).save
+          }
+          actionee.item_flags("")
+          actionee.save  
+        }
+        //end
     }
 
     if (!GameProcessor.check_victory(room, roomround, userentrys)) {

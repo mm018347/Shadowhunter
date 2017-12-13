@@ -274,9 +274,13 @@ object ActionHelper extends Logger {
             else
               (new_location.toString, new_location.toString)
           }
-
+        //結界
+        val enchantments = userentrys.filter(x => ( ((x.location.is == new_location_str) || (x.location.is == LocationHelper.neighbor(room, new_location_str))) &&
+           (x.has_user_flag(UserEntryFlagEnum.ENCHANTMENT)) ))
         
-        actioner.location(new_location_str)
+        if (enchantments.length == 0) {
+          actioner.location(new_location_str)
+        }
         
         val vengeful_ghosts = userentrys.filter(x =>
           ((x.location.is == new_location_str) || 
@@ -305,6 +309,13 @@ object ActionHelper extends Logger {
                        .message("1D6=" + random1d6 + ",1D4=" + random1d4 + " 移動結果：" + LocationEnum.get_cname(display_location_str) + vengeful_ghost_str)
         talk.save
         talk.send(actioner.room_id.is)
+        
+        if (enchantments.length > 0) {
+          val talk_e = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_MOVE.toString)
+                       .message(actioner.handle_name.is + " 的移動目的地有結界阻擋，停留於原地")
+          talk_e.save
+          talk_e.send(actioner.room_id.is)
+        }
         //火馬
         if (actioner.has_item(CardEnum.B_FIREHORSE)) {
           val location_users = userentrys.filter(x => ((x.location.is == LocationHelper.neighbor(room, new_location_str)) || (x.location.is == new_location_str)) && (x.id.is != actioner.id.is) && (x.hasnt_item(CardEnum.W_TALISMAN)))
@@ -356,14 +367,16 @@ object ActionHelper extends Logger {
                               .message(attack_str)
         talk.save
         talk.send(actioner.room_id.is)
-
+        
+        val live_evans = userentrys.filter(x => (x.live.is) && (x.revealed.is) && (!x.revoked.is) && (x.get_role == RoleEvan) && (x.has_user_flag(UserEntryFlagEnum.LOVER)))
         if ((actionee.get_role == RoleADecoy) && (actionee.revealed.is)) {
           if (actioner.inflict_damage(attack_power, actionee, true))
             GameProcessor.check_death(actioner, actionee, action, userentrys)
           if (!actioner.live.is)
             actionee.add_user_flag(UserEntryFlagEnum.VICTORY).save
-        } else if ((actioner.get_role == RoleBorogove) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
-          if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is)) {
+        } else if ((actioner.revealed.is) && (actioner.get_role == RoleBorogove) && (attack_power != 0) &&
+                   (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && ((actioner.hasnt_user_flag(UserEntryFlagEnum.LOVER)) && (live_evans.length == 0))) {
+          if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is) && ((actionee.hasnt_user_flag(UserEntryFlagEnum.LOVER)) && (live_evans.length == 0))) {
             //波若哥夫
             val lower_power = attack_power / 2
             actionee.lower_damage(lower_power, userentrys)
@@ -502,14 +515,16 @@ object ActionHelper extends Logger {
                                .message("對 " + actionee.handle_name.is +  "：" +attack_str)
           talk.save
           talk.send(actioner.room_id.is)
-
+          
+          val live_evans = userentrys.filter(x => (x.live.is) && (x.revealed.is) && (!x.revoked.is) && (x.get_role == RoleEvan) && (x.has_user_flag(UserEntryFlagEnum.LOVER)))
           if ((actionee.get_role == RoleADecoy) && (actionee.revealed.is)) {
             if (actioner.inflict_damage(attack_power, actionee, true))
               GameProcessor.check_death(actioner, actionee, action, userentrys)
             if (!actioner.live.is)
               actionee.add_user_flag(UserEntryFlagEnum.VICTORY).save
-          } else if ((actioner.get_role == RoleBorogove) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
-            if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is)) {
+          } else if ((actioner.revealed.is) && (actioner.get_role == RoleBorogove) && (attack_power != 0) &&
+                   (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) && ((actioner.hasnt_user_flag(UserEntryFlagEnum.LOVER)) && (live_evans.length == 0))) {
+            if ((actionee.get_role.role_side == RoleSideEnum.SHADOW) && (actionee.revealed.is) && ((actionee.hasnt_user_flag(UserEntryFlagEnum.LOVER)) && (live_evans.length == 0))) {
               //波若哥夫
               val lower_power = attack_power / 2
               actionee.lower_damage(lower_power, userentrys)
@@ -925,7 +940,6 @@ object ActionHelper extends Logger {
           }
           GameProcessor.check_death(actionee, actioner, action, userentrys)
         }
-
         // 檢查死亡和勝利條件
         actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)
         actioner.save
@@ -943,7 +957,39 @@ object ActionHelper extends Logger {
           RoomActor.sendRoomMessage(actioner.room_id.is, RoomForceUpdate(actioner.room_id.is ,List(ForceUpdateEnum.USER_TABLE)))
           RoomActor.sendUserEntryMessage(actioner.id.is, UserEntryForceUpdate(actioner.id.is, List(ForceUpdateEnum.ACTION_BAR)))
         }
-        
+      //遺忘
+      case MTypeEnum.ACTION_CONFUSED =>
+        //黑卡
+        val card_b = GameProcessor.draw_card(room, CardTypeEnum.BLACK)
+        card_b.discarded(true)
+        card_b.save
+    
+        val action_b = Action.create.roomround_id(roomround.id.is).actioner_id(actioner.id.is)
+                                 .mtype(MTypeEnum.ACTION_DRAWBLACKCARD.toString)
+                                 .action_flags(card_b.card.is)
+        action_b.save
+        val talk_b = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_DRAWBLACKCARD.toString).actioner_id(actioner.id.is).message_flags(card_b.card.is)
+        talk_b.save
+        talk_b.send(actioner.room_id.is)
+        //白卡
+        val card_w = GameProcessor.draw_card(room, CardTypeEnum.WHITE)
+        card_w.discarded(true)
+        card_w.save
+    
+        val action_c = Action.create.roomround_id(roomround.id.is).actioner_id(actioner.id.is)
+                                 .mtype(MTypeEnum.ACTION_DRAWWHITECARD.toString)
+                                 .action_flags(card_w.card.is)
+        action_c.save
+        val talk_w = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_DRAWWHITECARD.toString).actioner_id(actioner.id.is).message_flags(card_w.card.is)
+        talk_w.save
+        talk_w.send(actioner.room_id.is)
+        //跳過回合
+
+        val talk_n = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_CONFUSED2.toString).actioner_id(actioner.id.is)
+        talk_n.save
+        talk_n.send(actioner.room_id.is)
+        GameProcessor.next_player(room, roomround, roomphase, userentrys)
+
       case MTypeEnum.ACTION_GREGOR_BARRIER =>
         actioner.add_user_flag(UserEntryFlagEnum.BARRIER)
         actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED).save

@@ -168,5 +168,9 @@ object RoleShaHeart extends RoleNeutral(RoleEnum.SHAHEART, "朵伊", 8)
 
 object RoleHunsoul extends RoleNeutral(RoleEnum.HUNSOUL, "多提", 13)
 
-//object RoleJudgment extends RoleNeutral(RoleEnum.JUDGMENT, "朵伊", 8)
+object RoleAdriatic extends RoleNeutral(RoleEnum.ADRIATIC, "亞德利斯", 11)
+
+object RoleMicah extends RoleNeutral(RoleEnum.MICAH, "夏彌加", 10) {
+  override def movement_skill = List(ActionConfused)
+}
 

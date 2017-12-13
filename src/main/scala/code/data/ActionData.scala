@@ -1117,3 +1117,24 @@ object ActionFighterStrike extends ActionData(MTypeEnum.ACTION_FIGHTER_STRIKE, "
   override def js_command : JsCmd = js_dialog("strike_dialog")
 }
 
+object ActionConfused extends ActionData(MTypeEnum.ACTION_CONFUSED, "遺失") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    //(currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.revealed)
+  }
+  
+  /* override def targetable_users : List[UserEntry] = {
+    val currentuserentry = CurrentUserEntry_R.get
+    val userentrys = UserEntrys_RR.get
+    
+    userentrys.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is))
+  } */
+  
+  override def js_command : JsCmd = js_dialog("confused_dialog")
+}
+

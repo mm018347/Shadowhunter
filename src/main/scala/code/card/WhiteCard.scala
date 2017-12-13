@@ -49,6 +49,7 @@ object WCardBalance extends WhiteCard(CardEnum.W_BALANCE, "天秤") with Equipme
 }
 
 object WCardGoddess extends WhiteCard(CardEnum.W_GODDESS, "療癒女神")
+object WCardEnchantment      extends WhiteCard(CardEnum.W_ENCHANTMENT, "結界")
 /*
  * 治療聖水：
 

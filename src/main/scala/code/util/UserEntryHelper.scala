@@ -70,7 +70,8 @@ object UserEntryHelper {
              if (userentry.has_user_flag(UserEntryFlagEnum.FROG)) <span class="shadow">蛙</span> else NodeSeq.Empty}{
              if (userentry.has_user_flag(UserEntryFlagEnum.TAUNT)) <span class="neutral">諷</span> else NodeSeq.Empty}{
              if (userentry.has_user_flag(UserEntryFlagEnum.GUARDIAN)) <span class="guardian">守</span> else NodeSeq.Empty}{
-             if (userentry.has_user_flag(UserEntryFlagEnum.BARRIER)) <span class="hunter">防</span> else NodeSeq.Empty}<br/>
+             if (userentry.has_user_flag(UserEntryFlagEnum.BARRIER)) <span class="hunter">防</span> else NodeSeq.Empty}{
+             if (userentry.has_user_flag(UserEntryFlagEnum.ENCHANTMENT)) <span class="hunter">界</span> else NodeSeq.Empty}<br/>
           {userentry.items.map(x=> x.asInstanceOf[Equipment].equip_name).mkString("")}
          </td>
     

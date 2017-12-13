@@ -69,6 +69,9 @@ object BCardDeclne          extends BlackCard(CardEnum.B_DECLINE, "殞落")
 object BCardGiveBlood        extends BlackCard(CardEnum.B_GIVEBLOOD, "輸血") with UserEntryTargetable {
 }
 
+object BCardSplintered        extends BlackCard(CardEnum.B_SPLINTERED, "旋破") with UserEntryTargetable {
+}
+
 object BCardFireHorse          extends BlackCard(CardEnum.B_FIREHORSE, "煉獄馬") with Equipment {
   override def equip_name = "馬"
 }

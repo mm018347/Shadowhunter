@@ -145,8 +145,10 @@ class ActionSnippet extends Logger {
           (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))  //絕望
         Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString)
                                .actioner_id(currentuserentry.id.is)    
-      else if (currentuserentry.has_item(CardEnum.B_MACHINE_GUN))
-        Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString) //機槍
+      else if ((currentuserentry.has_item(CardEnum.B_MACHINE_GUN)) || 
+               ((currentuserentry.get_role == RoleAdriatic) && (currentuserentry.revealed.is) &&
+                (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK))))
+        Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString) //機槍 && 亞德利斯
                                .actioner_id(currentuserentry.id.is)
       else  
         Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ATTACK.toString)
@@ -1152,6 +1154,32 @@ class ActionSnippet extends Logger {
     ajaxForm(bind("action", in,
          "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
          "strike"            -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def confused(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionFighterStrike.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_CONFUSED.toString)
+                         .actioner_id(currentuserentry.id.is)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         //"user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "confused"            -> ajaxSubmit("確定", () => { process; Unblock }),
          "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
 }

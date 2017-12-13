@@ -43,6 +43,7 @@ object UserEntryFlagEnum extends Enumeration {
   val  REVIVED   = Value("R")
   
   val  MISSED    = Value("M")
+  val  ENCHANTMENT = Value("E")
 }
 
 

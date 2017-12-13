@@ -39,6 +39,7 @@ object CardEnum extends Enumeration {
   val W_TEA                     = Value("W16")
   val W_BALANCE                 = Value("W17")
   val W_GODDESS                 = Value("W18")
+  val W_ENCHANTMENT             = Value("W19")
 
   val B_CHAINSAW               = Value("B01")
   val B_BUTCHER_KNIFE           = Value("B02")
@@ -60,6 +61,7 @@ object CardEnum extends Enumeration {
   val B_DECLINE                 = Value("B18")
   val B_GIVEBLOOD               = Value("B19")
   val B_FIREHORSE               = Value("B20")
+  val B_SPLINTERED              = Value("B21")
 
   val G_SHADOW_LOSE1           = Value("G01")  
   val G_SHADOW_LOSE2           = Value("G02")
@@ -85,13 +87,13 @@ object CardEnum extends Enumeration {
     W_TALISMAN, W_FORTUNE_BROOCH, W_MYSTIC_COMPASS, W_HOLY_ROBE,
     W_SILVER_ROSARY, W_LANCE_OF_LONGINUS, W_ADVENT, W_CHOCOLATE,
     W_BLESSING, W_CONCEALED_KNOWLEDGE, W_GUARDIAN_ANGEL, W_FLARE_OF_JUDGEMENT,
-    W_DISENCHANTED_MIRROR, W_FIRST_AID, W_GODDESS)
+    W_DISENCHANTED_MIRROR, W_FIRST_AID, W_GODDESS, W_ENCHANTMENT)
 
   val BLACK_LIST = List(B_CHAINSAW, B_BUTCHER_KNIFE, B_RUSTED_BROAD_AXE,
     B_VAMPIRE_BAT, B_VAMPIRE_BAT, B_VAMPIRE_BAT, B_BLOODTHIRSTY_SPIDER,
     B_MOODY_GOBLIN, B_MOODY_GOBLIN, B_MASAMUNE,
     B_MACHINE_GUN, B_HANDGUN, B_SPIRITUAL_DOLL, B_DYNAMITE,
-    B_DIABOLIC_RITUAL, B_BANANA_PEEL, B_PUPIL, B_GIVEBLOOD)
+    B_DIABOLIC_RITUAL, B_BANANA_PEEL, B_PUPIL, B_GIVEBLOOD, B_SPLINTERED)
 
   val GREEN_LIST = List(G_SHADOW_LOSE1, G_SHADOW_LOSE2, G_HUNTER_LOSE1, G_HUNTER_LOSE1,
     G_SHADOW_HUNTER_EQUIP, G_SHADOW_HUNTER_EQUIP,
@@ -122,6 +124,7 @@ object CardEnum extends Enumeration {
     W_TEA                     -> WCardTea,
     W_BALANCE                 -> WCardBalance,
     W_GODDESS                 -> WCardGoddess,
+    W_ENCHANTMENT             -> WCardEnchantment,
     
     B_CHAINSAW               -> BCardChainsaw,
     B_BUTCHER_KNIFE           -> BCardButcherKnife,
@@ -132,17 +135,18 @@ object CardEnum extends Enumeration {
     B_MASAMUNE               -> BCardMasamune,
     B_MACHINE_GUN            -> BCardMachineGune,
     B_HANDGUN                -> BCardHandGun,
-    B_SPIRITUAL_DOLL           -> BCardSpiritualDoll,
-    B_DYNAMITE                -> BCardDynamite,
-    B_DIABOLIC_RITUAL          -> BCardDiabolicRitual,
-    B_BANANA_PEEL             -> BCardBananaPeel,
-    B_DAGGER                  -> BCardDagger,
-    B_LAMIRROR                -> BCardLaMirror,
-    B_MASK                    -> BCardMask,
-    B_PUPIL                   -> BCardPupil,
-    B_DECLINE                 -> BCardDeclne,
-    B_GIVEBLOOD                 -> BCardGiveBlood,
-    B_FIREHORSE                 -> BCardFireHorse,
+    B_SPIRITUAL_DOLL         -> BCardSpiritualDoll,
+    B_DYNAMITE               -> BCardDynamite,
+    B_DIABOLIC_RITUAL        -> BCardDiabolicRitual,
+    B_BANANA_PEEL            -> BCardBananaPeel,
+    B_DAGGER                 -> BCardDagger,
+    B_LAMIRROR               -> BCardLaMirror,
+    B_MASK                   -> BCardMask,
+    B_PUPIL                  -> BCardPupil,
+    B_DECLINE                -> BCardDeclne,
+    B_GIVEBLOOD              -> BCardGiveBlood,
+    B_FIREHORSE              -> BCardFireHorse,
+    B_SPLINTERED             -> BCardSplintered,
     
     G_SHADOW_LOSE1           -> GShadowLose1,
     G_SHADOW_LOSE2           -> GShadowLose2,

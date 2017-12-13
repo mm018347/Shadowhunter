@@ -151,6 +151,7 @@ object MessageHelper {
       case MTypeEnum.RESULT_ATTACK       => simple_message_tag(talk.message.is, true, "attack-do")
       case MTypeEnum.RESULT_GREENCARD    => simple_message_tag(talk.message.is, true, "green-do")
       case MTypeEnum.RESULT_HUNTER       => simple_message_tag(talk.message.is, true, "hunter-do")
+      case MTypeEnum.RESULT_NEUTRAL       => simple_message_tag(talk.message.is, true, "neutral-do")
       case MTypeEnum.RESULT_GREENREVEAL    => 
         val message = 
           if ((!reveal_mode) && (currentuserentry_id == useractioner.id.is) &&
@@ -258,7 +259,7 @@ object MessageHelper {
         simple_message_tag(useractioner.handle_name.is + " 對 " + useractionee.handle_name.is + " 氣功攻擊！！" + kikou_damage_str, true, "hunter-do")
       case MTypeEnum.ACTION_GEORGE_DEMOLISH    => simple_message_tag(useractioner.handle_name.is + " 對 " + useractionee.handle_name.is + " 使用粉碎，1D4=" + talk.message_flags.is, true, "hunter-do")
       case MTypeEnum.ACTION_GREGOR_BARRIER     => simple_message_tag(useractioner.handle_name.is + " 展開防護罩", true, "hunter-do")
-      case MTypeEnum.ACTION_ARSIS              => simple_message_tag("明澄聖戰：所有翻開之獵人回復 1 點損傷(阿爾西斯)", true, "hunter-do")
+      case MTypeEnum.ACTION_ARSIS              => simple_message_tag("所有翻開之獵人回復 1 點損傷(阿爾西斯)", true, "hunter-do")
       case MTypeEnum.ACTION_GODFAT_EXCHANGE   => 
         val useractionee_list2 = userentrys.filter(_.id.is.toString == talk.message_flags.is) //UserEntrys_R.get
         val useractionee2 =
@@ -271,9 +272,15 @@ object MessageHelper {
       case MTypeEnum.ACTION_FIGHTER_STRIKE2  => simple_message_tag(useractionee.handle_name.is + " 持有的 " + talk.message_flags.is + " 個裝備遭到破壞，並受到損傷", true, "shadow-do")
       case MTypeEnum.ACTION_SHAHEARTACK      => simple_message_tag(useractionee.handle_name.is + " 受到黑暗瓦解， 攻擊力：1D6=" + talk.message_flags.is + "", true, "neutral-do")
       case MTypeEnum.ACTION_HUNSOULACK       => simple_message_tag(useractionee.handle_name.is + " 受到光明驟滅", true, "neutral-do")
-      case MTypeEnum.ACTION_HUNSOULLOWER     => simple_message_tag("療癒之魂： " + useractioner.handle_name.is + " 回復 4 點損傷", true, "neutral-do")
-      case MTypeEnum.ACTION_JUDGMENTACK      => simple_message_tag("淨化聖芒：審判以外所有玩家損傷值設為 7", true, "neutral-do")
-      case MTypeEnum.ACTION_LION             => simple_message_tag("王者：" + useractionee.handle_name.is + " 受到的傷害減少 1 點", true, "hunter-do")
+      case MTypeEnum.ACTION_HUNSOULLOWER     => simple_message_tag(useractioner.handle_name.is + " 回復 4 點損傷(療癒之魂)", true, "neutral-do")
+      case MTypeEnum.ACTION_JUDGMENTACK      => simple_message_tag(useractioner.handle_name.is + " 以外所有玩家損傷值設為 7 (審判)", true, "neutral-do")
+      case MTypeEnum.ACTION_LION             => simple_message_tag(useractionee.handle_name.is + " 受到的傷害減少 1 點(特羅修)", true, "hunter-do")
+      case MTypeEnum.ACTION_EMMA_W           => simple_message_tag("所有翻開之獵人回復 1 點損傷(艾瑪)", true, "hunter-do")
+      case MTypeEnum.ACTION_EMMA_B           => simple_message_tag("所有翻開之暗影受到 1 點損傷(艾瑪)", true, "hunter-do")
+      case MTypeEnum.ACTION_CONFUSED         => simple_message_tag(useractioner.handle_name.is + " 施展遺忘，抽取黑、白卡各一張並丟棄", true, "neutral-do")
+      case MTypeEnum.ACTION_CONFUSED2        => simple_message_tag(useractioner.handle_name.is + " 跳過回合(遺忘)", true, "neutral-do")
+      
+      
       //case MTypeEnum.VOTE_NO_ACTION        => simple_message_tag(user_entry.handle_name.is + " 放棄行動",heaven_mode,"#AAAA33","snow")
       
       case xs => NodeSeq.Empty

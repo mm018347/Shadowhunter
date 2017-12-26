@@ -748,7 +748,7 @@ object GameProcessor extends Logger{
     //夏彌加勝利判定
     val cardpools = CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending))
     val room_users = userentrys.filter (x => (!x.revoked.is))
-    val live_micahs = userentrys.filter (x => (x.get_role == RoleMicah) && (x.live.is) && (x.revealed.is))
+    val live_micahs = userentrys.filter (x => (x.get_role == RoleMicah) && (x.live.is) && (x.revealed.is) && (x.hasnt_user_flag(UserEntryFlagEnum.VICTORY)))
     val black_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.BLACK.toString))
     val white_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.WHITE.toString))
     if(((black_discards.length + white_discards.length) > (room_users.length * 2.5)) && (live_micahs.length > 0)){
@@ -1000,6 +1000,8 @@ object GameProcessor extends Logger{
     currentplayer.remove_user_flag(UserEntryFlagEnum.DIABOLIC)
     currentplayer.remove_user_flag(UserEntryFlagEnum.FROG)
     currentplayer.remove_user_flag(UserEntryFlagEnum.TAUNT)
+    currentplayer.remove_user_flag(UserEntryFlagEnum.FIREWORK)
+    currentplayer.remove_user_flag(UserEntryFlagEnum.STICKY)
     if (currentplayer.get_role == RoleEmi)
       currentplayer.remove_role_flag(UserEntryRoleFlagEnum.ENHANCED)
     currentplayer.save
@@ -1286,11 +1288,26 @@ object GameProcessor extends Logger{
       is_append = false
     }
     if (is_append) {
-      if (is_append_text) {
+      if ((is_append_text) && (attack_power > 0)) {
         attack_str += "=" + attack_power_text
       } else {
         attack_str += "=" + attack_power
       }
+    }
+    
+    // 希奈迷蹤
+    if ((attack_power != 0) && (actionee.revealed.is) && (actionee.get_role == RoleShinai) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))) {
+        val heal1d6r = GameProcessor.random.nextInt(6) + 1
+        val heal1d6e = GameProcessor.random.nextInt(6) + 1
+        attack_str += "， 攻方1D6=" + heal1d6r + " 希奈1D6=" + heal1d6e + " "
+        if (heal1d6e >= heal1d6r) {
+          attack_power = 0
+          attack_str += "，希奈消失蹤影"
+          actionee.location("")
+          actioner.save
+        } else {
+          attack_str += "，希奈迴避失敗"
+        }
     }
         
     // 吸血鬼回復 HP

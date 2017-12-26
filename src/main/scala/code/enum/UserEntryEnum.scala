@@ -44,6 +44,8 @@ object UserEntryFlagEnum extends Enumeration {
   
   val  MISSED    = Value("M")
   val  ENCHANTMENT = Value("E")
+  val  FIREWORK = Value("I")
+  val   STICKY = Value("K")
 }
 
 

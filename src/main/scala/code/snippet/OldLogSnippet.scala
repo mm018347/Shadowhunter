@@ -156,7 +156,7 @@ class OldLogSnippet {
           <span>遊戲結束，勝利者：{RoomVictoryEnum.victory_name(room.victory.is)} {victorys}</span>
         }
       } else
-        <span>第{roomround.round_no.is}日　等待 {userentrys.filter(_.id.is == roomphase.player.is)(0).handle_name.is} {RoomPhaseEnum.get_cname(roomphase.phase_type.is)}</span>
+        <span>第{roomround.round_no.is}回合　等待 {userentrys.filter(_.id.is == roomphase.player.is)(0).handle_name.is} {RoomPhaseEnum.get_cname(roomphase.phase_type.is)}</span>
       
     val user_table = UserEntryHelper.user_table(room, roomphase, GlobalUserEntry.NoUserEntry, userentrys_in, true)
     val location_table = LocationHelper.location_table(room, userentrys_in)

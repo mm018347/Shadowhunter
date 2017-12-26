@@ -29,7 +29,7 @@ class RoleHunter(override val enum : RoleEnum.Value, override val name : String,
 
 class RoleNeutral(override val enum : RoleEnum.Value, override val name : String, override val life : Int) extends RoleData(enum, name, life, RoleSideEnum.NEUTRAL)
 
-object RoleNone extends RoleData(RoleEnum.NONE, "不指定", 20, RoleSideEnum.NEUTRAL ) 
+object RoleNone extends RoleData(RoleEnum.NONE, "不指定", 20, RoleSideEnum.NONE ) 
 object RoleNoEffect extends RoleData(RoleEnum.NONE, "無效果", 20, RoleSideEnum.NONE ) 
 
 // Shadow
@@ -67,6 +67,10 @@ object RoleFighter extends RoleShadow(RoleEnum.FIGHTER, "伽門羅", 13) {
 }
 
 object RoleBorogove extends RoleShadow(RoleEnum.BOROGOVE, "波若哥夫", 13)
+
+object RoleClacken extends RoleShadow(RoleEnum.CLACKEN, "克拉肯", 13) {
+  override def movement_skill = List(ActionClackenCapture)
+}
 
 // Hunter
 object RoleEllen extends RoleHunter(RoleEnum.ELLEN, "艾蓮", 10) {
@@ -110,6 +114,12 @@ object RoleMars extends RoleHunter(RoleEnum.MARS, "修特", 14)
 object RoleLion extends RoleHunter(RoleEnum.LION, "特羅修", 12) 
 
 object RoleArsis extends RoleHunter(RoleEnum.ARSIS, "阿爾西斯", 12) 
+
+object RoleShinai extends RoleHunter(RoleEnum.SHINAI, "希奈", 12) 
+
+object RoleAicha extends RoleHunter(RoleEnum.AICHA, "艾夏", 12) {
+  override def post_skill = ActionAichaGrasp
+}
 
 // Neutral
 object RoleAgnes extends RoleNeutral(RoleEnum.AGNES, "愛格妮絲", 8)

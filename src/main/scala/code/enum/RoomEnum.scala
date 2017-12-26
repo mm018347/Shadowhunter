@@ -45,7 +45,7 @@ object RoomFlagEnum extends Enumeration {
   val FLAGNAME_MAP   = Map(
     TEST_MODE      -> "｛測試模式｝",
     WISH_ALIGN     -> "<希陣>",
-    WISH_ALIGN     -> "<希角>",
+    WISH_ROLE     -> "<希角>",
     //DEATH_LOOK     -> "(靈)",
     EXPANSION_ROLE -> "【擴角】",
     CUSTOM_ROLE    -> "【自角】",

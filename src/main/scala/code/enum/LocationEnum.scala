@@ -21,6 +21,7 @@ object LocationEnum extends Enumeration {
   val REPEAT            = Value("R")
   val TELEPORT          = Value("T")
   val COMPASS           = Value("I")
+  val STICKY            = Value("S")
   
   val DICE_MAP     = scala.collection.immutable.TreeMap(
     2 -> HERMIT_CABIN,
@@ -46,7 +47,8 @@ object LocationEnum extends Enumeration {
     ERSTWHILE_ALTER   -> "供品祭壇(10)",
     REPEAT            -> "自選(相同位置)",
     COMPASS            -> "自選(神秘羅盤)",
-    TELEPORT          -> "自選(傳送)"
+    TELEPORT          -> "自選(傳送)",
+    STICKY          -> "原地(黏稠)"
   )
   
   def get_cname(loc : LocationEnum.Value) : String =

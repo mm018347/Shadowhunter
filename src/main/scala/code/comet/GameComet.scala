@@ -274,7 +274,7 @@ class GameComet extends CometActor with Logger {
         <span>遊戲結束，勝利者：{RoomVictoryEnum.victory_name(room.victory.is)} {victorys}，{win_str}</span>
       }
     } else
-      <span>第{roomround.round_no.is}日　等待 {userentrys_rr.filter(_.id.is == roomphase.player.is)(0).handle_name.is} {RoomPhaseEnum.get_cname(roomphase.phase_type.is)} <span id="count_down"></span></span>
+      <span>第{roomround.round_no.is}回合　等待 {userentrys_rr.filter(_.id.is == roomphase.player.is)(0).handle_name.is} {RoomPhaseEnum.get_cname(roomphase.phase_type.is)} <span id="count_down"></span></span>
   }    
 
   /*

@@ -35,6 +35,7 @@ object MTypeEnum extends Enumeration {
   val RESULT_BLACKCARD    = Value("RB")
   val RESULT_HUNTER       = Value("RH")
   val RESULT_NEUTRAL      = Value("RN")
+  val RESULT_SHADOW       = Value("RS")
 
   val OBJECTION_MALE    = Value("OM")
   val OBJECTION_FEMALE  = Value("OF")
@@ -106,6 +107,8 @@ object MTypeEnum extends Enumeration {
   val ACTION_EMMA_B              = Value("AEA2")
   val ACTION_CONFUSED            = Value("AMC1")
   val ACTION_CONFUSED2           = Value("AMC2")
+  val ACTION_AICHA_GRASP         = Value("AAG1")
+  val ACTION_CLACKEN_CAPTURE     = Value("ACC1")
   
   val ACTION_DETECTIVE_REASONA   = Value("ADT1")
   val ACTION_DETECTIVE_REASONR   = Value("ADT2")

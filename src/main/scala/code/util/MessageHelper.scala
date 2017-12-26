@@ -151,7 +151,8 @@ object MessageHelper {
       case MTypeEnum.RESULT_ATTACK       => simple_message_tag(talk.message.is, true, "attack-do")
       case MTypeEnum.RESULT_GREENCARD    => simple_message_tag(talk.message.is, true, "green-do")
       case MTypeEnum.RESULT_HUNTER       => simple_message_tag(talk.message.is, true, "hunter-do")
-      case MTypeEnum.RESULT_NEUTRAL       => simple_message_tag(talk.message.is, true, "neutral-do")
+      case MTypeEnum.RESULT_NEUTRAL      => simple_message_tag(talk.message.is, true, "neutral-do")
+      case MTypeEnum.RESULT_SHADOW       => simple_message_tag(talk.message.is, true, "shadow-do")
       case MTypeEnum.RESULT_GREENREVEAL    => 
         val message = 
           if ((!reveal_mode) && (currentuserentry_id == useractioner.id.is) &&
@@ -279,6 +280,10 @@ object MessageHelper {
       case MTypeEnum.ACTION_EMMA_B           => simple_message_tag("所有翻開之暗影受到 1 點損傷(艾瑪)", true, "hunter-do")
       case MTypeEnum.ACTION_CONFUSED         => simple_message_tag(useractioner.handle_name.is + " 施展遺忘，抽取黑、白卡各一張並丟棄", true, "neutral-do")
       case MTypeEnum.ACTION_CONFUSED2        => simple_message_tag(useractioner.handle_name.is + " 跳過回合(遺忘)", true, "neutral-do")
+      case MTypeEnum.ACTION_AICHA_GRASP      => simple_message_tag(useractioner.handle_name.is + " 開始光之掌握(" + talk.message_flags.is + ")", true, "hunter-do")
+      case MTypeEnum.ACTION_CLACKEN_CAPTURE  => simple_message_tag(useractioner.handle_name.is + " 對 " + useractionee.handle_name.is + " 使用抓抓", true, "shadow-do")
+      
+      
       
       
       //case MTypeEnum.VOTE_NO_ACTION        => simple_message_tag(user_entry.handle_name.is + " 放棄行動",heaven_mode,"#AAAA33","snow")

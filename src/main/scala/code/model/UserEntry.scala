@@ -182,7 +182,7 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
         }
       }
       //特羅修
-      if((get_role == RoleLion) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK))){
+      if((get_role == RoleLion) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK)) && (in >= 1)){
         damaged(damaged.is + math.max(0, in - 1))
       } else {
         damaged(damaged.is + in)

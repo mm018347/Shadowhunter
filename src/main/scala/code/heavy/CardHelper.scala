@@ -52,8 +52,10 @@ object CardHelper extends Logger {
       val actionee_role2 =
         if (actioner.get_role == RoleDetective)
           actionee.get_real_role
-        if (actionee_role == RoleNoEffect) RoleUnknown
-        else actionee_role
+        if (actionee_role == RoleNoEffect)
+          RoleUnknown
+        else 
+          actionee_role
         
        val talk1 = Talk.create.mtype(MTypeEnum.RESULT_GREENREVEAL.toString)
                         .message("你發現 " + actionee.handle_name.is + " 是 " + actionee_role.role_name)
@@ -356,9 +358,10 @@ object CardHelper extends Logger {
                                .message("貓咪不可以吃巧克力！")
                 talk_t.save
                 talk_t.send(actioner.room_id.is)
+                val saved_damaged = actioner.damaged.is
                 actioner.damaged(99)
                 GameProcessor.check_death(actioner, actioner, action, userentrys)
-                actioner.damaged(0)
+                actioner.damaged(saved_damaged)
                 actioner.save 
             }
             if (role.role_life <= life_thresh) {
@@ -416,6 +419,9 @@ object CardHelper extends Logger {
               talk_t.send(actioner.room_id.is)
               if (actioner.inflict_card_damage(items_num, actioner))
                 GameProcessor.check_death(actioner, actioner, action, userentrys)
+              if (!actioner.live.is) {
+                GameProcessor.next_player(room, roomround, roomphase, userentrys)
+              }
             }
           case CardEnum.W_GODDESS   =>
             val l_users = userentrys.filter(x => (x.location.is == LocationHelper.neighbor(room, actioner.location.is)) ||
@@ -436,8 +442,34 @@ object CardHelper extends Logger {
           case CardEnum.W_ENCHANTMENT  =>
             actioner.add_user_flag(UserEntryFlagEnum.ENCHANTMENT)
             actioner.save
-              
-            
+          case CardEnum.W_FIREWORK  =>
+            val l_users = userentrys.filter(x => (x.live.is))
+            val talk_t = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString).actioner_id(actioner.id.is)
+                               .message("稅金爆炸了，所有人無法攻擊")
+            talk_t.save
+            talk_t.send(actioner.room_id.is)
+            l_users.foreach { l_user =>
+              l_user.add_user_flag(UserEntryFlagEnum.FIREWORK)
+              l_user.save
+            }
+          case CardEnum.W_FLYHIGH  =>
+            val l_users = userentrys.filter(x => (x.live.is) && (!x.revoked.is))
+            var all_damages = 0
+            l_users.foreach { l_user =>
+              all_damages += l_user.damaged.is
+            }
+            var average_damages : Int = (all_damages / l_users.length)
+            val talk_t = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_WHITECARD.toString).actioner_id(actioner.id.is)
+                               .message("所有人的損傷值設為 (" + all_damages + " / " + l_users.length + ") = " + average_damages + " 點")
+            talk_t.save
+            talk_t.send(actioner.room_id.is)
+            l_users.foreach { l_user =>
+              l_user.damaged(average_damages).save
+              GameProcessor.check_death(l_user, l_user, action, userentrys)
+            }
+            if (!actioner.live.is) {
+              GameProcessor.next_player(room, roomround, roomphase, userentrys)
+            }
         }
         RoomPhaseEnum.ATTACK
       }
@@ -734,7 +766,7 @@ object CardHelper extends Logger {
         val random1d6 = GameProcessor.random.nextInt(6) + 1
         val target = if (random1d6 < 5) actionee else actioner
         
-        if((actioner.get_role == RoleLion) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))){
+        if((target.get_role == RoleLion) && (target.revealed.is) && (target.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (target.hasnt_item(CardEnum.B_MASK))){
           val talk1 = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_BLACKCARD.toString)
                               .message("1D6=" + random1d6 + ", " + target.handle_name.is + " 受到 3-1 點損傷(特羅修)")
           talk1.save

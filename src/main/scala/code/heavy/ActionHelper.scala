@@ -254,7 +254,13 @@ object ActionHelper extends Logger {
         }
         
         val (new_location_str : String, display_location_str : String) =
-          if ((actioner.get_role == RoleEmi) && (actioner.revealed) &&
+          if (actioner.has_user_flag(UserEntryFlagEnum.STICKY) && (actioner.location.is != ""))
+            if (new_location.toString == LocationEnum.OPTION.toString) {
+                (actioner.location.is.toString, LocationEnum.STICKY.toString)
+            } else {
+              (new_location.toString, new_location.toString)
+            }
+          else if ((actioner.get_role == RoleEmi) && (actioner.revealed) &&
               //(LocationHelper.neighbor(room, actioner.location.is.toString) == action.action_flags.is.toString) &&
               ((LocationHelper.left(room, actioner.location.is.toString) == action.action_flags.is.toString) ||
                (LocationHelper.right(room, actioner.location.is.toString) == action.action_flags.is.toString)) &&
@@ -274,17 +280,28 @@ object ActionHelper extends Logger {
             else
               (new_location.toString, new_location.toString)
           }
+          
         //結界
         val enchantments = userentrys.filter(x => ( ((x.location.is == new_location_str) || (x.location.is == LocationHelper.neighbor(room, new_location_str))) &&
            (x.has_user_flag(UserEntryFlagEnum.ENCHANTMENT)) ))
+           
+        val peer_users = userentrys.filter(x => ( ((x.location.is == actioner.location.is) || (x.location.is == LocationHelper.neighbor(room, actioner.location.is))) && (x.live.is) && (x.get_role != RoleClacken)))
         
         if (enchantments.length == 0) {
           actioner.location(new_location_str)
+          
+          if ((actioner.get_role == RoleClacken) && (actioner.revealed) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+            peer_users.foreach { peer_user =>
+              peer_user.location(new_location_str)
+              peer_user.add_user_flag(UserEntryFlagEnum.STICKY)
+              peer_user.save
+            }
+          }
         }
         
         val vengeful_ghosts = userentrys.filter(x =>
-          ((x.location.is == new_location_str) || 
-           ((room.has_flag(RoomFlagEnum.VGHOST_EXPAND)) && (x.location.is == LocationHelper.neighbor(room, new_location_str))))
+          ((x.location.is == actioner.location.is) || 
+           ((room.has_flag(RoomFlagEnum.VGHOST_EXPAND)) && (x.location.is == LocationHelper.neighbor(room, actioner.location.is))))
           &&
           (x.live.is) && (x.revealed.is) && (x.get_role == RoleVengefulGhost) &&
           (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
@@ -295,12 +312,12 @@ object ActionHelper extends Logger {
           if (((!actioner.revealed) || (actioner.get_role.role_side != RoleSideEnum.SHADOW)) && (vengeful_ghosts.length != 0)) {
             if (actioner.inflict_damage(2, vengeful_ghosts(0))) {
               GameProcessor.check_death(actioner, vengeful_ghosts(0), action, userentrys)
-              if((actioner.get_role == RoleLion) && (actioner.revealed)){
+              if((actioner.get_role == RoleLion) && (actioner.revealed) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))){
                 update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
-                "，並受到 1 點損傷(特羅修)"
+                "，並受到 1 點損傷(復仇鬼-特羅修)"
               } else {
                 update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
-                "，並受到 2 點損傷"
+                "，並受到 2 點損傷(復仇鬼)"
               }
             } else ""
           } else ""
@@ -316,18 +333,44 @@ object ActionHelper extends Logger {
           talk_e.save
           talk_e.send(actioner.room_id.is)
         }
+        
+        if (enchantments.length == 0) {
+          if ((actioner.get_role == RoleClacken) && (actioner.revealed) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK))) {
+            peer_users.foreach { peer_user =>
+              val vengeful_ghost_peer_str =
+                if (((!peer_user.revealed) || (peer_user.get_role.role_side != RoleSideEnum.SHADOW)) && (vengeful_ghosts.length != 0)) {
+                  if (peer_user.inflict_damage(2, vengeful_ghosts(0))) {
+                    GameProcessor.check_death(peer_user, vengeful_ghosts(0), action, userentrys)
+                    peer_user.save
+                    if((peer_user.get_role == RoleLion) && (peer_user.revealed) && (peer_user.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (peer_user.hasnt_item(CardEnum.B_MASK))){
+                      update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
+                      "，並受到 1 點損傷(復仇鬼-特羅修)"
+                    } else {
+                      update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
+                      "，並受到 2 點損傷(復仇鬼)"
+                    }
+                  } else ""
+                } else ""
+              val talk_p = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_MOVE.toString)
+                       .message(peer_user.handle_name.is + " 被 " + actioner.handle_name.is + " 吸附一同移動(克拉肯)" + vengeful_ghost_peer_str)
+              talk_p.save
+              talk_p.send(actioner.room_id.is)
+            }
+          }
+        }
+        
         //火馬
         if (actioner.has_item(CardEnum.B_FIREHORSE)) {
-          val location_users = userentrys.filter(x => ((x.location.is == LocationHelper.neighbor(room, new_location_str)) || (x.location.is == new_location_str)) && (x.id.is != actioner.id.is) && (x.hasnt_item(CardEnum.W_TALISMAN)))
+          val location_users = userentrys.filter(x => ((x.location.is == LocationHelper.neighbor(room, actioner.location.is)) || (x.location.is == actioner.location.is)) && (x.id.is != actioner.id.is) && (x.hasnt_item(CardEnum.W_TALISMAN)))
           location_users.foreach { location_user =>
-            val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_MOVE.toString)
+            val talk_f = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_MOVE.toString)
                        .message("駕駕！ " + location_user.handle_name.is + " 受到 1 點損傷(煉獄馬)")
-            talk.save
-            talk.send(actioner.room_id.is)
-            if ((location_user.get_role == RoleLion) && (location_user.revealed.is) && (location_user.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (location_user.hasnt_item(CardEnum.B_MASK))) {
-              val talk = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(location_user.id.is)
-              talk.save
-              talk.send(actioner.room_id.is)
+            talk_f.save
+            talk_f.send(actioner.room_id.is)
+            if ((location_user.get_role == RoleLion) && (location_user.revealed) && (location_user.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (location_user.hasnt_item(CardEnum.B_MASK))) {
+              val talk_l = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LION.toString).actioner_id(actioner.id.is).actionee_id(location_user.id.is)
+              talk_l.save
+              talk_l.send(actioner.room_id.is)
             }
             if (location_user.inflict_damage(1, location_user)) {
               GameProcessor.check_death(location_user, location_user, action, userentrys)
@@ -380,6 +423,7 @@ object ActionHelper extends Logger {
             //波若哥夫
             val lower_power = attack_power / 2
             actionee.lower_damage(lower_power, userentrys)
+            actionee.save
           } else {
             actionee.inflict_damage(attack_power, actioner, true)
             GameProcessor.check_death(actionee, actioner, action, userentrys)
@@ -528,6 +572,7 @@ object ActionHelper extends Logger {
               //波若哥夫
               val lower_power = attack_power / 2
               actionee.lower_damage(lower_power, userentrys)
+              actionee.save
             } else {
               actionee.inflict_damage(attack_power, actioner, true)
               GameProcessor.check_death(actionee, actioner, action, userentrys)
@@ -1005,6 +1050,51 @@ object ActionHelper extends Logger {
         actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED).save
         
         GameProcessor.next_player(room, roomround, roomphase, userentrys)  
+      //抓抓
+      case MTypeEnum.ACTION_CLACKEN_CAPTURE =>
+        val actionee_id = action.actionee_id.is
+        val actionee : UserEntry = UserEntry.get(actionee_id, userentrys)
+        
+        actionee.location(actioner.location.is)
+        actionee.save
+        
+        val vengeful_ghosts = userentrys.filter(x =>
+          ((x.location.is == actioner.location.is) || 
+           ((room.has_flag(RoomFlagEnum.VGHOST_EXPAND)) && (x.location.is == LocationHelper.neighbor(room, actioner.location.is))))
+          &&
+          (x.live.is) && (x.revealed.is) && (x.get_role == RoleVengefulGhost) &&
+          (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
+        var update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE)
+        val vengeful_ghost_peer_str =
+           if (((!actionee.revealed) || (actionee.get_role.role_side != RoleSideEnum.SHADOW)) && (vengeful_ghosts.length != 0)) {
+              if (actionee.inflict_damage(2, vengeful_ghosts(0))) {
+                GameProcessor.check_death(actionee, vengeful_ghosts(0), action, userentrys)
+                actionee.save
+                if((actionee.get_role == RoleLion) && (actionee.revealed) && (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))){
+                  update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
+                  " 受到 1 點損傷(復仇鬼-特羅修)"
+                } else {
+                  update_enum = List(ForceUpdateEnum.LOCATION_TABLE, ForceUpdateEnum.TIME_TABLE, ForceUpdateEnum.USER_TABLE)
+                  " 受到 2 點損傷(復仇鬼)"
+                }
+              } else ""
+            } else ""
+        if (vengeful_ghost_peer_str != "") {
+          val talk_c = Talk.create.roomround_id(roomround.id.is).mtype(MTypeEnum.RESULT_SHADOW.toString).actioner_id(actioner.id.is).actionee_id(actionee.id.is)
+                                .message(actionee.handle_name.is + vengeful_ghost_peer_str)
+          talk_c.save
+          talk_c.send(actioner.room_id.is)
+        }
+        actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED).save
+      case MTypeEnum.ACTION_AICHA_GRASP =>
+        val additional = try {
+          action.action_flags.is.toInt
+        } catch { case e: Exception => 0 }
+        
+        roomphase.additional(roomphase.additional.is + additional).save
+        actioner.add_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED).save
+        
+        GameProcessor.next_player(room, roomround, roomphase, userentrys) 
       
       case MTypeEnum.ACTION_NEXTROUND =>
         GameProcessor.next_player(room, roomround, roomphase, userentrys)  
@@ -1339,6 +1429,10 @@ object ActionHelper extends Logger {
         GameProcessor.check_death(actionee, actioner, action, userentrys)
         GameProcessor.check_death(actioner, actioner, action, userentrys)
         GameProcessor.check_victory(room, roomround, userentrys)
+        
+        if (!actioner.live.is) {
+          GameProcessor.next_player(room, roomround, roomphase, userentrys)
+        }
         
       case xs =>
         warn("Unprocessed Action : " + action.toString)

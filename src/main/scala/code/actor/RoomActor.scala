@@ -236,7 +236,7 @@ object RoomActor extends LiftActor with Logger {
               userentry.item_flags("")
             } 
             userentry.save   
-            
+            //絕望
             if (userentry.get_role == RoleDespair) {
               userentrys.foreach { userentry1 =>
                 GameProcessor.check_item_victory(userentry1)
@@ -244,7 +244,7 @@ object RoomActor extends LiftActor with Logger {
                   userentry1.add_user_flag(UserEntryFlagEnum.VICTORY).save
               }
             }
-		    //丹尼爾尖叫
+		    //丹尼爾
             val live_daniels = userentrys.filter(x => (x.id.is != userentry.id.is) &&
               (!x.revoked.is) && (x.live.is) && (x.get_role == RoleDaniel) && (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK) && (!x.revealed.is)))
             live_daniels.foreach { live_daniel =>
@@ -262,7 +262,7 @@ object RoomActor extends LiftActor with Logger {
               live_daniel.revealed(true)
               live_daniel.save
             }
-            
+            //柴郡貓
             val live_cheshires = userentrys.filter(x => (x.get_role == RoleCheshire) && (x.live.is) &&
                                                  (x.target_user.is == userentry_id))
             live_cheshires.foreach { live_cheshire =>
@@ -274,7 +274,7 @@ object RoomActor extends LiftActor with Logger {
             } else if (!live_cheshire.revealed.is)
               GameProcessor.flip(live_cheshire, action, userentrys)
             }
-            
+            //莉可
             val live_unrevealed = userentrys.filter(x => (x.get_role != RoleDetective) &&(x.live.is) && (!x.revealed.is))
             if (live_unrevealed.length == 0) {
               val live_detectives = userentrys.filter(x =>(x.get_role == RoleDetective) && (x.live.is))
@@ -285,6 +285,7 @@ object RoomActor extends LiftActor with Logger {
                 live_detective.damaged(saved_damaged).save
               }
             }
+            //審判
             val live_unrevealed2 = userentrys.filter(x => (x.live.is) && (!x.revealed.is) && (!x.revoked.is))
             if (live_unrevealed2.length == 0) {
               val live_judgments = userentrys.filter(x =>(x.get_role == RoleJudgment) && (x.live.is))

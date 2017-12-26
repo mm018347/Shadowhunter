@@ -1164,9 +1164,6 @@ class ActionSnippet extends Logger {
     val currentuserentry : UserEntry = CurrentUserEntry_R.get
     val userentrys_rr = UserEntrys_RR.get
     
-    var target_str : String = ""
-    val targets = ActionFighterStrike.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
-    
     def process = {
       //val roomround = RoomRound_R.get
       //val currentuserentry = CurrentUserEntry_R.get
@@ -1180,6 +1177,35 @@ class ActionSnippet extends Logger {
     ajaxForm(bind("action", in,
          //"user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
          "confused"            -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def capture(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionClackenCapture.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      val target_id : Long = try {
+        target_str.toLong 
+      } catch {case e: Exception => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_CLACKEN_CAPTURE.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "capture"            -> ajaxSubmit("確定", () => { process; Unblock }),
          "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
 }

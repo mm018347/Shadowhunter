@@ -1,9 +1,11 @@
 @import url(icon.css);
 @import url("//fonts.googleapis.com/earlyaccess/notosanstc.css");
 @import url("//fonts.googleapis.com/earlyaccess/notosansjp.css");
+@import url("//fonts.googleapis.com/earlyaccess/notosanssc.css");
+@import url("//fonts.googleapis.com/earlyaccess/notosanskr.css");
 
 input, button, select, textarea, body{
-  font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+  font-family: 'Noto Sans TC', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans KR', sans-serif;
 }
 /* body{background-image: url("../img/entry_user/bg2.gif");} */
 table.main{

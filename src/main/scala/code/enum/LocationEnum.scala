@@ -1,7 +1,7 @@
 package org.plummtw.shadowhunter.enum
 
 object LocationEnum extends Enumeration {
-  type LocationEnum = Value
+  type LocationEnum     = Value
   //* Church (white)
 //* Graveyard (Black)
 //* Hermit's Cabin (Green)
@@ -9,46 +9,48 @@ object LocationEnum extends Enumeration {
 //* Underworld Gate (Purple)
 //* Erstwhile Altar (Brown) 
   
-  val NONE  = Value("")
+  val NONE              = Value("")
   val HERMIT_CABIN      = Value("H")  // 2 3 
-  val UNDERWORLD_GATE = Value("U") // 4 5
+  val UNDERWORLD_GATE   = Value("U") // 4 5
   val CHURCH            = Value("C") // 6
   val OPTION            = Value("O") // 7
-  val GRAVEYARD       = Value("G") // 8
-  val WIERD_WOODS     = Value("W") // 9
+  val GRAVEYARD         = Value("G") // 8
+  val WIERD_WOODS       = Value("W") // 9
   val ERSTWHILE_ALTER   = Value("E") // 10
   
   val REPEAT            = Value("R")
   val TELEPORT          = Value("T")
   val COMPASS           = Value("I")
   val STICKY            = Value("S")
+  val SEAL              = Value("J")
   
   val DICE_MAP     = scala.collection.immutable.TreeMap(
-    2 -> HERMIT_CABIN,
-    3 -> HERMIT_CABIN,
-    4 -> UNDERWORLD_GATE,
-    5 -> UNDERWORLD_GATE,
-    6 -> CHURCH,
-    7 -> OPTION,
-    8 -> GRAVEYARD,
-    9 -> WIERD_WOODS,
-    10 -> ERSTWHILE_ALTER)
+    2                  -> HERMIT_CABIN,
+    3                  -> HERMIT_CABIN,
+    4                  -> UNDERWORLD_GATE,
+    5                  -> UNDERWORLD_GATE,
+    6                  -> CHURCH,
+    7                  -> OPTION,
+    8                  -> GRAVEYARD,
+    9                  -> WIERD_WOODS,
+    10                 -> ERSTWHILE_ALTER)
   
   val LOCATION_LIST = List(HERMIT_CABIN, UNDERWORLD_GATE, CHURCH, GRAVEYARD, WIERD_WOODS, ERSTWHILE_ALTER)
   
   val CNAME_MAP     = scala.collection.immutable.TreeMap(
-    NONE              -> "無",
-    HERMIT_CABIN      -> "隱士木屋(23)",
-    UNDERWORLD_GATE -> "時空之門(45)",
-    CHURCH           -> "教堂(6)",
-    OPTION            -> "自選",
-    GRAVEYARD        -> "墳墓(8)",
-    WIERD_WOODS      -> "怪異樹林(9)",
-    ERSTWHILE_ALTER   -> "供品祭壇(10)",
-    REPEAT            -> "自選(相同位置)",
+    NONE               -> "無",
+    HERMIT_CABIN       -> "隱士木屋(23)",
+    UNDERWORLD_GATE    -> "時空之門(45)",
+    CHURCH             -> "教堂(6)",
+    OPTION             -> "自選",
+    GRAVEYARD          -> "墳墓(8)",
+    WIERD_WOODS        -> "怪異樹林(9)",
+    ERSTWHILE_ALTER    -> "供品祭壇(10)",
+    REPEAT             -> "自選(相同位置)",
     COMPASS            -> "自選(神秘羅盤)",
-    TELEPORT          -> "自選(傳送)",
-    STICKY          -> "原地(黏稠)"
+    TELEPORT           -> "自選(傳送)",
+    STICKY             -> "原地(黏稠)",
+    SEAL               -> "順時針(訃影)"
   )
   
   def get_cname(loc : LocationEnum.Value) : String =

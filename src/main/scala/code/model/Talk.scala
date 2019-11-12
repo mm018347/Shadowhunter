@@ -1,7 +1,7 @@
 package org.plummtw.shadowhunter.model 
  
 import net.liftweb._ 
-import mapper._ 
+import net.liftweb.mapper._ 
 import http._ 
 import SHtml._ 
 import util._

@@ -66,6 +66,8 @@ object BCardPupil          extends BlackCard(CardEnum.B_PUPIL, "萬瞳")
 
 object BCardDeclne          extends BlackCard(CardEnum.B_DECLINE, "殞落")
 
+object BCardExplode          extends BlackCard(CardEnum.B_EXPLODE, "爆炸")
+
 object BCardGiveBlood        extends BlackCard(CardEnum.B_GIVEBLOOD, "輸血") with UserEntryTargetable {
 }
 
@@ -74,6 +76,18 @@ object BCardSplintered        extends BlackCard(CardEnum.B_SPLINTERED, "旋破")
 
 object BCardFireHorse          extends BlackCard(CardEnum.B_FIREHORSE, "煉獄馬") with Equipment {
   override def equip_name = "馬"
+}
+
+object BCardEvilSword          extends BlackCard(CardEnum.B_EVILSWORD, "邪骸劍") with Equipment {
+  override def equip_name = "骸"
+}
+
+object BCardGemWand          extends BlackCard(CardEnum.B_GEMWAND, "血寶石魔杖") with Equipment {
+  override def equip_name = "血"
+}
+
+object BCardSupplyBomb          extends BlackCard(CardEnum.B_SUPPLYBOMB, "供品炸彈") with Equipment {
+  override def equip_name = "供"
 }
 /*
  * 電鋸、菜刀、斧頭(裝備卡)：

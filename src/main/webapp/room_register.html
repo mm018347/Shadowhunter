@@ -1,94 +1,176 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <body class="lift:content_id=main">
-  <div id="main" class="lift:surround?with=shadowhunter;at=content">
-    <head>
-      <link rel="stylesheet" href="css/room_register.css" /> 
-      <!-- script type="text/javascript" src="javascript/submit_icon_search.js"></script -->
-    </head>
-    <a href="main.html">←回首頁</a><br/>
-    <div id="form" class="lift:UserEntryRegisterSnippet?form=post">
-      <div class="lift:Msgs?showAll=true"></div>
-      <div align="center">
-      <table class="main">
-        <tr><td><img src="images/room_register/title.gif" alt="申請書"/></td></tr>
-        <tr><td class="title"><span id="room_name"></span> 村<img src="images/room_register/top.gif" alt="的村民登錄申請"/></td></tr>
-        <tr><td class="number">〜 <span id="room_comment"></span> 〜 [<span id="room_no"></span> 號村]</td></tr>
-        <tr><td>
-          <table class="input">
-          <tr>
-            <td class="img"><img src="images/room_register/uname.gif" alt="帳號"/></td>
-            <td><input name="uname" size="30" maxlength="30"/></td>
-            <td class="explain">若登出需重新登入時會使用到(6碼以上)。</td>
-          </tr>
-          <tr>
-            <td class="img">Trip</td>
-            <td><input name="trip" size="30" maxlength="30"/></td>
-            <td class="explain">僅供認人、辨識GM用</td>
-          </tr>
-          <tr>
-            <td class="img"><img src="images/room_register/handle_name.gif" alt="村民暱稱"/></td>
-            <td><input name="handle_name" size="30" maxlength="30"/></td>
-            <td class="explain">在村莊內您所使用的名稱。</td>
-          </tr>
-          <tr>
-            <td class="img"><img src="images/room_register/password.gif" alt="密碼"/></td>
-            <td><input name="password" size="30" maxlength="30"/></td>
-            <td class="explain">若登出需重新登入時會使用到(6碼以上)。</td>
-          </tr>
-          <tr>
-            <td class="img"><img src="images/room_register/sex.gif" alt="性別"/></td>
-            <td class="img">
-            <label for="male"><img src="images/room_register/sex_male.gif" alt="男性"/><input type="radio" id="male" name="sex" value="male"/></label>
-            <label for="female"><img src="images/room_register/sex_female.gif" alt="女性"/><input type="radio" id="female" name="sex" value="female"/></label>
-            </td>
-            <td class="explain">在本伺服器的遊戲和抗議系統當中會使用到。</td>
-          </tr>
-          <!-- tr>
-            <td class="img"><img src="img/entry_user/profile.gif" alt="自我介紹"/></td>
-            <td colspan="2">
-            <textarea name="profile" cols="30" rows="2"></textarea>
-            <input type="hidden" name="role" value="none"/>
-            <font size="2">會顯示在名稱的下方，內容隨意請自由發揮。（可不輸入）</font>
-          </td>
-          </tr -->
-          <tr>
-            <td class="img">希望陣營</td>
-            <td class="img"><input  id="wish-align" name="wish-align"/></td>
-            <td class="explain">選擇希望的陣營。</td>
-          </tr>
-          <tr>
-            <td class="img">希望職業</td>
-            <td class="img"><input  id="wish-role" name="wish-role"/></td>
-            <td class="explain">選擇希望的角色。</td>
-          </tr>
-          <tr>
-            <td class="img">偽裝角色</td>
-            <td class="img"><input  id="unknown-init" name="unknown-init"/></td>
-            <td class="explain">若角色為"不明"時，初期的偽裝角色。</td>
-          </tr>
-          <tr>
-            <td class="submit" colspan="3">
-            <input type="submit" id="entry" name="entry" value="村民登錄申請"/></td>
-          </tr>
-          </table>
-        </td></tr>
-        <tr><td colspan="3">
-        <fieldset>
-          <legend><img src="images/room_register/icon.gif" alt="頭像"/></legend>
-          <div id="icon-table" class="icon-table">
+  <body class="lift:content_id=head">
+    <div id="head" class="lift:surround?with=shadowhunter;at=content">
+      <head>
+        <title>暗影獵人（鸚鵡實驗站）</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+        <link rel="stylesheet" href="assets/css/main.css"></link>
+        <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+        <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+      </head>
+      <!--[Wrapper]-->
+      <div id="wrapper">
+        <!--[Main]-->
+        <div id="main">
+          <div class="inner">
+            <div id="form" class="lift:UserEntryRegisterSnippet?form=post">
+              <!--[Header]-->
+              <header id="header">
+                <a href="main.html" class="logo">#
+                <span id="room_no"></span>
+                <strong>
+                  <span id="room_name"></span>
+                </strong>〜
+                <span id="room_comment"></span>〜</a>
+              </header>
+              <!--[Banner]-->
+              <section id="banner">
+                <div class="content">
+                  <div class="lift:Msgs?showAll=true"></div>
+                  <div class="row gtr-uniform">
+                    <div class="col-6 col-12-small">
+                    <label for="handle_name">名稱</label>
+                      <input name="handle_name" size="30" maxlength="30" placeholder="1 ~ 20字" />
+                    </div>
+                    <div class="col-6 col-12-small">
+                    <label for="uname">帳號</label>
+                      <input name="uname" size="30" maxlength="30" placeholder="4 ~ 20字" />
+                    </div>
+                    <div class="col-6 col-12-small">
+                    <label for="password">密碼</label>
+                      <input name="password" size="30" maxlength="30" placeholder="4 ~ 20字" />
+                    </div>
+                    <div class="col-6 col-12-small">
+                    <label for="trip">Trip</label>
+                      <input name="trip" size="30" maxlength="30" placeholder="6 ~ 20字" />
+                    </div>
+                    <!--[Break]-->
+                    <div class="col-6">
+                      <label>性別</label>
+                      <input type="radio" id="male" name="sex" value="male" />
+                      <label for="male">雄性</label>
+                      <input type="radio" id="female" name="sex" value="female" />
+                      <label for="female">雌性</label>
+                    </div>
+                    <div class="col-6">
+                      <label for="unknown-init">角色不明的預設偽裝角色</label>
+                      <input id="unknown-init" name="unknown-init" />
+                    </div>
+                    <!--[Break]-->
+                    <div class="col-4 col-12-small">
+                      <label for="wish-align">希望陣營</label>
+                      <input id="wish-align" name="wish-align" />
+                    </div>
+                    <div class="col-4 col-12-small">
+                      <label for="wish-role">希望角色</label>
+                      <input id="wish-role" name="wish-role" />
+                    </div>
+                    <div class="col-4 col-12-small">
+                      <label for="hate-role">討厭角色</label>
+                      <input id="hate-role" name="hate-role" />
+                    </div>
+                  </div>
+                  <hr class="major" />
+                    <div class="row box">
+                    <!--[Break]-->
+                    <div class="col-8">
+                      <span id="icon-table-prev"></span>
+                      <span id="icon-table-next"></span>
+                    </div>
+                    <div class="col-4">
+                      <input type="submit" id="entry" name="entry" class="special" value="申請加入房間" />
+                    </div>
+                    <div id="icon-table" class="icon-table col-12">
+                      
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+            <!--[Section]-->
+            <section>
+            </section>
+            </div>
           </div>
-        </fieldset>
-        </td></tr>
-        <tr><td colspan="3">
-          <span id="icon-table-prev" ></span>
-          <span id="icon-table-next" ></span>
-        </td></tr>
-      </table>
+        </div>
+
+        <!--[Sidebar]-->
+        <div id="sidebar">
+          <div class="inner">
+
+            <!--[Search]-->
+            <section id="search" class="alt">
+            </section>
+
+            <!--[Menu]-->
+            <nav id="menu">
+              <header class="major">
+                <h2>選單</h2>
+              </header>
+              <ul>
+                <li><a href="main.html">首頁</a></li>
+                <li><a href="script_info.html">伺服器資訊</a></li>
+                <li><a href="version.html">版本紀錄</a></li>
+                <li><a href="rule.html">遊戲規則</a></li>
+                <li>
+                  <span class="opener">過去紀錄</span>
+                  <ul>
+                    <li><a href="oldlog_list.html">全部顯示</a></li>
+                    <li><a href="oldlog_list.html?filter=noabandon">隱藏廢棄</a></li>
+                  </ul>
+                </li>
+                <li><a href="icon_view.html">頭像一覽</a></li>
+                <li><a href="icon_upload.html">頭像上傳</a></li>
+                <li><a href="faq.html">Ｑ＆Ａ</a></li>
+                <li>
+                  <span class="opener">統計資料</span>
+                  <ul>
+                    <li><a href="stat.html?count=25">25</a></li>
+                    <li><a href="stat.html?count=50">50</a></li>
+                    <li><a href="stat.html?count=100">100</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <span class="opener">交流與相關連結</span>
+                  <ul>
+                    <li><a href="https://www.facebook.com/groups/789475714409882/">Facebook社團</a></li>
+                    <li><a href="bbs_list.html">討論區</a></li>
+                    <li><a href="http://diam.ngct.net/">鑽石伺服器（人狼）</a></li>
+                    <li><a href="http://higurashi.nctucs.org/">寒蟬伺服器（人狼）</a></li>
+                    <li><a href="http://touhou.jigokutushin.net/touhou/index.php">幻想鄉伺服器（人狼）</a></li>
+                    <li><a href="http://cheshire.pinomeng.com:82/main.html">鸚鵡實驗站（人狼）</a></li>
+                    <li><a href="http://cheshire.pinomeng.com:83/main.html">鸚鵡備份站（人狼）</a></li>
+                    <li><a href="http://jinroh.surl.tw/">人狼物語</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </nav>
+
+            <!--[Footer]-->
+            <footer id="footer">
+              <p class="copyright">
+                <img src="./images/grading_12.png" width="210" height="69" alt=""  class="image" />
+                <br/>Powered by<code><a href="http://liftweb.net/">Liftweb</a></code>.
+                <br/>Copyright 2011, <code>Plummtw</code>.
+                <br/>Admin by <code>赤坂なつき（柴郡猫）◆5PpFnM6Lus</code>.
+                <br/>Email to <code>mm018347★gmail.com</code>（★→@）.
+              </p>
+            </footer>
+
+          </div>
+        </div>
+
       </div>
+
+      <!--[Scripts]-->
+      <script src="assets/js/jquery.min.js"></script>
+      <script src="assets/js/browser.min.js"></script>
+      <script src="assets/js/breakpoints.min.js"></script>
+      <script src="assets/js/util.js"></script>
+      <script src="assets/js/main.js"></script>
+
     </div>
-  </div>
   </body>
 </html>
- 
-

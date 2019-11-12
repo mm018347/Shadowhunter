@@ -158,9 +158,9 @@ class GameViewSnippet {
     }
     
     val auto_reload_seq : NodeSeq = Seq(
-       if (auto_reload_str == "") <span>手動</span>
+       if (auto_reload_str == "") <code>手動</code>
        else <a href={"game_view.html?room_no=" + room_no + "&auto_reload=0"}>手動</a>,
-       if (auto_reload_str == "15") <span>15秒</span>
+       if (auto_reload_str == "15") <code>15秒</code>
        else <a href={"game_view.html?room_no=" + room_no + "&auto_reload=15"}>15秒</a>)
        
     val time_table = 
@@ -174,28 +174,28 @@ class GameViewSnippet {
           <span>遊戲結束，勝利者：{RoomVictoryEnum.victory_name(room.victory.is)} {victorys}</span>
         }
       } else
-        <span>第{roomround.round_no.is}回合　等待 {UserEntry.get(roomphase.player.is, userentrys).handle_name.is} {RoomPhaseEnum.get_cname(roomphase.phase_type.is)}</span>
-     val user_table = UserEntryHelper.user_table(room, roomphase, GlobalUserEntry.NoUserEntry, userentrys, reveal_mode)
+        <span>第 {roomround.round_no.is} 回合　等待 {UserEntry.get(roomphase.player.is, userentrys).handle_name.is} {RoomPhaseEnum.get_cname(roomphase.phase_type.is)}</span>
+    val user_table     = UserEntryHelper.user_table(room, roomphase, GlobalUserEntry.NoUserEntry, userentrys, reveal_mode)
     val location_table = LocationHelper.location_table(room, userentrys)
-    val talk_table = MessageHelper.messages_normal(room, roomround, userentrys1, reveal_mode)
-    val card_table = CardHelper.card_table(room, CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending)))
+    val talk_table     = MessageHelper.messages_normal(room, roomround, userentrys1, reveal_mode)
+    val card_table     = CardHelper.card_table(room, CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending)))
     
     //<meta http-equiv="refresh" content={auto_reload_str} />
-    "@refresh [content]" #> auto_reload_str &
-    "#room_no"        #> room_no &
-    "#room_name"      #> room.room_name.is &
-    "#room_comment"   #> room.room_comment.is &
+    "@refresh [content]"   #> auto_reload_str &
+    "#room_no"             #> room_no &
+    "#room_name"           #> room.room_name.is &
+    "#room_comment"        #> room.room_comment.is &
     "name=room_no [value]" #> room_no &
-    "#refresh [href]" #> ("game_view.html?room_no=" + room_no) &
-    "#refresh-list"   #> auto_reload_seq &
-    "#room-register" #> (if (room.status.is == RoomStatusEnum.WAITING.toString)
-                        <a href={"room_register.html?room_no=" + room_no}>[加入遊戲]</a> 
-                      else <span/>) &
-    "#time-table *"      #> time_table &
-    "#user-table *"      #> user_table &
-    "#card-table *"      #> card_table &
-    "#location-table  *" #> location_table &
-    "#talk-table *"      #> talk_table
+    "#refresh [href]"      #> ("game_view.html?room_no=" + room_no) &
+    "#refresh-list"        #> auto_reload_seq &
+    "#room-register"       #> ( if (room.status.is == RoomStatusEnum.WAITING.toString)
+                                  <a href={"room_register.html?room_no=" + room_no}>[加入遊戲]</a> 
+                                else <span/>) &
+    "#time-table *"        #> time_table &
+    "#user-table *"        #> user_table &
+    "#card-table *"        #> card_table &
+    "#location-table  *"   #> location_table &
+    "#talk-table *"        #> talk_table
   }
   
   def reveal_mode =

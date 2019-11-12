@@ -1,16 +1,10 @@
 @import url(core.css);
-@import url("//fonts.googleapis.com/earlyaccess/notosanstc.css");
-@import url("//fonts.googleapis.com/earlyaccess/notosansjp.css");
-
-input, button, select, textarea, body{
-  font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
-}
 
 .userentry_table {
-  font-size:10pt;
-  border-width:1px;
+  font-size:9pt;
+  /*border-width:1px;
   border-color:black;
-  border-style:dotted;
+  border-style:dotted;*/
 }
 .map_table {
   margin: 10px 0px 20px 0px;
@@ -26,7 +20,7 @@ input, button, select, textarea, body{
   font-size: 90%;
 }
 .voted {background-color: #ffcdff}
-.dead {background-color: rgba(0,0,0,0.1)}
+.dead {background-color: rgba(0,0,0,0.1);}
 .player-mark {background-color: #CCFFFF}
 
 .decor_none {text-decoration: none;}
@@ -39,7 +33,7 @@ input, button, select, textarea, body{
 .login-link{text-align: right;} /* 更新 & 返回  */
 .login-link span{font-weight: bold;} /* 住民登錄 */
 .login label{ /* 玩家名 & 密碼 */
-  margin-right: 5px;
+  margin-right: 1px;
   font-weight: bold;
 }
 
@@ -139,20 +133,20 @@ input, button, select, textarea, body{
 }
 
 .large {  /* 大聲 */
-  font-size: 18pt;
-  font-family: bold;
+  font-size: 150%;
+  /* font-family: bold; */
 }
 
 .slightlarge{  /* 稍大聲 */
-  font-size: 15pt;
+  font-size: 125%;
 }
 
 .normal{ /* 一般 */
-  font-size: 11pt;
+  font-size: 100%;
 }
 
 .small{ /* 小聲 */
-  font-size: 8pt;
+  font-size: 90%;
   /*font-weight: lighter;*/
 }
 
@@ -163,7 +157,9 @@ input, button, select, textarea, body{
   vertical-align: middle;
 }
 .user-talk td{border-bottom: 1px dashed #C0C0C0;}
-.user-name{width: 100px;} /* 玩家名名 */
+.user-name {
+    width: 100px;
+} /* 玩家名名 */
 .user-name span{font-size: 8pt;} /* 獨自發言 */
 .say{ /* 發言內容 */
   margin-left: 1px;
@@ -193,7 +189,7 @@ input, button, select, textarea, body{
 .hunter-do{        background-color: #3399FF; color:#FFFFFF;} 
 .neutral-do{       background-color: #9933FF; color:#FFFFFF;}
 .loc-do{          background-color: #CCCCFF;}
-
+.dragon-do{       background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #bd638d), color-stop(1, #39959c));} 
 .black-do{       background-color: #000000; color:#FFFFFF;}
 .white-do{       background-color: #FFFFFF; color:#000000;}
 .green-do{       background-color: #CCFFCC; }

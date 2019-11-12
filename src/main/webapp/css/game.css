@@ -7,7 +7,7 @@
   border-style:dotted;
 }
 
-.voted {background-color: #FF50FF}
+.voted {background-color: #ffcdff}
 .dead {background-color: #992222}
 
 .decor_none {text-decoration: none;}
@@ -184,7 +184,7 @@ a:hover{  color: #FF0000;}
 .shadow-do{        background-color: #CC3300;} 
 .hunter-do{        background-color: #3399FF;} 
 .neutral-do{       background-color: #9933FF;} 
-
+.dragon-do{       background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #bd638d), color-stop(1, #39959c));} 
 .vote-do{         background-color: #999900;} /* 処刑投票 */
 .mage-do{         background-color: #9933FF;} /* 占い師 */
 .guard-do{        background-color: #3399FF;} /* 狩人 */

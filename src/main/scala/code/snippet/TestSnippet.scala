@@ -41,6 +41,27 @@ class TestSnippet {
   }
   
   def create_test1 = {
+    /*
+    //var java_role_array : java.util.LinkedList[RoleEnum.Value] = new java.util.LinkedList()
+    var option_list : java.util.LinkedList[RoomFlagEnum.Value] = new java.util.LinkedList()
+    //option_list = RoomFlagEnum.SYSTEM_LIST ::: RoomFlagEnum.ROLE_CLUMP_LIST ::: RoomFlagEnum.ROLE_CLOSE_LIST ::: RoomFlagEnum.ROLE_SETTING_LIST ::: RoomFlagEnum.GREENCARD_LIST ::: RoomFlagEnum.BLACKCARD_LIST ::: RoomFlagEnum.WHITECARD_LIST
+    option_list.addAll(RoomFlagEnum.SYSTEM_LIST)
+    option_list.addAll(RoomFlagEnum.ROLE_CLUMP_LIST)
+    option_list.addAll(RoomFlagEnum.ROLE_CLOSE_LIST)
+    option_list.addAll(RoomFlagEnum.ROLE_SETTING_LIST)
+    option_list.addAll(RoomFlagEnum.GREENCARD_LIST)
+    option_list.addAll(RoomFlagEnum.BLACKCARD_LIST)
+    option_list.addAll(RoomFlagEnum.WHITECARD_LIST)
+    var close_option_list = RoomFlagEnum.TESTMODE_CLOSE_OPTION_LIST
+    val close_options = close_option_list.size()
+    if (close_options != 0) {
+      for ( i <- 1 to close_options) {
+        if (option_list.contains(close_option_list(i))) {
+          option_list.remove(RoomFlagEnum.close_option_list(i))
+        }
+      }
+    }
+    */
     val room = Room.create.room_name("測試用").room_comment("8人測試用房間")
                    .max_user(8)
                    .move_time(999).action_time(999).reaction_time(999)
@@ -65,7 +86,7 @@ class TestSnippet {
     room_phase.save
         
     val talk = Talk.create.roomround_id(game_hall.id.is).mtype(MTypeEnum.MESSAGE_GENERAL.toString)
-                   .message("房間建立 " + (new java.util.Date).toString)
+                   .message("建立房間 " + (new java.util.Date).toString)
     talk.save
     
     // 加入7人
@@ -77,7 +98,7 @@ class TestSnippet {
                     .uname(i_str).handle_name(i_str).sex("M").user_icon_id(1)
                     .password(PlummUtil.generateSHA1(i_str).substring(0,20))
                     .last_words("").role("")
-                    .room_flags(voted).subrole("")
+                    .room_flags(voted).subrole("").haterole("")
                     .ip_address(S.request.map{x=>PlummUtil.getIpAddress(x)}.openOr(""))
                       
       player.save

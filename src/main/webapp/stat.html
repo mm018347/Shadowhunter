@@ -1,13 +1,132 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <body class="lift:content_id=main">
-  <div id="main" class="lift:surround?with=shadowhunter_sub;at=content">
-    <p>
-      註：統計資料不含測試村及廢棄村。
-    </p>
-    <div class="lift:StatSnippet.stat">
-      <div id="stat-table"></div>
+  <body class="lift:content_id=head is-preload">
+    <div id="head" class="lift:surround?with=shadowhunter;at=content">
+    <head>
+      <title>暗影獵人（鸚鵡實驗站）</title>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+      <link rel="stylesheet" href="assets/css/main.css"></link>
+    </head>
+      <!--[Wrapper]-->
+      <div id="wrapper">
+        <!--[Main]-->
+        <div id="main">
+          <div class="inner">
+            <!--[Header]-->
+            <header id="header">
+              <a href="main.html" class="logo">
+              <strong>暗影獵人</strong>（鸚鵡實驗站）</a>
+            </header>
+
+            <!--[Section]-->
+            <section>
+              <header class="main">
+                  <h2>統計資料</h2>
+                  <ul class="alt">
+                    <li><a href="#stat-table">陣營別</a></li>
+                    <li><a href="#stat-table">角色別</a></li>
+                  </ul>
+              </header>
+              <!--[Content]-->
+              <p>註：統計資料不含測試村及廢棄村。</p>
+              <hr class="major" />
+              <div class="content">
+              <!--[Elements]-->
+                <div class="lift:StatSnippet.stat">
+                  <div id="stat-table"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!--[Sidebar]-->
+        <div id="sidebar">
+          <div class="inner">
+
+            <!--[Menu]-->
+            <nav id="menu">
+              <header class="major">
+                <h2>選單</h2>
+              </header>
+              <ul>
+                <li><a href="main.html">首頁</a></li>
+                <li><a href="script_info.html">伺服器資訊</a></li>
+                <li><a href="version.html">版本紀錄</a></li>
+                <li><span class="opener">遊戲規則</span>
+                  <ul>
+                    <li><a href="rule.html#rule">基本規則</a></li>
+                    <li><a href="rule.html#rule_purpose">遊戲背景</a></li>
+                    <li><a href="rule.html#rule_win">勝利條件</a></li>
+                    <li><a href="rule.html#rule_plcnt">人數配置</a></li>
+                    <li><a href="rule.html#rule_cast">陣營屬下的角色</a></li>
+                    <li><a href="rule.html#rule_role">角色介紹</a></li>
+                    <li><a href="rule.html#rule_location">區域介紹</a></li>
+                    <li><a href="rule.html#rule_blackcard">黑卡介紹</a></li>
+                    <li><a href="rule.html#rule_whitecard">白卡介紹</a></li>
+                    <li><a href="rule.html#rule_greencard">綠卡介紹</a></li>
+                    <li><a href="rule.html#round">遊戲流程</a></li>
+                    <li><a href="rule.html#system">遊戲系統</a></li>
+                  </ul>
+                </li>
+                <li><span class="opener">過去紀錄</span>
+                  <ul>
+                    <li><a href="oldlog_list.html">全部顯示</a></li>
+                    <li><a href="oldlog_list.html?filter=noabandon">隱藏廢棄</a></li>
+                  </ul>
+                </li>
+                <li><span class="opener">頭像</span>
+                  <ul>
+                    <li><a href="icon_view.html">頭像一覽</a></li>
+                    <li><a href="icon_upload.html">頭像上傳</a></li>
+                  </ul>
+                </li>
+                <li><a href="faq.html">Ｑ＆Ａ</a></li>
+                <li><span class="opener">場次統計</span>
+                  <ul>
+                    <li><a href="stat.html?count=25">最近 25 場</a></li>
+                    <li><a href="stat.html?count=50">最近 50 場</a></li>
+                    <li><a href="stat.html?count=100">最近 100 場</a></li>
+                  </ul>
+                </li>
+                <li><span class="opener">連結</span>
+                  <ul>
+                    <li><a href="https://www.facebook.com/groups/789475714409882/">Facebook社團</a></li>
+                    <li><a href="bbs_list.html">討論區</a></li>
+                    <li><a href="http://diam.ngct.net/">鑽石伺服器（人狼）</a></li>
+                    <li><a href="http://higurashi.nctucs.org/">寒蟬伺服器（人狼）</a></li>
+                    <li><a href="http://touhou.jigokutushin.net/touhou/index.php">幻想鄉伺服器（人狼）</a></li>
+                    <li><a href="http://cheshire.pinomeng.com:82/main.html">鸚鵡實驗站（人狼）</a></li>
+                    <li><a href="http://cheshire.pinomeng.com:83/main.html">鸚鵡備份站（人狼）</a></li>
+                    <li><a href="http://jinroh.surl.tw/">人狼物語</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </nav>
+
+            <!--[Footer]-->
+            <footer id="footer">
+              <p class="copyright">
+                <img src="./images/grading_12.png" width="210" height="69" alt=""  class="image" />
+                <br/>Powered by<code><a href="http://liftweb.net/">Liftweb</a></code>.
+                <br/>Copyright 2011, <code>Plummtw</code>.
+                <br/>Admin by <code>赤坂なつき（柴郡猫）◆5PpFnM6Lus</code>.
+                <br/>Email to <code>mm018347★gmail.com</code>（★→@）.
+              </p>
+            </footer>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!--[Scripts]-->
+      <script src="assets/js/jquery.min.js"></script>
+      <script src="assets/js/browser.min.js"></script>
+      <script src="assets/js/breakpoints.min.js"></script>
+      <script src="assets/js/util.js"></script>
+      <script src="assets/js/main.js"></script>
+
     </div>
-  </div>
   </body>
 </html>

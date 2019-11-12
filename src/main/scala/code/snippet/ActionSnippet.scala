@@ -140,19 +140,21 @@ class ActionSnippet extends Logger {
       
       //println("target_str : " + target_str)
       
+      val role = currentuserentry.get_skill_role
+      
       val action = 
-      if ((currentuserentry.get_role == RoleDespair) && (currentuserentry.revealed.is) &&
+      if ((role == RoleDespair) && (currentuserentry.revealed.is) &&
           (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))  //絕望
         Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString)
-                               .actioner_id(currentuserentry.id.is)    
+                               .actioner_id(currentuserentry.id.is).action_flags(currentuserentry.card_flags.is)
       else if ((currentuserentry.has_item(CardEnum.B_MACHINE_GUN)) || 
-               ((currentuserentry.get_role == RoleAdriatic) && (currentuserentry.revealed.is) &&
+               ((role == RoleAdriatic) && (currentuserentry.revealed.is) &&
                 (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK))))
-        Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString) //機槍 && 亞德利斯
-                               .actioner_id(currentuserentry.id.is)
+        Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MULTIATTACK.toString) //機槍 && 亞德
+                               .actioner_id(currentuserentry.id.is).action_flags(currentuserentry.card_flags.is)
       else  
         Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_ATTACK.toString)
-                               .actioner_id(currentuserentry.id.is).actionee_id(target_id)
+                               .actioner_id(currentuserentry.id.is).actionee_id(target_id).action_flags(currentuserentry.card_flags.is)
                                
       RoomActor ! SignalAction(action)
     }
@@ -201,13 +203,9 @@ class ActionSnippet extends Logger {
         action.action_flags(UserEntryFlagEnum.BARRIER.toString)
       else if (actionee.has_item(CardEnum.W_FORTUNE_BROOCH))
         action.action_flags(CardEnum.W_FORTUNE_BROOCH.toString)
-      else if ((room.has_flag(RoomFlagEnum.UNSEEN_RESIST) && (actionee.get_role == RoleUnseen) && (actionee.revealed.is) &&
+      else if ((room.has_flag(RoomFlagEnum.UNSEEN_RESIST) && (actionee.get_skill_role == RoleUnseen) && (actionee.revealed.is) &&
                (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK))))
         action.action_flags(RoleEnum.UNSEEN.toString)
-      else if ((actionee.get_role == RoleLion) && (actionee.revealed.is) &&
-               (actionee.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actionee.hasnt_item(CardEnum.B_MASK)))
-        action.action_flags(RoleEnum.LION.toString)
-      
       
       RoomActor ! SignalAction(action)
     }
@@ -448,6 +446,51 @@ class ActionSnippet extends Logger {
          "cardchoose_1" -> <span>{card_radios(0)}<span>{CardEnum.get_card(card1.card.is).card_name}</span></span>,         
          "cardchoose_2" -> <span>{card_radios(1)}<span>{CardEnum.get_card(card2.card.is).card_name}</span></span>,
          "cardchoose" -> ajaxSubmit("選擇", () => { process; Unblock }),
+         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def cardchoose2(in: NodeSeq) = {
+    val room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    
+    val (card1, card2, card3) = GameProcessor.peek_card3(room, CardTypeEnum.withName(roomphase.phase_flags.is))
+    
+    val card_map  = Map(card1.id.is.toString->CardEnum.get_card(card1.card.is).card_name, 
+                        card2.id.is.toString->CardEnum.get_card(card2.card.is).card_name, 
+                        card3.id.is.toString->CardEnum.get_card(card3.card.is).card_name)
+    
+    var card_id_str = card1.id.is.toString
+    
+    val card_radios = SHtml.radio(card_map.keys.toList, Full(card_id_str), x => card_id_str = x)
+    
+    def process = {
+      val card = GameProcessor.draw_specific(room, card_id_str)
+    
+      if (CardEnum.get_card(card.card.is).isInstanceOf[Equipment]) 
+        card.owner_id(currentuserentry.id.is)
+      else
+        card.discarded(true)
+      card.save
+      
+      val mtype_enum = 
+        if (roomphase.phase_flags.is == CardTypeEnum.BLACK.toString ) MTypeEnum.ACTION_DRAWBLACKCARD
+        else if (roomphase.phase_flags.is == CardTypeEnum.WHITE.toString ) MTypeEnum.ACTION_DRAWWHITECARD
+        else MTypeEnum.ACTION_DRAWGREENCARD
+    
+      val action = Action.create.roomround_id(roomround.id.is).actioner_id(currentuserentry.id.is)
+                                 .mtype(mtype_enum.toString)
+                                 .action_flags(card.card.is)
+      RoomActor ! SignalAction(action)
+      Noop
+    }
+    
+    ajaxForm(bind("action", in,
+         "cardchoose_1" -> <span>{card_radios(0)}<span>{CardEnum.get_card(card1.card.is).card_name}</span></span>,         
+         "cardchoose_2" -> <span>{card_radios(1)}<span>{CardEnum.get_card(card2.card.is).card_name}</span></span>,       
+         "cardchoose_3" -> <span>{card_radios(2)}<span>{CardEnum.get_card(card3.card.is).card_name}</span></span>,
+         "cardchoose2" -> ajaxSubmit("選擇", () => { process; Unblock }),
          "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
@@ -708,7 +751,6 @@ class ActionSnippet extends Logger {
          "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
-  
   def pray(in: NodeSeq) = {
     val room : Room = Room_R.get
     val roomround = RoomRound_R.get
@@ -734,6 +776,34 @@ class ActionSnippet extends Logger {
          "pray_select" -> SHtml.select(targets_map,
                               Full(targets_map(0)._1),  x => target_str = x),
          "pray"   -> ajaxSubmit("祈禱", () => { process; Unblock }),
+         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def response(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionLubeResponse.targetable_cards(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    val targets_map = targets.map(x => (x.toString, CardEnum.get_card(x.toString).card_name))
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LUBE_RESPONSE.toString)
+                         .actioner_id(currentuserentry.id.is).action_flags(target_str)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "response_select" -> SHtml.select(targets_map,
+                              Full(targets_map(0)._1),  x => target_str = x),
+         "response"   -> ajaxSubmit("自然反撲", () => { process; Unblock }),
          "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
@@ -846,6 +916,46 @@ class ActionSnippet extends Logger {
         "itempreferred_select" -> SHtml.select(targets_map,
                               Full(targetitem_str),  x => targetitem_str = x),
         "itempreferred"-> ajaxSubmit("確定", () => { process; Unblock }),
+        "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def wishing(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionWishing.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    var wishing_str : String = ""
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      val target_id : Long = try {
+        target_str.toLong 
+      } catch {case e: Exception => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_WISHING.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id).action_flags(wishing_str)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+        "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+        "wishing_select" -> SHtml.select(Seq(("0","讓每個人都復活！"),
+                                             ("1","讓對象復活！"),
+                                             ("2","讓我能夠復活！"),
+                                             ("3","勝利在我手中！"),
+                                             //("4","世界在我手中！"),
+                                             ("5","我要找到工作！"),
+                                             ("6","姆咪姆咪心動動！"),
+                                             ("7","我要女孩子的內褲！"),
+                                             ("99","我什麼都不要。")),
+                              Full(wishing_str),  x => wishing_str = x),
+        "wishing"-> ajaxSubmit("確定", () => { process; Unblock }),
         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
@@ -995,6 +1105,64 @@ class ActionSnippet extends Logger {
          "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
+  def watermirror(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionTelWaterMirror.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      val target_id : Long = try {
+        target_str.toLong 
+      } catch {case e: Exception => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_TEL_WATERMIRROR.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "watermirror"             -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def ametsukicurse(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = ActionAmetsukiCurse.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      val target_id : Long = try {
+        target_str.toLong 
+      } catch {case e: Exception => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_AMETSUKI_CURSE.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "ametsukicurse"             -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
   def exchange(in: NodeSeq) = {
     val room : Room = Room_R.get
     val roomround = RoomRound_R.get
@@ -1025,9 +1193,76 @@ class ActionSnippet extends Logger {
            if (target_ids.length == 2) {
              process; Unblock 
            } else
-             Unblock & Alert("選擇之玩家數不為 2")
+             Unblock & Alert("請選擇 2 名玩家")
          }),
          "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def spike(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_ids : List[Long] = List()
+    val targets = ActionPuzzleSpike.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      /* val target_id : Long = try {
+        target_str.toLong 
+      } catch {case e: Exception => 0} */
+      
+      //println("target_id1 : " + target_ids(0).toString)
+      //println("target_id2 : " + target_ids(1).toString)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_PUZZLE_SPIKE.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_ids(0)).action_flags(target_ids(1).toString)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_choose_table(userentrys_rr, targets, x => (target_ids = target_ids ::: List(x))),
+         "spike"          -> ajaxSubmit("確定", () => {
+           if (target_ids.length == 2) {
+             process; Unblock 
+           } else
+             Unblock & Alert("請選擇 2 名玩家")
+         }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def pry(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str1 : String = ""
+    val targets = ActionWestLobePry.targetable_users(room, roomround, roomphase, currentuserentry, userentrys_rr)
+    
+    var target_str2 : String = RoleSideEnum.SHADOW.toString
+    
+    
+    def process = {
+      val target_id : Long = try {
+        target_str1.toLong 
+      } catch {case e: Exception => 0}
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_WESTLOBE_PRY.toString)
+                         .actioner_id(currentuserentry.id.is).actionee_id(target_id).action_flags(target_str2)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str1 = x)),
+         "pry_select" -> SHtml.select(RoleSideEnum.ROLESIDE_LIST.map(x=>(x.toString, RoleSideEnum.get_roleside_cname(x))),
+                              Full(target_str2),  x => target_str2 = x),
+         "pry" -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
   def reasona(in: NodeSeq) = {
@@ -1169,7 +1404,7 @@ class ActionSnippet extends Logger {
       //val currentuserentry = CurrentUserEntry_R.get
       
       //println("target_str : " + target_str)
-      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_CONFUSED.toString)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_MICAH_CONFUSED.toString)
                          .actioner_id(currentuserentry.id.is)
       RoomActor ! SignalAction(action)
     }
@@ -1177,6 +1412,52 @@ class ActionSnippet extends Logger {
     ajaxForm(bind("action", in,
          //"user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
          "confused"            -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def control(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_SETH_CONTROL.toString)
+                         .actioner_id(currentuserentry.id.is)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         //"user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "control"            -> ajaxSubmit("確定", () => { process; Unblock }),
+         "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  
+  def resentful(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_GINGER_RESENTFUL.toString)
+                         .actioner_id(currentuserentry.id.is)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         //"user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
+         "resentful"            -> ajaxSubmit("確定", () => { process; Unblock }),
          "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
   
@@ -1207,5 +1488,55 @@ class ActionSnippet extends Logger {
          "user_select_table" -> UserEntryHelper.user_select_table(userentrys_rr, targets, x => (target_str = x)),
          "capture"            -> ajaxSubmit("確定", () => { process; Unblock }),
          "cancel"            -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  //轉職
+  def use(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    var target_str : String = ""
+    val targets = currentuserentry.getroles
+    val targets_map = targets.map(x => (x.role_enum.toString, x.role_name))
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LEON_USE.toString)
+                         .actioner_id(currentuserentry.id.is).action_flags(target_str)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "use_select" -> SHtml.select(targets_map,
+                              Full(targets_map(0)._1),  x => target_str = x),
+         "use" -> ajaxSubmit("閃爍", () => { process; Unblock }),
+         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
+  }
+  //課金
+  def charges(in: NodeSeq) = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val roomphase = RoomPhase_R.get
+    val currentuserentry : UserEntry = CurrentUserEntry_R.get
+    val userentrys_rr = UserEntrys_RR.get
+    
+    def process = {
+      //val roomround = RoomRound_R.get
+      //val currentuserentry = CurrentUserEntry_R.get
+      
+      //println("target_str : " + target_str)
+      val action = Action.create.roomround_id(roomround.id.is).mtype(MTypeEnum.ACTION_LEON_CHARGES.toString)
+                         .actioner_id(currentuserentry.id.is)
+      RoomActor ! SignalAction(action)
+    }
+    
+    ajaxForm(bind("action", in,
+         "charges" -> ajaxSubmit("碎片", () => { process; Unblock }),
+         "cancel" -> <button onclick={Unblock.toJsCmd}>取消</button>))
   }
 }

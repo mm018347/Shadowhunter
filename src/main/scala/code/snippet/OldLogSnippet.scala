@@ -66,29 +66,25 @@ class OldLogSnippet {
     val next_page = if (room_list.length != 20) <span></span>
                     else <a href={"oldlog_list.html?page_no=" + (page_no+1).toString + filter_str}>下一頁</a>
 
-    val room_table = <table>
-      <tr>
-        <th class="column">房No</th>
-        <th class="column">房名</th>
-        <th class="column">附註</th>
-        <th class="column">人數</th>
-        <th class="column">勝</th>
-      </tr>
+    val room_table = <div class="row gtr-25 gtr-uniform">
       { for (room <- room_list) yield 
-      <tr> 
-        <td class="number" rowspan="2">{room.id.is.toString}</td> 
-        <td class="title">
-         <a href={"oldlog_view.html?room_no="+room.id.is.toString}>{room.room_name.is}</a>
-        </td> 
-        <td class="comment side"><small>～ {room.room_comment.is.toString} ～</small></td> 
-        <td class="upper">[ {room.max_user.is.toString}人用]</td> 
-        <td class="time">[{victorys(room)}]</td>
-	  </tr>
-      <tr>
-        <td class="option" colspan="5"><small>{room.option_text}</small></td>
-      </tr>
+        <div class="col-1 col-2-small">
+          <code class="number">{room.id.is.toString}</code>
+        </div>
+        <div class="col-5 col-10-small">
+          <a href={"oldlog_view.html?room_no="+room.id.is.toString} class="title">{room.room_name.is}</a>
+        </div>
+        <div class="col-4 col-9-small">
+          <span class="room_comment">～ {room.room_comment.is.toString} ～</span>
+        </div>
+        <div class="col-2 col-3-small"><span class="room_comment side">
+          <code class="upper">最多 {room.max_user.is.toString} 人</code>
+        </span></div>
+        <div class="col-6"><code class="victory">勝利</code>{victorys(room)}</div>
+        <div class="col-6 room_comment"><code class="time">{room.talk_time.is.toString}</code></div>
+        <div class="col-12 room_option">{room.option_text}</div>
       }
-    </table> 
+      </div>
     
     "#last_page"  #>  last_page &
     "#next_page"  #>  next_page &
@@ -160,7 +156,7 @@ class OldLogSnippet {
       
     val user_table = UserEntryHelper.user_table(room, roomphase, GlobalUserEntry.NoUserEntry, userentrys_in, true)
     val location_table = LocationHelper.location_table(room, userentrys_in)
-    val talk_table = MessageHelper.messages_all(room.id.is, userentrys, true)
+    val talk_table = MessageHelper.messages_all(room.id.is, room, userentrys, true)
     val card_table = CardHelper.card_table(room, CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending)))
     
     //<meta http-equiv="refresh" content={auto_reload_str} />

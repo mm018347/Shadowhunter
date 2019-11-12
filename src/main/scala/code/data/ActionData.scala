@@ -134,7 +134,7 @@ object ActionFlip extends ActionData(MTypeEnum.ACTION_FLIP, "翻開")  {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
-    val role = currentuserentry.get_role
+    val role = currentuserentry.get_skill_role
     
     //println("Flip Role : " + role.toString)
     //println("Role == UltraSoul : " + (role == RoleUltraSoul))
@@ -188,6 +188,32 @@ object ActionCardChoose extends ActionData(MTypeEnum.ACTION_CARDCHOOSE, "選擇�
   */
 }
 
+object ActionCardChoose2 extends ActionData(MTypeEnum.ACTION_CARDCHOOSE2, "選擇卡片")  {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.LOCATION.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (roomphase.phase_flags.is != "")
+  }
+  
+  override def js_command : JsCmd = js_dialog("cardchoose2_dialog")
+  
+  /*
+  override def targetable_cards(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry])  : List[CardEnum.Value] = {
+    //val userentrys = UserEntrys_RR.get
+    
+    //CardEnum.EQUIPMENT_LIST
+    val discarded_whites = CardPool.findAll(By(CardPool.room_id, room.id.is),
+                                            By(CardPool.card_type, CardTypeEnum.WHITE.toString),
+                                            By(CardPool.discarded, true))
+    
+    discarded_whites.map(x=>CardEnum.get_card(x.card.is).card_enum)
+                    .filter(x => !CardEnum.EQUIPMENT_LIST.contains(x))
+  }
+  */
+}
+
 object ActionDrawBlackCard extends ActionData(MTypeEnum.ACTION_DRAWBLACKCARD, "黑卡")  {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
@@ -211,12 +237,18 @@ object ActionDrawBlackCard extends ActionData(MTypeEnum.ACTION_DRAWBLACKCARD, "�
     val black_remains = card_remains.filter(x => 
                                             (x.card_no.is >= room.blackcard_index.is) &&
                                             (x.card_type.is ==  CardTypeEnum.BLACK.toString))
-    
-    if ((currentuserentry.get_role == RoleEvan) &&
+    val role = currentuserentry.get_role
+    val skill_role = currentuserentry.get_skill_role
+    if ((role == RoleEvan) &&
         (targetuserentry.length != 0) && (targetuserentry(0).live.is) &&
         (black_remains.length != 1)) {
       roomphase.phase_flags(CardTypeEnum.BLACK.toString).save
       js_dialog("cardchoose_dialog")
+      
+    } else if ((skill_role == RoleAki) && (currentuserentry.revealed.is) &&
+        (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK))) {
+      roomphase.phase_flags(CardTypeEnum.BLACK.toString).save
+      js_dialog("cardchoose2_dialog")
       
     } else {
       val card = GameProcessor.draw_card(room, CardTypeEnum.BLACK)
@@ -260,12 +292,18 @@ object ActionDrawWhiteCard extends ActionData(MTypeEnum.ACTION_DRAWWHITECARD, "�
                                             (x.card_no.is >= room.whitecard_index.is) &&
                                             (x.card_type.is ==  CardTypeEnum.WHITE.toString))
     
-    
-    if ((currentuserentry.get_role == RoleEvan) &&
+    val role = currentuserentry.get_role
+    val skill_role = currentuserentry.get_skill_role
+    if ((role == RoleEvan) &&
         (targetuserentry.length != 0) && (targetuserentry(0).live.is) &&
         (white_remains.length != 1)) {
       roomphase.phase_flags(CardTypeEnum.WHITE.toString).save
       js_dialog("cardchoose_dialog")
+      
+    } else if ((skill_role == RoleAki) && (currentuserentry.revealed.is) &&
+        (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK))) {
+      roomphase.phase_flags(CardTypeEnum.WHITE.toString).save
+      js_dialog("cardchoose2_dialog")
       
     } else {
       val card = GameProcessor.draw_card(room, CardTypeEnum.WHITE)
@@ -309,12 +347,18 @@ object ActionDrawGreenCard extends ActionData(MTypeEnum.ACTION_DRAWGREENCARD, "�
     val green_remains = card_remains.filter(x => 
                                             (x.card_no.is >= room.whitecard_index.is) &&
                                             (x.card_type.is ==  CardTypeEnum.GREEN.toString))
-    
-    if ((currentuserentry.get_role == RoleEvan) &&
+    val role = currentuserentry.get_role
+    val skill_role = currentuserentry.get_skill_role
+    if ((role == RoleEvan) &&
         (targetuserentry.length != 0) && (targetuserentry(0).live.is) &&
         (green_remains.length != 1)) {
       roomphase.phase_flags(CardTypeEnum.GREEN.toString).save
       js_dialog("cardchoose_dialog")
+    } else if ((skill_role == RoleAki) && (currentuserentry.revealed.is) &&
+        (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK))) {
+      roomphase.phase_flags(CardTypeEnum.GREEN.toString).save
+      js_dialog("cardchoose2_dialog")
+      
     } else {
       val action = Action.create.roomround_id(roomround.id.is).actioner_id(currentuserentry.id.is)
                                 .mtype(MTypeEnum.ACTION_DRAWGREENCARD.toString)
@@ -332,6 +376,23 @@ object ActionNoLoc extends ActionData(MTypeEnum.ACTION_NOLOC, "放棄")  {
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.phase_type.is == RoomPhaseEnum.LOCATION.toString) &&
     (roomphase.player.is == currentuserentry.id.is) 
+  }
+  
+  override def js_command : JsCmd = js_action
+}
+
+object ActionNoCard extends ActionData(MTypeEnum.ACTION_NOCARD, "放棄卡片")  {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    val userentrys_l = userentrys_rr.filter(x => (x.live.is))
+    
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    ((roomphase.phase_type.is == RoomPhaseEnum.CARD.toString)
+    || (roomphase.phase_type.is == RoomPhaseEnum.CARD_SKILL.toString)
+    || (roomphase.phase_type.is == RoomPhaseEnum.CARD_CHOOSE.toString)
+    || (roomphase.phase_type.is == RoomPhaseEnum.CARD_AKI.toString)) &&
+    (roomphase.player.is == currentuserentry.id.is)  &&
+    (userentrys_l.length == 1) 
   }
   
   override def js_command : JsCmd = js_action
@@ -384,12 +445,12 @@ object ActionLocRob extends ActionData(MTypeEnum.ACTION_LOCROB, "搶奪") with U
     //val currentuserentry = CurrentUserEntry_R.get
     //val userentrys = UserEntrys_RR.get
     userentrys_rr.filter(x=> (x.live.is) && (x.id.is != currentuserentry.id.is) &&
-                          (x.items.length > 0) && ((currentuserentry.hasnt_user_flag(UserEntryFlagEnum.LOVER) || (x.hasnt_user_flag(UserEntryFlagEnum.LOVER)))) )
+                          ((currentuserentry.hasnt_user_flag(UserEntryFlagEnum.LOVER) || (x.hasnt_user_flag(UserEntryFlagEnum.LOVER)))) )
   }  
   
   override def js_command : JsCmd = {
     val currentuserentry = CurrentUserEntry_R.get
-    val role = currentuserentry.get_role
+    val role = currentuserentry.get_skill_role
     
     if ((role == RoleBob) || (role == RoleDavid))
       js_dialog("locrob2_dialog")
@@ -427,15 +488,15 @@ object ActionAttack extends ActionData(MTypeEnum.ACTION_ATTACK, "攻擊") with U
     //val room = Room_R.get
     //val currentuserentry = CurrentUserEntry_R.get
     //val userentrys = UserEntrys_RR.get
-    
+    val role = currentuserentry.get_skill_role
     val neighbor = LocationHelper.neighbor(room, currentuserentry.location.is)
     
     val userentrys1 = userentrys_rr.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is) && (!x.revoked.is) && (x.location.is != "") &&
       ((currentuserentry.hasnt_user_flag(UserEntryFlagEnum.LOVER) || (x.hasnt_user_flag(UserEntryFlagEnum.LOVER))))                                     
     )
-
+    
     val userentrys2 =
-      if ((currentuserentry.get_role == RoleDespair) && (currentuserentry.revealed.is) &&
+      if (((role == RoleDespair) || (room.has_flag(RoomFlagEnum.GODFAT_REUSE)) && (role == RoleGodfat)) && (currentuserentry.revealed.is) &&
           (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))
         userentrys1
       else if (currentuserentry.has_item(CardEnum.B_HANDGUN))
@@ -446,14 +507,14 @@ object ActionAttack extends ActionData(MTypeEnum.ACTION_ATTACK, "攻擊") with U
                                ((x.location.is == currentuserentry.location.is)))
           
     val userentrys_decoys =
-      userentrys2.filter(x => (x.revealed.is) && (x.get_role == RoleADecoy))
+      userentrys2.filter(x => (x.revealed.is) && (x.get_skill_role == RoleADecoy))
     
     if ((currentuserentry.has_user_flag(UserEntryFlagEnum.FROG)) || (currentuserentry.has_user_flag(UserEntryFlagEnum.FIREWORK)))
       List()
     else if (currentuserentry.has_user_flag(UserEntryFlagEnum.TAUNT) && (userentrys_decoys.length != 0))
       userentrys_decoys
     else if (userentrys2.length > 1)
-      userentrys2.filterNot(x => (x.get_role == RoleUnseen) && (x.revealed.is) &&
+      userentrys2.filterNot(x => (x.get_skill_role == RoleUnseen) && (x.revealed.is) &&
                                  (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
     else
       userentrys2
@@ -467,15 +528,15 @@ object ActionMultiAttack extends ActionData(MTypeEnum.ACTION_MULTIATTACK, "範�
     //val room = Room_R.get
     //val currentuserentry = CurrentUserEntry_R.get
     //val userentrys = UserEntrys_RR.get
-    
+    val role = currentuserentry.get_skill_role
     val neighbor = LocationHelper.neighbor(room, currentuserentry.location.is)
     
     val userentrys1 = userentrys_rr.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is) && (!x.revoked.is) && (x.location.is != "") &&
       ((currentuserentry.hasnt_user_flag(UserEntryFlagEnum.LOVER) || (x.hasnt_user_flag(UserEntryFlagEnum.LOVER))))                                     
     )
-
+    
     val userentrys2 =
-      if ((currentuserentry.get_role == RoleDespair) && (currentuserentry.revealed.is) &&
+      if (((role == RoleDespair) || (role == RoleGodfat)) && (currentuserentry.revealed.is) &&
           (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)))
         userentrys1
       else if (currentuserentry.has_item(CardEnum.B_HANDGUN))
@@ -486,14 +547,14 @@ object ActionMultiAttack extends ActionData(MTypeEnum.ACTION_MULTIATTACK, "範�
                                ((x.location.is == currentuserentry.location.is)))
           
     val userentrys_decoys =
-      userentrys2.filter(x => (x.revealed.is) && (x.get_role == RoleADecoy))
+      userentrys2.filter(x => (x.revealed.is) && (x.get_skill_role == RoleADecoy))
     
     if ((currentuserentry.has_user_flag(UserEntryFlagEnum.FROG)) || (currentuserentry.has_user_flag(UserEntryFlagEnum.FIREWORK)))
       List()
     //else if (currentuserentry.has_user_flag(UserEntryFlagEnum.TAUNT) && (userentrys_decoys.length != 0))
     //  userentrys_decoys
     else if (userentrys2.length > 1)
-      userentrys2.filterNot(x => (x.get_role == RoleUnseen) && (x.revealed.is) &&
+      userentrys2.filterNot(x => (x.get_skill_role == RoleUnseen) && (x.revealed.is) &&
                                  (x.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (x.hasnt_item(CardEnum.B_MASK)))
     else
       userentrys2
@@ -555,6 +616,7 @@ object ActionWhiteCard extends ActionData(MTypeEnum.ACTION_WHITECARD, "使用白
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
     ((roomphase.phase_type.is == RoomPhaseEnum.CARD_SKILL.toString) ||
+     (roomphase.phase_type.is == RoomPhaseEnum.CARD_AKI.toString) ||
      (roomphase.phase_type.is == RoomPhaseEnum.CARD.toString)) &&
     (roomphase.player.is == currentuserentry.id.is) 
   }
@@ -579,8 +641,10 @@ object ActionBlackCard extends ActionData(MTypeEnum.ACTION_BLACKCARD, "使用黑
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
-    (roomphase.phase_type.is == RoomPhaseEnum.CARD.toString) &&
-    (roomphase.player.is == currentuserentry.id.is) 
+    ((roomphase.phase_type.is == RoomPhaseEnum.CARD_SKILL.toString) ||
+     (roomphase.phase_type.is == RoomPhaseEnum.CARD_AKI.toString) ||
+     (roomphase.phase_type.is == RoomPhaseEnum.CARD.toString)) &&
+     (roomphase.player.is == currentuserentry.id.is) 
   }
   
   override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
@@ -600,7 +664,7 @@ object ActionWerewolfAmbush extends ActionData(MTypeEnum.ACTION_WEREWOLF_AMBUSH,
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
-    val role = currentuserentry.get_role
+    val role = currentuserentry.get_skill_role
     
     (roomphase.phase_type.is != RoomPhaseEnum.GAMEHALL.toString) &&
     (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
@@ -616,7 +680,7 @@ object ActionAllieMotherLove extends ActionData(MTypeEnum.ACTION_ALLIE_MOTHERLOV
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
-    val role = currentuserentry.get_role
+    val role = currentuserentry.get_skill_role
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
@@ -892,6 +956,31 @@ object ActionFatherOconnelPray extends ActionData(MTypeEnum.ACTION_FATHEROCONNEL
   } 
 }
 
+object ActionLubeResponse extends ActionData(MTypeEnum.ACTION_LUBE_RESPONSE, "自然反撲") with CardTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    (roomphase.phase_type.is != RoomPhaseEnum.GAMEHALL.toString) &&
+    (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.revealed)
+  }
+  
+  override def js_command : JsCmd = js_dialog("response_dialog")
+  
+  override def targetable_cards(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry])  : List[CardEnum.Value] = {
+    //val userentrys = UserEntrys_RR.get
+    
+    //CardEnum.EQUIPMENT_LIST
+    val discarded_natures = CardPool.findAll(By(CardPool.room_id, room.id.is),
+                                            By(CardPool.card_type, CardTypeEnum.WHITE.toString),
+                                            By(CardPool.discarded, true))
+    
+    discarded_natures.map(x=>CardEnum.get_card(x.card.is).card_enum)
+                    .filter(x => CardEnum.NATURE_LIST.contains(x))
+  } 
+}
+
 object ActionCassandraFateChange extends ActionData(MTypeEnum.ACTION_CASSANDRA_FATECHANGE, "命運轉變") with UserEntryTargetable {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
@@ -921,7 +1010,7 @@ object ActionCassandraGive extends ActionData(MTypeEnum.ACTION_CASSANDRA_GIVE, "
   
   override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
     userentrys_rr.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is) &&
-                            (x.revealed.is) && (x.get_role == RoleCassandra))
+                            (x.revealed.is) && (x.get_skill_role == RoleCassandra))
   }  
   override def js_command : JsCmd = js_dialog("cassandragive_dialog")
 }
@@ -934,6 +1023,21 @@ object ActionItemPreferred extends ActionData(MTypeEnum.ACTION_ITEMPREFERRED, "�
   }
   
   override def js_command : JsCmd = js_dialog("itempreferred_dialog")
+}
+
+object ActionWishing extends ActionData(MTypeEnum.ACTION_WISHING, "許願") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    val live_dragons = userentrys_rr.filter(x => (x.live.is) && (x.get_skill_role == RoleDragon))
+    (roomphase.phase_type.is != RoomPhaseEnum.GAMEHALL.toString) &&
+    (roomphase.phase_type.is != RoomPhaseEnum.ENDED.toString) &&
+    (currentuserentry.beads.is >= 7) &&
+    (live_dragons.length > 0)
+  }
+  
+  override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
+    userentrys_rr.filter(x=>(x.id.is != currentuserentry.id.is) && (x.get_skill_role != RoleDragon))
+  }
+  override def js_command : JsCmd = js_dialog("wishing_dialog")
 }
 
 object ActionBombBomb extends ActionData(MTypeEnum.ACTION_BOMB_BOMB, "炸彈") with LocationTargetable {
@@ -963,7 +1067,7 @@ object ActionAngelReincarnate extends ActionData(MTypeEnum.ACTION_ANGEL_REINCARN
   
   override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
     userentrys_rr.filter(x=>(x.id.is != currentuserentry.id.is) && (!x.live.is) &&
-                            (x.get_role != RoleAngel))
+                            (x.get_skill_role != RoleAngel))
   }
   
   
@@ -1023,6 +1127,20 @@ object ActionADecoyTaunt extends ActionData(MTypeEnum.ACTION_ADECOY_TAUNT, "嘲�
   override def js_command : JsCmd = js_dialog("taunt_dialog")
 }
 
+object ActionAmetsukiCurse extends ActionData(MTypeEnum.ACTION_AMETSUKI_CURSE, "訃影禁咒") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.revealed) 
+  }
+  
+  override def js_command : JsCmd = js_dialog("ametsukicurse_dialog")
+}
+
 object ActionGodfatExchange extends ActionData(MTypeEnum.ACTION_GODFAT_EXCHANGE, "交換位置") with UserEntryTargetable {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
@@ -1041,6 +1159,71 @@ object ActionGodfatExchange extends ActionData(MTypeEnum.ACTION_GODFAT_EXCHANGE,
     //val userentrys = UserEntrys_RR.get
     
     userentrys_rr.filter(x=> (x.live.is))
+  }
+}
+
+object ActionTelWaterMirror extends ActionData(MTypeEnum.ACTION_TEL_WATERMIRROR, "水鏡") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.revealed) 
+  }
+  
+  override def js_command : JsCmd = js_dialog("watermirror_dialog")
+  
+  override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
+    //val currentuserentry = CurrentUserEntry_R.get
+    //val userentrys = UserEntrys_RR.get
+    
+    userentrys_rr.filter(x=> (x.id.is != currentuserentry.id.is) &&
+    (x.revealed.is) &&
+    (x.get_role != RoleTel) &&
+    (x.get_role != RoleCheshire))
+  }
+}
+
+object ActionPuzzleSpike extends ActionData(MTypeEnum.ACTION_PUZZLE_SPIKE, "瞬殺") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.revealed) 
+  }
+  
+  override def js_command : JsCmd = js_dialog("spike_dialog")
+  
+  override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
+    //val currentuserentry = CurrentUserEntry_R.get
+    //val userentrys = UserEntrys_RR.get
+    
+    userentrys_rr.filter(x=> (x.live.is))
+  }  
+}
+
+object ActionWestLobePry extends ActionData(MTypeEnum.ACTION_WESTLOBE_PRY, "靈魂窺探") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.revealed) 
+  }
+  
+  override def js_command : JsCmd = js_dialog("pry_dialog")
+  
+  override def targetable_users(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) : List[UserEntry] = {
+    //val currentuserentry = CurrentUserEntry_R.get
+    //val userentrys = UserEntrys_RR.get
+    
+    userentrys_rr.filter(x=> (x.id.is != currentuserentry.id.is) && (x.live.is) && (!x.revealed.is))
   }  
 }
 
@@ -1117,7 +1300,7 @@ object ActionFighterStrike extends ActionData(MTypeEnum.ACTION_FIGHTER_STRIKE, "
   override def js_command : JsCmd = js_dialog("strike_dialog")
 }
 
-object ActionConfused extends ActionData(MTypeEnum.ACTION_CONFUSED, "遺失") with UserEntryTargetable {
+object ActionMicahConfused extends ActionData(MTypeEnum.ACTION_MICAH_CONFUSED, "遺失") with UserEntryTargetable {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
@@ -1139,6 +1322,14 @@ object ActionConfused extends ActionData(MTypeEnum.ACTION_CONFUSED, "遺失") wi
 }
 
 object ActionAichaGrasp extends ActionData(MTypeEnum.ACTION_AICHA_GRASP, "光之掌握")  {
+  val room      = Room_R.get
+  val roomround = RoomRound_R.get
+  val roomphase = RoomPhase_R.get
+  val currentuserentry = CurrentUserEntry_R.get
+  val cardpools = CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending))
+  val white_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.WHITE.toString))
+  val white_discareds_length : Int = (white_discards.length / 3)
+  
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
@@ -1146,34 +1337,25 @@ object ActionAichaGrasp extends ActionData(MTypeEnum.ACTION_AICHA_GRASP, "光之
     (roomphase.player.is == currentuserentry.id.is) &&
     (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
     (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
-    (currentuserentry.revealed)
-  }  
+    (currentuserentry.revealed) &&
+    (white_discareds_length != 0)
+  }
   
   override def js_command : JsCmd = {
-    val room      = Room_R.get
-    val roomround = RoomRound_R.get
-    val roomphase = RoomPhase_R.get
-    val currentuserentry = CurrentUserEntry_R.get
-    val cardpools = CardPool.findAll(By(CardPool.room_id, room.id.is), OrderBy(CardPool.card_no, Ascending))
-    val white_discards = cardpools.filter(x => (x.discarded.is == true) && (x.card_type.is == CardTypeEnum.WHITE.toString))
-    val white_discareds_length : Int = (white_discards.length / 3)
-    
-    val manipulate_length = white_discareds_length
-    
     val action = Action.create.roomround_id(roomround.id.is).actioner_id(currentuserentry.id.is)
-                              .mtype(action_enum.toString).action_flags(manipulate_length.toString)
+                              .mtype(action_enum.toString).action_flags(white_discareds_length.toString)
     RoomActor ! SignalAction(action)
     Noop
   }
 }
 
-object ActionClackenCapture extends ActionData(MTypeEnum.ACTION_CLACKEN_CAPTURE, "抓抓") with UserEntryTargetable {
+object ActionClackenCapture extends ActionData(MTypeEnum.ACTION_CLACKEN_CAPTURE, "捕捉") with UserEntryTargetable {
   override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
     //val roomphase = RoomPhase_R.get
     //val currentuserentry = CurrentUserEntry_R.get
     (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
     (roomphase.player.is == currentuserentry.id.is) &&
-    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED)) &&
     (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
     (currentuserentry.revealed)
   }
@@ -1186,5 +1368,84 @@ object ActionClackenCapture extends ActionData(MTypeEnum.ACTION_CLACKEN_CAPTURE,
   } */
   
   override def js_command : JsCmd = js_dialog("capture_dialog")
+}
+
+object ActionSethControl extends ActionData(MTypeEnum.ACTION_SETH_CONTROL, "掌管") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    val card_remains = CardPool.findAll(By(CardPool.room_id, room.id.is)) 
+    val white_remains = card_remains.filter(x => 
+                                            (x.card_no.is >= room.whitecard_index.is) &&
+                                            (x.card_type.is ==  CardTypeEnum.WHITE.toString))
+    val black_remains = card_remains.filter(x => 
+                                            (x.card_no.is >= room.blackcard_index.is) &&
+                                            (x.card_type.is ==  CardTypeEnum.BLACK.toString))
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.phase_type.is == RoomPhaseEnum.MOVEMENT.toString) &&
+    (roomround.round_no.is > 1) &&
+    (white_remains.length > 0) &&
+    (black_remains.length > 0) &&
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.revealed)
+  }
+  
+  override def js_command : JsCmd = js_dialog("control_dialog")
+}
+
+object ActionLeonCharges extends ActionData(MTypeEnum.ACTION_LEON_CHARGES, "碎片") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_MOVESKILL_USED))
+    //(currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    //(currentuserentry.revealed)
+  }
+  
+  /* override def targetable_users : List[UserEntry] = {
+    val currentuserentry = CurrentUserEntry_R.get
+    val userentrys = UserEntrys_RR.get
+    
+    userentrys.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is))
+  } */
+  
+  override def js_command : JsCmd = js_dialog("charges_dialog")
+}
+
+object ActionLeonUse extends ActionData(MTypeEnum.ACTION_LEON_USE, "閃爍") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (currentuserentry.getrole_flags.is != "")
+    //(currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    //(currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    //(currentuserentry.revealed)
+  }
+  
+  override def js_command : JsCmd = js_dialog("use_dialog")
+}
+
+object ActionGingerResentful extends ActionData(MTypeEnum.ACTION_GINGER_RESENTFUL, "憤槌") with UserEntryTargetable {
+  override def enabled(room: Room, roomround: RoomRound, roomphase:RoomPhase, currentuserentry : UserEntry, userentrys_rr : List[UserEntry]) = {
+    //val roomphase = RoomPhase_R.get
+    //val currentuserentry = CurrentUserEntry_R.get
+    (roomphase.player.is == currentuserentry.id.is) &&
+    (room.has_flag(RoomFlagEnum.GINGER_REUSE)) &&
+    (currentuserentry.hasnt_role_flag(UserEntryRoleFlagEnum.ROLE_SKILL_USED)) &&
+    (currentuserentry.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (currentuserentry.hasnt_item(CardEnum.B_MASK)) &&
+    (currentuserentry.revealed)
+  }
+  
+  /* override def targetable_users : List[UserEntry] = {
+    val currentuserentry = CurrentUserEntry_R.get
+    val userentrys = UserEntrys_RR.get
+    
+    userentrys.filter(x=>(x.id.is != currentuserentry.id.is) && (x.live.is))
+  } */
+  
+  override def js_command : JsCmd = js_dialog("resentful_dialog")
 }
 

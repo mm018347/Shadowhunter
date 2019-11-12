@@ -28,9 +28,11 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
   private var password    = ""
   private var trip        = ""
   private var sex        = "M"
-  private var align       = ""
+  private var wish_align   = ""
   private var role        = ""
-  private var unknown_init = "UN"
+  private var wish_role = ""
+  private var hate_role = ""
+  private var unknown_init = "NE"
   private var user_icon       = "0"
   private var user_icon_input = ""
   
@@ -88,7 +90,7 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
       val userentry = UserEntry.create.uname(uname.trim()).handle_name(handle_name.replace('　',' ').trim()).sex(sex)
                                 .trip(trip_value).password(password)
                                 .room_id(room_id).user_icon_id(user_icon_id1).role_flags(unknown_init)
-                                .role(role).subrole(align).last_words("")
+                                .role(wish_role).subrole(wish_align).haterole(hate_role).last_words("")
                                 .ip_address(S.request.map{x=>PlummUtil.getIpAddress(x)}.openOr(""))
                       
       
@@ -173,9 +175,8 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
         <tr><td colspan="5">{user_icon_radios(0)}編號：{SHtml.text("", x => user_icon_input = x)}</td></tr> {
         for (icon_group <- icon_groups) yield <tr> { 
           for (icon <- icon_group) yield 
-            <td class="icon_details"><label for={"icon_" + icon.id.is}><img alt={icon.icon_name.is} src={icon.icon_filename.is} width={icon.icon_width.is.toString} height={icon.icon_height.is.toString} style={"border:3px solid " + icon.color.is}/><br clear="all"/>
-             {addIdAttribute(user_icon_radios(icon.id.is.toString), "icon_", icon.id.is)} No. {icon.id.is} <br/>
-             <font color={icon.color.is}>◆</font>{icon.icon_name.is}</label></td>
+            <td class="icon_details">{addIdAttribute(user_icon_radios(icon.id.is.toString), "icon_", icon.id.is)}<label for={"icon_" + icon.id.is}><img alt={icon.icon_name.is} src={icon.icon_filename.is} width={icon.icon_width.is.toString} height={icon.icon_height.is.toString} style={"border:3px solid " + icon.color.is}/><br clear="all"/>
+             No. {icon.id.is}<br/><font color={icon.color.is}>◆</font>{icon.icon_name.is}</label></td>
           } </tr> 
         } 
         </table> 
@@ -186,10 +187,10 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
         icon_table_index -= 1
       
         SetHtml("icon-table", user_icon_xhtml(icon_table_index)) &
-        SetHtml("icon-table-prev", (if (icon_table_index > 0) ajaxButton("[上一頁]", () => process_prev)
+        SetHtml("icon-table-prev", (if (icon_table_index > 0) ajaxButton("上一頁", () => process_prev)
           else <span></span>)) &
         SetHtml("icon-table-next", 
-         (if (icon_table_max_index > icon_table_index) ajaxButton("[下一頁]", () => process_next)
+         (if (icon_table_max_index > icon_table_index) ajaxButton("下一頁", () => process_next)
           else <span></span>) )
       } else Noop
     }
@@ -199,9 +200,9 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
         icon_table_index += 1
       
         SetHtml("icon-table", user_icon_xhtml(icon_table_index)) &
-        SetHtml("icon-table-prev", ajaxButton("[上一頁]", () => process_prev)) &
+        SetHtml("icon-table-prev", ajaxButton("上一頁", () => process_prev)) &
         SetHtml("icon-table-next", 
-         (if (icon_table_max_index > icon_table_index) ajaxButton("[下一頁]", () => process_next)
+         (if (icon_table_max_index > icon_table_index) ajaxButton("下一頁", () => process_next)
           else <span></span>) )
       } else Noop
     }
@@ -217,16 +218,22 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
     "#female"          #> sex_radios(1) &
     "#wish-align"      #> (if (room.has_flag(RoomFlagEnum.WISH_ALIGN))
                              SHtml.select(Seq(("","不指定"),("S","暗影"),("H","獵人"),("N","中立")),
-                              Full(align),  x => align = x) 
+                              Full(wish_align),  x => wish_align = x) 
                            else
                              SHtml.select(Seq(("","不指定")),
-                              Full(align),  x => align = x)) &
+                              Full(wish_align),  x => wish_align = x)) &
     "#wish-role"      #> (if (room.has_flag(RoomFlagEnum.WISH_ROLE))
                              SHtml.select(RoleEnum.WISH_ROLE_LIST.map(x=>(x.toString, RoleEnum.get_role(x.toString).role_name)),
-                              Full(unknown_init),  x => unknown_init = x)
+                              Full(wish_role),  x => wish_role = x)
                            else
                              SHtml.select(Seq(("","不指定")),
-                              Full(align),  x => align = x)) &
+                              Full(wish_role),  x => wish_role = x)) &
+    "#hate-role"      #> (if (room.has_flag(RoomFlagEnum.HATE_ROLE))
+                             SHtml.select(RoleEnum.WISH_ROLE_LIST.map(x=>(x.toString, RoleEnum.get_role(x.toString).role_name)),
+                              Full(hate_role),  x => hate_role = x)
+                           else
+                             SHtml.select(Seq(("","不指定")),
+                              Full(wish_role),  x => wish_role = x)) &
     "#unknown-init"    #> SHtml.select(RoleEnum.UNKNOWN_DECEIVE_LIST.map(x=>(x.toString, RoleEnum.get_role(x.toString).role_name)),
                               Full(unknown_init),  x => unknown_init = x) &           
     //"#shadow"          #> align_radios(0) & 
@@ -235,7 +242,7 @@ class UserEntryRegisterSnippet extends StatefulSnippet {
     "#icon-table *"      #> user_icon_xhtml(icon_table_index) &
     "#icon-table-prev *" #> <span></span> &
     "#icon-table-next *" #> 
-      (if (icon_table_max_index > icon_table_index) ajaxButton("[下一頁]", () => process_next) 
+      (if (icon_table_max_index > icon_table_index) ajaxButton("下一頁", () => process_next) 
        else <span></span>) &
     "type=submit"      #> SHtml.onSubmitUnit(S.callOnce(process))
   }

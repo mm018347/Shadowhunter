@@ -22,7 +22,6 @@ import org.plummtw.shadowhunter.model._
 import org.plummtw.shadowhunter.util._
 import org.plummtw.shadowhunter.data._
 import org.plummtw.shadowhunter.actor._
-import org.plummtw.shadowhunter.actor._
 import org.plummtw.shadowhunter.card._
 
 import org.plummtw.shadowhunter.heavy.GameProcessor
@@ -190,6 +189,11 @@ class AdminSnippet {
 
       if (room != null) {
         //room.status(RoomStatusEnum.ENDED.toString).victory(RoomVictoryEnum.ABANDONED.toString).save()
+        val userentrys = UserEntry.findAll(By(UserEntry.room_id, room_id))
+        val roomround  = RoomRound.find(By(RoomRound.room_id, room_id), OrderBy(RoomRound.round_no, Descending)).get
+        val talk = Talk.create.roomround_id(roomround.id.is)
+                                .message("管理員廢止房間").mtype(MTypeEnum.MESSAGE_GENERAL.toString)
+        talk.save
         GameProcessor.abandon(room)
         S.redirectTo("manage.html?room_no=" + room_no)
       }

@@ -52,6 +52,31 @@ object LocationHelper {
     location_str.substring(new_index, new_index + 1)
   }
   
+  def seal(room : Room, loc : String) : String = {
+    //val room = Room_R.get
+    val location_str = room.room_arrange.is
+    
+    val location_index = location_str.indexOf(loc)
+    
+    var new_index = location_index
+    
+    if (new_index == 0) {
+      new_index = 1
+    } else if (new_index == 1) {
+      new_index = 3
+    } else if (new_index == 2) {
+      new_index = 0
+    } else if (new_index == 3) {
+      new_index = 5
+    } else if (new_index == 4) {
+      new_index = 2
+    } else if (new_index == 5) {
+      new_index = 4
+    }
+    
+    location_str.substring(new_index, new_index + 1)
+  }
+  
   def location_table(room: Room, userentrys: List[UserEntry]) = {
     //val room = Room_R.get
     val location_str = room.room_arrange.is

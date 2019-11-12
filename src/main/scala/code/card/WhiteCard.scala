@@ -7,51 +7,58 @@ import org.plummtw.shadowhunter.data._
 class WhiteCard(override val enum : CardEnum.Value, override val name : String) extends Card(enum, name, CardTypeEnum.WHITE)
 
 
-object WCardHolyWaterOfHealing extends WhiteCard(CardEnum.W_HOLY_WATER_OF_HEALING, "治療聖水")
-object WCardTalisman           extends WhiteCard(CardEnum.W_TALISMAN, "護身符") with Equipment {
-  override def equip_name = "符"
-}
-object WCardFortuneBrooch      extends WhiteCard(CardEnum.W_FORTUNE_BROOCH, "財富胸針")  with Equipment {
-  override def equip_name = "針"
-}
-object WCardMysticCompass     extends WhiteCard(CardEnum.W_MYSTIC_COMPASS, "神秘羅盤") with Equipment {
-  override def equip_name = "盤"
-}
-object WCardHolyRobe          extends WhiteCard(CardEnum.W_HOLY_ROBE, "神聖長袍") with Equipment {
-  override def equip_name = "袍"
-}
-object WCardSilverRosary        extends WhiteCard(CardEnum.W_SILVER_ROSARY, "白銀十字架") with Equipment {
-  override def equip_name = "架"
-}
-object WCardLanceOfLonginus    extends WhiteCard(CardEnum.W_LANCE_OF_LONGINUS, "朗基努斯槍") with Equipment {
-  override def equip_name = "槍"
-}
-object WCardAdvent             extends WhiteCard(CardEnum.W_ADVENT, "降臨")
-object WCardChocolate          extends WhiteCard(CardEnum.W_CHOCOLATE, "巧克力")
-object WCardBlessing          extends WhiteCard(CardEnum.W_BLESSING, "祝福") with UserEntryTargetable {
-  
-}
-object WCardConcealedKnowledge extends WhiteCard(CardEnum.W_CONCEALED_KNOWLEDGE, "隱藏的智慧")
-object WCardGuardianAngel      extends WhiteCard(CardEnum.W_GUARDIAN_ANGEL, "守護天使")
-object WCardFlareOfJudgement  extends WhiteCard(CardEnum.W_FLARE_OF_JUDGEMENT, "閃電制裁")
-object WCardDisenchantedMirror extends WhiteCard(CardEnum.W_DISENCHANTED_MIRROR, "真實之鏡")
-object WCardFirstAid          extends WhiteCard(CardEnum.W_FIRST_AID, "急救箱") with UserEntryTargetable {
+object WCardHolyWaterOfHealing   extends WhiteCard (CardEnum.W_HOLY_WATER_OF_HEALING, "治療聖水")
+object WCardTalisman             extends WhiteCard (CardEnum.W_TALISMAN, "護身符") with Equipment {
+  override def equip_name = "符"                   
+}                                                  
+object WCardFortuneBrooch        extends WhiteCard (CardEnum.W_FORTUNE_BROOCH, "財富胸針")  with Equipment {
+  override def equip_name = "針"                   
+}                                                  
+object WCardMysticCompass        extends WhiteCard (CardEnum.W_MYSTIC_COMPASS, "神秘羅盤") with Equipment {
+  override def equip_name = "盤"                   
+}                                                  
+object WCardHolyRobe             extends WhiteCard (CardEnum.W_HOLY_ROBE, "神聖長袍") with Equipment {
+  override def equip_name = "袍"                   
+}                                                  
+object WCardSilverRosary         extends WhiteCard (CardEnum.W_SILVER_ROSARY, "白銀十字架") with Equipment {
+  override def equip_name = "架"                   
+}                                                  
+object WCardLanceOfLonginus      extends WhiteCard (CardEnum.W_LANCE_OF_LONGINUS, "朗基努斯槍") with Equipment {
+  override def equip_name = "槍"                   
+}                                                  
+object WCardAdvent               extends WhiteCard (CardEnum.W_ADVENT, "降臨")
+object WCardChocolate            extends WhiteCard (CardEnum.W_CHOCOLATE, "巧克力")
+object WCardBlessing             extends WhiteCard (CardEnum.W_BLESSING, "祝福") with UserEntryTargetable {
+                                                   
+}                                                  
+object WCardConcealedKnowledge   extends WhiteCard (CardEnum.W_CONCEALED_KNOWLEDGE, "隱藏的智慧")
+object WCardGuardianAngel        extends WhiteCard (CardEnum.W_GUARDIAN_ANGEL, "守護天使")
+object WCardFlareOfJudgement     extends WhiteCard (CardEnum.W_FLARE_OF_JUDGEMENT, "閃電制裁")
+object WCardDisenchantedMirror   extends WhiteCard (CardEnum.W_DISENCHANTED_MIRROR, "真實之鏡")
+object WCardFirstAid             extends WhiteCard (CardEnum.W_FIRST_AID, "急救箱") with UserEntryTargetable {
   override def targetable_users(room:Room, roomround:RoomRound, roomphase:RoomPhase, currentuserentry:UserEntry, userentrys_rr:List[UserEntry]) : List[UserEntry] = {
     //val userentrys = UserEntrys_RR.get
     userentrys_rr.filter(x=> (x.live.is) )
   }
 }
 
-object WCardTea extends WhiteCard(CardEnum.W_TEA, "分解茶")
-
-object WCardBalance extends WhiteCard(CardEnum.W_BALANCE, "天秤") with Equipment {
-  override def equip_name = "秤"
+object WCardTea                 extends WhiteCard (CardEnum.W_TEA, "分解茶")
+                                                  
+object WCardBalance             extends WhiteCard (CardEnum.W_BALANCE, "天秤") with Equipment {
+  override def equip_name = "秤"                  
+}                                                 
+                                                  
+object WCardGoddess             extends WhiteCard (CardEnum.W_GODDESS, "療癒女神")
+object WCardEnchantment         extends WhiteCard (CardEnum.W_ENCHANTMENT, "結界")
+object WCardFirework            extends WhiteCard (CardEnum.W_FIREWORK, "煙火")
+object WCardFlyhigh             extends WhiteCard (CardEnum.W_FLYHIGH, "平衡")
+object WCardMagicSpirit         extends WhiteCard (CardEnum.W_MAGICSPIRIT, "幻靈")
+object WCardPanties             extends WhiteCard (CardEnum.W_PANTIES, "內褲") with Equipment {
+  override def equip_name = "褲"
 }
-
-object WCardGoddess extends WhiteCard(CardEnum.W_GODDESS, "療癒女神")
-object WCardEnchantment      extends WhiteCard(CardEnum.W_ENCHANTMENT, "結界")
-object WCardFirework      extends WhiteCard(CardEnum.W_FIREWORK, "煙火")
-object WCardFlyhigh      extends WhiteCard(CardEnum.W_FLYHIGH, "逆轟高灰")
+object WCardEarthquake          extends WhiteCard (CardEnum.W_EARTHQUAKE, "大地震")
+object WCardVolcanic            extends WhiteCard (CardEnum.W_VOLCANIC, "火山爆發")
+object WCardTsunami             extends WhiteCard (CardEnum.W_TSUNAMI, "大海嘯")
 /*
  * 治療聖水：
 

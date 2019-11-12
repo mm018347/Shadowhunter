@@ -37,9 +37,10 @@ class Room extends LongKeyedMapper[Room] with CreatedUpdated with IdPK {
     override def validations = validPriority _ :: super.validations 
  
     def validPriority(in: String): List[FieldError] = 
-      List(if (in.length <= 0)       List(FieldError(this, <b>房間說明不得為空白</b>))
-           else if (in.length > 60)  List(FieldError(this, <b>房間說明過長＞６０</b>))
-           else Nil,
+      List(//if (in.length <= 0)       List(FieldError(this, <b>房間說明不得為空白</b>))
+           //else if (in.length > 60)  List(FieldError(this, <b>房間說明過長＞６０</b>))
+           //else Nil,
+           Nil,
            if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>房間說明包含控制碼</b>)) else Nil).flatten
   }
 
@@ -81,11 +82,11 @@ class Room extends LongKeyedMapper[Room] with CreatedUpdated with IdPK {
   
   object room_arrange  extends MappedString(this, 10)
   
-  object room_flags    extends MappedString(this, 500) {
+  object room_flags    extends MappedString(this, 1000) {
     override def validations = validPriority _ :: super.validations 
  
     def validPriority(in: String): List[FieldError] = 
-      if (in.length > 500)  List(FieldError(this, <b>選項字串過長＞５００</b>))
+      if (in.length > 1000)  List(FieldError(this, <b>選項字串過長＞１０００</b>))
       else Nil
   }
   
@@ -113,13 +114,23 @@ class Room extends LongKeyedMapper[Room] with CreatedUpdated with IdPK {
     override def defaultValue = new java.util.Date()
   }
   
-  def option_text : String = {
+  object createdat       extends MappedDateTime(this) {
+    override def defaultValue = new java.util.Date()
+  }
+
+  object updatedat       extends MappedDateTime(this) with LifecycleCallbacks {
+    override def beforeCreate = this(new java.util.Date())
+    override def beforeUpdate = this(new java.util.Date())
+  }
+  
+  def option_text = {
     val roomflags_enums : Array[String] = room_flags.is.split(',')
 
     roomflags_enums.map { item =>
       try { RoomFlagEnum.flag_name(RoomFlagEnum.withName(item)).getOrElse("") }
       catch { case e: Exception => "" }
-    }.mkString("")
+    }
+    //.mkString("")
   }
 
   def has_flag(flag : RoomFlagEnum.Value) : Boolean = {
@@ -128,7 +139,6 @@ class Room extends LongKeyedMapper[Room] with CreatedUpdated with IdPK {
   
   def hasnt_flag(flag : RoomFlagEnum.Value) : Boolean = 
     !has_flag(flag)
-  
 }
 
 object Room extends Room with LongKeyedMetaMapper[Room] {
@@ -137,5 +147,5 @@ object Room extends Room with LongKeyedMetaMapper[Room] {
                                  room_arrange, room_flags, 
                                  whitecard_index, blackcard_index, greencard_index, 
                                  status, victory, victory_all,
-                                 ip_address, talk_time)
+                                 ip_address, talk_time, updatedat, createdat)
 }

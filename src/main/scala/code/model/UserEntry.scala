@@ -9,10 +9,12 @@ import net.liftweb.common.{Empty, Box, Full}
 import scala.xml.NodeSeq
 import scala.util.matching.Regex
 
+import org.plummtw.shadowhunter.model._
 import org.plummtw.shadowhunter.enum._
 import org.plummtw.shadowhunter.data._
 import org.plummtw.shadowhunter.util.PlummUtil
 import org.plummtw.shadowhunter.heavy.GameProcessor
+
 
 object CurrentUserEntry   extends SessionVar[Box[UserEntry]](Empty)
 object CurrentUserEntry_E extends SessionVar[UserEntry](GlobalUserEntry.NoUserEntry)
@@ -47,7 +49,7 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     override def validations = validPriority _ :: super.validations
 
     def validPriority(in: String): List[FieldError] =
-      List(if (in.length() <  6)           List(FieldError(this, <b>帳號過短＜６</b>))
+      List(if (in.length() <  4)           List(FieldError(this, <b>帳號過短＜４</b>))
              else if (in.length() > 20)  List(FieldError(this, <b>帳號過長＞２０</b>))
              else Nil,
            if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>帳號包含控制碼</b>)) else Nil).flatten
@@ -78,7 +80,7 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     override def validations = validPriority _ :: super.validations
 
     def validPriority(in: String): List[FieldError] =
-      List(if (in.length() < 5)          List(FieldError(this, <b>密碼過短＜５</b>))
+      List(if (in.length() < 4)          List(FieldError(this, <b>密碼過短＜４</b>))
              else if (in.length() > 20)  List(FieldError(this, <b>密碼過長＞２０</b>))
              else Nil,
            if (PlummUtil.hasHtmlCode(in)) List(FieldError(this, <b>密碼包含控制碼</b>)) else Nil).flatten
@@ -100,9 +102,10 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
   }
   
   object role          extends MappedString(this,10)
-  object subrole       extends MappedString(this,1) {
+  object subrole       extends MappedString(this,10) {
     override def defaultValue = ""
   }
+  object haterole      extends MappedString(this,10)
   
   object damaged extends MappedInt(this) {
     override def defaultValue = 0
@@ -111,6 +114,10 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
   object location extends MappedString(this, 2)
   
   object action_point  extends MappedInt(this) {
+    override def defaultValue = 0
+  }
+  
+  object beads  extends MappedInt(this) {
     override def defaultValue = 0
   }
 
@@ -165,79 +172,145 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
   object room_flags   extends MappedString(this, 20)
   object role_flags    extends MappedString(this, 20)
   object user_flags    extends MappedString(this, 80)
+  object card_flags    extends MappedString(this, 20)
+  object getrole_flags extends MappedString(this, 40)
   object item_flags    extends MappedString(this, 80)
   object item_preferred extends MappedString(this, 10)
-  
+  // 普通損傷處理
   def inflict_damage(in : Int, actioner : UserEntry, is_attack : Boolean = false) : Boolean = {
-    if (has_user_flag(UserEntryFlagEnum.BARRIER))
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val er_skill_role = actioner.get_skill_role
+    var damaged_num = in
+    
+    if ((has_user_flag(UserEntryFlagEnum.BARRIER)) && (damaged_num < 99)) {
       false
-    else {
-      val actioner_role = actioner.get_role
-      if ((!is_attack) && (actioner != this) && (actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
-         (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (in >= 2) ) {
+    } else if ((has_user_flag(UserEntryFlagEnum.MAGICSPIRIT)) && (damaged_num > 0) && (damaged_num < 3)) {
+      remove_user_flag(UserEntryFlagEnum.MAGICSPIRIT).save
+      false
+    } else {
+      // 
+      if ((!is_attack) && (actioner != this) && (er_skill_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
+         (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (damaged_num >= 2) ) {
         if (items.length > 0) {
-          val robbed_item = GameProcessor.rob_single(actioner, this)
+          val robbed_item = GameProcessor.rob_single(room, roomround, actioner, this)
+          actioner.beads(actioner.beads.is + beads.is)
+          beads(0)
           actioner.save
-          GameProcessor.check_item_victory(actioner)
+          GameProcessor.check_item_victory(room, roomround, actioner)
         }
       }
       //特羅修
-      if((get_role == RoleLion) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK)) && (in >= 1)){
-        damaged(damaged.is + math.max(0, in - 1))
-      } else {
-        damaged(damaged.is + in)
+      if((get_skill_role == RoleLion) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK)) && (damaged_num > 0)){
+        damaged_num = math.max(0, damaged_num - 1)
       }
-      
-      true
-    }  
+      // 
+      if (damaged_num > 0) {
+        damaged(damaged.is + damaged_num)
+        true
+      } else {
+        false
+      }
+    } 
   }
-  
-  def inflict_g_damage(in : Int, actioner : UserEntry, is_attack : Boolean = false) : Boolean = {
-    if (has_user_flag(UserEntryFlagEnum.BARRIER))
+  // 攻擊損傷處理
+  def inflict_a_damage(in : Int, actioner : UserEntry, is_attack : Boolean = false) : Boolean = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val er_skill_role = actioner.get_skill_role
+    var damaged_num = in
+    
+    if (has_user_flag(UserEntryFlagEnum.BARRIER)) {
       false
-    else {
-      val actioner_role = actioner.get_role
-      if ((!is_attack) && (actioner != this) && (actioner_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
-         (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (in >= 2) ) {
+    } else if ((has_user_flag(UserEntryFlagEnum.MAGICSPIRIT)) && (damaged_num > 0) && (damaged_num < 3)) {
+      remove_user_flag(UserEntryFlagEnum.MAGICSPIRIT).save
+      true
+    } else {
+      if ((!is_attack) && (actioner != this) && (er_skill_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
+         (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (damaged_num >= 2) ) {
         if (items.length > 0) {
-          val robbed_item = GameProcessor.rob_single(actioner, this)
+          val robbed_item = GameProcessor.rob_single(room, roomround, actioner, this)
+          actioner.beads(actioner.beads.is + beads.is)
+          beads(0)
           actioner.save
-          GameProcessor.check_item_victory(actioner)
+          GameProcessor.check_item_victory(room, roomround, actioner)
         }
       }
-      damaged(damaged.is + in)
+      damaged(damaged.is + damaged_num)
       
       true
     }  
   }
-  
+  // 綠卡損傷處理
+  def inflict_g_damage(in : Int, actioner : UserEntry, is_attack : Boolean = false) : Boolean = {
+    val room : Room = Room_R.get
+    val roomround = RoomRound_R.get
+    val er_skill_role = actioner.get_skill_role
+    var damaged_num = in
+    
+    if (has_user_flag(UserEntryFlagEnum.BARRIER)) {
+      true
+    } else if ((has_user_flag(UserEntryFlagEnum.MAGICSPIRIT)) && (damaged_num > 0) && (damaged_num < 3)) {
+      true
+    } else {
+      val actioner_role = actioner.get_skill_role
+      if ((!is_attack) && (actioner != this) && (er_skill_role == RoleBob) && (actioner.revealed.is) && (actioner.hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (actioner.hasnt_item(CardEnum.B_MASK)) &&
+         (actioner.has_item(CardEnum.W_SILVER_ROSARY)) && (damaged_num >= 2) ) {
+        if (items.length > 0) {
+          val robbed_item = GameProcessor.rob_single(room, roomround, actioner, this)
+          actioner.beads(actioner.beads.is + beads.is)
+          beads(0)
+          actioner.save
+          GameProcessor.check_item_victory(room, roomround, actioner)
+        }
+      }
+      damaged(damaged.is + damaged_num)
+      
+      true
+    }  
+  }
+  // 卡片損傷前置處理
   def inflict_card_damage(in : Int, actioner : UserEntry) = {
     val result = inflict_damage(in, actioner)
 
-    
-    if (result && (actioner.get_role == RoleWitch) && (actioner.revealed.is) &&
+    if (result && (in > 0) && (actioner.get_skill_role == RoleWitch) && (actioner.revealed.is) &&
         (!actioner.has_user_flag(UserEntryFlagEnum.SEALED) && (this != actioner)) &&
         (!actioner.has_item(CardEnum.B_MASK) && (this != actioner)))
       add_user_flag(UserEntryFlagEnum.FROG)
-      
+        
     result
   }
-  
+  // 黑卡損傷前置處理
+  def inflict_b_card_damage(in : Int, actioner : UserEntry) = {
+    val result = inflict_damage(in, actioner)
+
+    if (result && (in > 0) && (actioner.get_skill_role == RoleWitch) && (actioner.revealed.is) &&
+        (!actioner.has_user_flag(UserEntryFlagEnum.SEALED) && (this != actioner)) &&
+        (!actioner.has_item(CardEnum.B_MASK) && (this != actioner)))
+      add_user_flag(UserEntryFlagEnum.FROG)
+        
+    result
+  }
+  // 綠卡損傷前置處理
   def inflict_g_card_damage(in : Int, actioner : UserEntry) = {
     val result = inflict_g_damage(in, actioner)
     
-    if (result && (actioner.get_role == RoleWitch) && (actioner.revealed.is) &&
+    if (has_user_flag(UserEntryFlagEnum.BARRIER)) {
+    } else if ((has_user_flag(UserEntryFlagEnum.MAGICSPIRIT)) && (in > 0) && (in < 3)) {
+      remove_user_flag(UserEntryFlagEnum.MAGICSPIRIT).save
+    } else if (result && (actioner.get_skill_role == RoleWitch) && (actioner.revealed.is) &&
         (!actioner.has_user_flag(UserEntryFlagEnum.SEALED) && (this != actioner)) &&
-        (!actioner.has_item(CardEnum.B_MASK) && (this != actioner)))
+        (!actioner.has_item(CardEnum.B_MASK) && (this != actioner))) {
       add_user_flag(UserEntryFlagEnum.FROG)
+    }
       
     result
   }
-  
+  // 減少損傷處理
   def lower_damage(in : Int, userentrys : List[UserEntry]) = {
     damaged(math.max(0, damaged.is - in)).remove_user_flag(UserEntryFlagEnum.POISON)
     
-    if((get_role == RoleArsis) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK))){
+    if((get_skill_role == RoleArsis) && (revealed.is) && (hasnt_user_flag(UserEntryFlagEnum.SEALED)) && (hasnt_item(CardEnum.B_MASK))){
       val hunters = userentrys.filter(x => (x.live.is) && (x.get_role.role_side == RoleSideEnum.HUNTER) && (x.revealed.is))
         hunters.foreach { hunter =>
           hunter.damaged(math.max(0, hunter.damaged.is - 1))
@@ -253,6 +326,27 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     }}
   }
   
+  def get_subrole = {
+    val subrole_str =
+      if (subrole.is.length > 2) subrole.is.substring(0,2)
+      else subrole.is
+    
+    RoleEnum.get_role(subrole_str)
+  }
+  // 技能角色
+  def get_skill_role = {
+    val role_str =
+      if (role.is.length > 2) role.is.substring(0,2)
+      else role.is
+    
+    if ((role_str == RoleEnum.TEL.toString) &&
+        (revealed.is) &&
+        (subrole.is != ""))
+      RoleEnum.get_role(subrole.is)
+    else
+      RoleEnum.get_role(role_str)
+  }
+  // 綠卡顯示角色
   def get_hermit_role = {
     val role_str =
       if (role.is.length > 2) role.is.substring(0,2)
@@ -265,7 +359,7 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     else
       RoleEnum.get_role(role_str)
   }
-  
+  // 初始角色
   def get_real_role = {
     val role_str =
       if (role.is.length > 2)
@@ -274,16 +368,38 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
     
     RoleEnum.get_role(role_str)
   }
-  
+  // 當前角色
   def get_role = {
     val role_str =
       if (role.is.length > 2) role.is.substring(0,2)
       else role.is
-        
+    
     RoleEnum.get_role(role_str)
   }
   
   def get_role_field = {
+    var result : NodeSeq = 
+      if (role.is.length > 2) Seq(RoleEnum.get_role(role.is.substring(0,2)).cfield)
+    else Seq(RoleEnum.get_role(role.is).cfield)
+      
+    for (i <- 1 until (role.is.length / 2))
+      result = result ++ RoleEnum.get_role(role.is.substring(i*2,i*2+2)).simple_cfield
+      
+    result
+  }
+  
+  def get_subrole_field = {
+    var result : NodeSeq = 
+      if (subrole.is.length > 2) Seq(RoleEnum.get_role(subrole.is.substring(0,2)).cfield)
+    else Seq(RoleEnum.get_role(subrole.is).cfield)
+      
+    for (i <- 1 until (subrole.is.length / 2))
+      result = result ++ RoleEnum.get_role(subrole.is.substring(i*2,i*2+2)).simple_cfield
+      
+    result
+  }
+  
+  def get_secret_field = {
     var result : NodeSeq = 
       if (role.is.length > 2) Seq(RoleEnum.get_role(role.is.substring(0,2)).cfield)
     else Seq(RoleEnum.get_role(role.is).cfield)
@@ -332,15 +448,39 @@ class UserEntry extends LongKeyedMapper[UserEntry] with CreatedUpdated with IdPK
   
   def items =
     item_flags.is.grouped(3).toList.map(x => CardEnum.get_card(x))
+    
+  def has_card(card : CardEnum.Value) : Boolean = 
+    return (card_flags.is.indexOf(card.toString) != -1)
+  def hasnt_card(card : CardEnum.Value) : Boolean = 
+    !has_card(card)
+  def add_card(card : CardEnum.Value) : UserEntry = 
+    card_flags(card_flags.is + card.toString)
+  def remove_card(card : CardEnum.Value) : UserEntry = 
+    card_flags(card_flags.is.replace(card.toString, ""))
+  
+  def cards =
+    card_flags.is.grouped(3).toList.map(x => CardEnum.get_card(x))
+    
+  def has_getrole(getrole : RoleEnum.Value) : Boolean = 
+    return (getrole_flags.is.indexOf(getrole.toString) != -1)
+  def hasnt_getrole(getrole : RoleEnum.Value) : Boolean = 
+    !has_getrole(getrole)
+  def add_getrole(getrole : RoleEnum.Value) : UserEntry = 
+    getrole_flags(getrole_flags.is + getrole.toString)
+  def remove_getrole(getrole : RoleEnum.Value) : UserEntry = 
+    getrole_flags(getrole_flags.is.replace(getrole.toString, ""))
+  
+  def getroles =
+    getrole_flags.is.grouped(2).toList.map(x => RoleEnum.get_role(x))
   //def action_list 
 }
 
 object UserEntry extends UserEntry with LongKeyedMetaMapper[UserEntry] {
-  override def fieldOrder = List(id, room_id, user_id, user_icon_id, user_no, uname, handle_name, trip,  password, sex,
-                               role, subrole, damaged, location, action_point, cash, live, last_words, revealed, revoked,
+  override def fieldOrder = List(id, room_id, user_id, user_icon_id, user_no, uname, handle_name, trip, password, sex,
+                               role, subrole, haterole, damaged, location, action_point, beads, cash, live, last_words, revealed, revoked,
                                won, ip_address0, ip_address, ip_address_md5,
                                last_round_no, reaction, last_talk, target_user, room_flags, 
-                               role_flags, user_flags, item_flags, item_preferred)
+                               role_flags, user_flags, card_flags, getrole_flags, item_flags, item_preferred)
 
   def get (get_id : Long, userentrys : List[UserEntry]) : UserEntry= {
     if (get_id <= 0) {
@@ -398,6 +538,8 @@ object GlobalUserEntry{
   `live` varchar(1) DEFAULT NULL,
   `room_flags` varchar(80) DEFAULT NULL,
   `item_flags` varchar(80) DEFAULT NULL,
+  `card_flags` varchar(20) DEFAULT NULL,
+  `get_flags` varchar(40) DEFAULT NULL,
   `user_flags` varchar(600) DEFAULT NULL,
   `created_ip` varchar(20) DEFAULT NULL,
   `created` datetime DEFAULT NULL,

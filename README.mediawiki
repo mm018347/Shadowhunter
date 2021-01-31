@@ -20,42 +20,42 @@ Shadowhunter
 # 確認作業系統的時區 GMT+8 (理論上可忽略)
 # 安裝 MySQL 並建立 Database (下列的全部名稱可自定義)
 # 架構 `shadowhunter_dev` (coding: UTF-8)
-   `CREATE DATABASE shadowhunter_dev CHARACTER SET = utf8`
+ `CREATE DATABASE shadowhunter_dev CHARACTER SET = utf8`
 # 建立 MySQL User：shadowhunter、密碼：shadowhunter0000
-   `CREATE USER shadowhunter IDENTIFIED BY 'shadowhunter0000'`
+ `CREATE USER shadowhunter IDENTIFIED BY 'shadowhunter0000'`
 # 給予 Schema shadowhunter_dev 的所有權限
-   `GRANT all ON shadowhunter_dev.* TO shadowhunter;`
-# 程式的資料庫設定檔案為 `\src\main\resources\props\default.props`
+ `GRANT all ON shadowhunter_dev.* TO shadowhunter;`
+# 程式的資料庫設置為： `\src\main\resources\props\default.props`
 ## 設置示例：
-    db.url=jdbc:mysql://localhost/shadowhunter_dev
-    db.user=shadowhunter
-    db.pass=shadowhunter0000
+ db.url=jdbc:mysql://localhost/shadowhunter_dev
+ db.user=shadowhunter
+ db.pass=shadowhunter0000
 
 === sbt command ===
 * `sbt clean`	清理已編譯的資料
 * `sbt compile`	僅編譯且不執行程式
 * `sbt test`	測試程式(理論上都會 Error)
 * 啟動 Server 時，命令不能直接用下列一行的寫法：
-** `sbt jetty-run`
-   (這種寫法於執行時會啟動伺服器之後立即關閉)
+ `sbt jetty-run`
+** (這種寫法於執行時會啟動伺服器之後立即關閉)
 * 必須採取下列寫法：
-** `sbt 
-   jetty-run`
+ `sbt 
+ jetty-run`
    
 === management ===
-* log的設置為 `\src\main\resources\logback.xml`
-** 預設路徑為 `/log`
-** 預設檔案為：
-   `ShadowHunter.log`
-   `ShadowHunter_Warn.log`
-   `ShadowHunter_Error.log`
+* log的設置為： `\src\main\resources\logback.xml`
+** 預設路徑為： `/log`
+** 預設 log 檔案為：
+ `ShadowHunter.log`
+ `ShadowHunter_Warn.log`
+ `ShadowHunter_Error.log`
 ** 舊有的 Log 會被放置到 log 目錄下
 * 資料表 `AdminManage` 內的資料用途：
-** 可建立村莊的起始時間(時)為 `room_start`
-** 可建立村莊的結束時間(時)為 `room_end`
-** 同時進行中的村莊數量上限為 `room_count`
-** 管理頁面的可連線 IP 為 `admin_ip`
-   (可設置複數IP，以 `;`分隔)
+** 可建立村莊的起始時間(時)為： `room_start`
+** 可建立村莊的結束時間(時)為： `room_end`
+** 同時進行中的村莊數量上限為： `room_count`
+** 管理頁面的可連線 IP 為： `admin_ip`
+(可設置複數IP，以 `;`分隔)
 * 頭像上傳的檔案路徑設置為：
-  `src\main\scala\code\snippet\UserIconSnippet.scala`
+ `src\main\scala\code\snippet\UserIconSnippet.scala`
 ** 頭像上傳時會同時儲存於 `newname1~3` 設置的目錄 (約 115 行附近)，重複的資料夾為備份用途

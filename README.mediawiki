@@ -2,7 +2,7 @@
 Shadowhunter
 
 == introduction ==
-原出處：[Plummtw/Shadowhunter] 
+原出處：[https://github.com/Plummtw/Shadowhunter Plummtw/Shadowhunter] 
 經過原作者 Plummtw 承認的後續維護版本。
 
 [http://cheshire.pinomeng.com:84/main.html 鸚鵡實驗站伺服器]營運中！

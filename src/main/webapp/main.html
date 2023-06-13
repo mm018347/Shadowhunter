@@ -1,16 +1,5 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <body class="lift:content_id=head">
-    <div id="head" class="lift:surround?with=shadowhunter;at=content">
-      <head>
-        <title>暗影獵人（鸚鵡實驗站）</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="stylesheet" href="assets/css/main.css"></link>
-      </head>
-      <!--[Wrapper]-->
-      <div id="wrapper">
         <!--[Main]-->
-        <div id="main">
+        <div id="main" class="lift:surround?with=shadowhunter;at=main">
           <div class="inner">
             <!--[Header]-->
             <header id="header">
@@ -19,13 +8,16 @@
             </header>
             
             <!--[Section]-->
-            <section>
+            <section id="main">
               <header class="main">
                 <div class="box"><p class="lift:Msgs?showAll=true"></p></div>
                 <ul class="alt">
                   <li class="">
-                    <code class="">Ver. 0.38.9 : 2019 / 11 / 13</code>
+                    <code class="">Ver. 0.38.16 : 2020/08/03</code>
                   </li>
+                  <h4><s>因為查不出原因的BUG，目前暫時關閉會觸發此BUG的 朵伊 及 多堤，目前將不會於遊戲登場。</s></h4>
+                  <h3>目前暫時關閉 波姆 及 朵伊 及 多堤，目前將不會於遊戲登場。</h3>
+                  <h3>耶芙特 的 槍鬥術 還沒寫好所以尚未實裝。</h3>
                   <li>登入遊戲後會自動更新，請不要按F5，但若發言或按鈕沒反應時，可能為登出狀態，可按 F5 重新登入。</li>
                   <li>鸚鵡版調整：奪取或給予裝備時僅針對角色，無法選擇裝備。</li>
                   <li>參考職業皆來自台南ㄚ呈，特此感謝。</li>
@@ -34,8 +26,8 @@
               </header>
             </section>
             <!--[Section]-->
-            <section>
-              <header id="room" class="major">
+            <section id="room">
+              <header class="major">
                 <h2>房間一覽</h2>
               </header>
               <div class="content">
@@ -43,8 +35,8 @@
               </div>
             </section>
             <!--[Section]-->
-            <section>
-              <header id="newroom" class="major">
+            <section id="newroom">
+              <header  class="major">
                 <h2>建立房間</h2>
               </header>
               <div id="form" class="lift:RoomCreateSnippet?form=post">
@@ -78,8 +70,6 @@
                     <label for="reaction_time">反應時間</label>
                     <input name="reaction_time" id="reaction_time" size="2"/>
                   </div>
-                  
-                <div class="row">
                   
                   <div class="box col-12">
                     <label>遊戲模式</label>
@@ -256,6 +246,8 @@
                         <label for="no_shinai">希奈</label>
                         <input name="no_aicha" />
                         <label for="no_aicha">艾夏</label>
+                        <input name="no_lapu" />
+                        <label for="no_lapu">洛普</label>
                         <input name="no_aki" />
                         <label for="no_aki">亞希</label>
 
@@ -278,10 +270,10 @@
 
                         <input name="no_ametsuki" />
                         <label for="no_ametsuki">雨月</label>
-                        <input name="no_lilia" />
-                        <label for="no_lilia">莉莉雅</label>
-                        <input name="no_cloudbow" />
-                        <label for="no_cloudbow">小彩</label>
+                        <input name="no_giselle" />
+                        <label for="no_giselle">吉榭爾</label>
+                        <input name="no_jefte" />
+                        <label for="no_jefte">耶芙特</label>
 
                         <input name="no_puzzle" />
                         <label for="no_puzzle">謎</label>
@@ -294,161 +286,162 @@
                       </li>
                     </ul>
                 </div>
-                    
-                  <div class="box col-3 col-6-small">
-                    <label>究極靈魂</label>
-                    <input name="ultrasoul_ray" />
-                    <label for="ultrasoul_ray">究極光線</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>隱形人</label>
-                    <input name="unseen_resist" />
-                    <label for="unseen_resist">抗性</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>吸血鬼</label>
-                    <input name="vampire_weaken" />
-                    <label for="vampire_weaken">吸血調整</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>女武神</label>
-                    <input name="valkyrie_enhance" />
-                    <label for="valkyrie_enhance">攻擊強化</label>
-                  </div>
-                  
+                
                 <div class="box col-3 col-6-small">
-                    <label>復仇鬼</label>
-                    <input name="vghost_expand" />
-                    <label for="vghost_expand">範圍擴大</label>
+                  <label>究極靈魂</label>
+                  <input name="ultrasoul_ray" />
+                  <label for="ultrasoul_ray">究極光線</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>隱形人</label>
+                  <input name="unseen_resist" />
+                  <label for="unseen_resist">抗性</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>吸血鬼</label>
+                  <input name="vampire_weaken" />
+                  <label for="vampire_weaken">吸血調整</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>女武神</label>
+                  <input name="valkyrie_enhance" />
+                  <label for="valkyrie_enhance">攻擊強化</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>復仇鬼</label>
+                  <input name="vghost_expand" />
+                  <label for="vghost_expand">範圍擴大</label>
+                </div>
+                
+                <div class="box col-6">
+                  <label>艾米</label>
+                  <input name="emi_enhance" />
+                  <label for="emi_enhance">攻擊強化</label>
+                  <input name="emi_send" />
+                  <label for="emi_send">傳送強化</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>艾蓮</label>
+                  <input name="ellen_heal" />
+                  <label for="ellen_heal">回復之鍊</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>伊凡</label>
+                  <input name="evan_heal" />
+                  <label for="evan_heal">翻卡恢復</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>弗蘭克林</label>
+                  <input name="franklin_reuse" />
+                  <label for="franklin_reuse">蓄電</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>喬治</label>
+                  <input name="george_reuse" />
+                  <label for="george_reuse">輕打</label>
+                  <input name="george_reuse2" />
+                  <label for="george_reuse2">心神合一</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>哥德法</label>
+                  <input name="godfat_reuse" />
+                  <label for="godfat_reuse">空間摺疊</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>艾瑪</label>
+                  <input name="emma_reuse" />
+                  <label for="emma_reuse">精靈共鳴</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>金格</label>
+                  <input name="ginger_reuse" />
+                  <label for="ginger_reuse">憤槌</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>天使</label>
+                  <input name="angel_choose" />
+                  <label for="angel_choose">重生選擇</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>詛咒人偶</label>
+                  <input name="adecoy_intimate" />
+                  <label for="adecoy_intimate">嘲弄</label>
+                </div>
+                
+                <div class="box col-3 col-6-small">
+                  <label>貝爾多娜</label>
+                  <input name="bellandona_choose" />
+                  <label for="bellandona_choose">攻擊轉職</label>
+                </div>
+                  
+                  <div class="box col-12">
+                      <label>黑卡擴充</label>
+                      <input name="blackcard_dagger" />
+                      <label for="blackcard_dagger">匕首</label>
+                      <input name="blackcard_lamirror" />
+                      <label for="blackcard_lamirror">拉之鏡</label>
+                      <input name="blackcard_mask" />
+                      <label for="blackcard_mask">咒封之假面</label>
+                      <input name="blackcard_decline" />
+                      <label for="blackcard_decline">殞落</label>
+                      <input name="blackcard_firehorse" />
+                      <label for="blackcard_firehorse">煉獄馬</label>
+                      <input name="blackcard_splintered" />
+                      <label for="blackcard_splintered">旋破</label>
+                      <input name="blackcard_evilsword" />
+                      <label for="blackcard_evilsword">邪骸劍</label>
+                      <input name="blackcard_gemwand" />
+                      <label for="blackcard_gemwand">血寶石魔杖</label>
+                      <input name="blackcard_supplybomb" />
+                      <label for="blackcard_supplybomb">供品炸彈</label>
+                      <input name="blackcard_explode" />
+                      <label for="blackcard_explode">爆炸</label>
                   </div>
                   
-                  <div class="box col-6">
-                    <label>艾米</label>
-                    <input name="emi_enhance" />
-                    <label for="emi_enhance">攻擊強化</label>
-                    <input name="emi_send" />
-                    <label for="emi_send">傳送強化</label>
+                  <div class="box col-12">
+                      <label>白卡擴充</label>
+                      <input name="whitecard_tea" />
+                      <label for="whitecard_tea">分解茶</label>
+                      <input name="whitecard_balance" />
+                      <label for="whitecard_balance">天秤</label>
+                      <input name="whitecard_firework" />
+                      <label for="whitecard_firework">煙火</label>
+                      <input name="whitecard_flyhigh" />
+                      <label for="whitecard_flyhigh">平衡</label>
+                      <input name="whitecard_enchantment" />
+                      <label for="whitecard_enchantment">結界</label>
+                      <input name="whitecard_magicspirit" />
+                      <label for="whitecard_magicspirit">幻靈</label>
+                      <input name="whitecard_earthquake" />
+                      <label for="whitecard_earthquake">大地震</label>
+                      <input name="whiteCard_volcanic" />
+                      <label for="whiteCard_volcanic">火山爆發</label>
+                      <input name="whiteCard_tsunami" />
+                      <label for="whiteCard_tsunami">大海嘯</label>
                   </div>
                   
-                  <div class="box col-3 col-6-small">
-                    <label>艾蓮</label>
-                    <input name="ellen_heal" />
-                    <label for="ellen_heal">回復之鍊</label>
+                  <div class="box col-12">
+                      <label>綠卡擴充</label>
+                      <input name="greencard_hunterheal2" />
+                      <label for="greencard_hunterheal2">獵人回二</label>
+                      <input name="greencard_lifeunder11_2" />
+                      <label for="greencard_lifeunder11_2">弱者回二</label>
                   </div>
                   
-                  <div class="box col-3 col-6-small">
-                    <label>伊凡</label>
-                    <input name="evan_heal" />
-                    <label for="evan_heal">翻卡回復</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>弗蘭克林</label>
-                    <input name="franklin_reuse" />
-                    <label for="franklin_reuse">強化</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>喬治</label>
-                    <input name="george_reuse" />
-                    <label for="george_reuse">強化1</label>
-                    <input name="george_reuse2" />
-                    <label for="george_reuse2">強化2</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>哥德法</label>
-                    <input name="godfat_reuse" />
-                    <label for="godfat_reuse">空間摺疊</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>艾瑪</label>
-                    <input name="emma_reuse" />
-                    <label for="emma_reuse">精靈共鳴</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>金格</label>
-                    <input name="ginger_reuse" />
-                    <label for="ginger_reuse">強化</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>天使</label>
-                    <input name="angel_choose" />
-                    <label for="angel_choose">重生選擇</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>詛咒人偶</label>
-                    <input name="adecoy_intimate" />
-                    <label for="adecoy_intimate">嘲弄</label>
-                  </div>
-                  
-                  <div class="box col-3 col-6-small">
-                    <label>貝爾多娜</label>
-                    <input name="bellandona_choose" />
-                    <label for="bellandona_choose">攻擊轉職</label>
-                  </div>
-                    
-                    <div class="box col-12">
-                        <label>黑卡擴充</label>
-                        <input name="blackcard_dagger" />
-                        <label for="blackcard_dagger">匕首</label>
-                        <input name="blackcard_lamirror" />
-                        <label for="blackcard_lamirror">拉之鏡</label>
-                        <input name="blackcard_mask" />
-                        <label for="blackcard_mask">咒封之假面</label>
-                        <input name="blackcard_decline" />
-                        <label for="blackcard_decline">殞落</label>
-                        <input name="blackcard_firehorse" />
-                        <label for="blackcard_firehorse">煉獄馬</label>
-                        <input name="blackcard_splintered" />
-                        <label for="blackcard_splintered">旋破</label>
-                        <input name="blackcard_evilsword" />
-                        <label for="blackcard_evilsword">邪骸劍</label>
-                        <input name="blackcard_gemwand" />
-                        <label for="blackcard_gemwand">血寶石魔杖</label>
-                        <input name="blackcard_supplybomb" />
-                        <label for="blackcard_supplybomb">供品炸彈</label>
-                        <input name="blackcard_explode" />
-                        <label for="blackcard_explode">爆炸</label>
-                    </div>
-                    
-                    <div class="box col-12">
-                        <label>白卡擴充</label>
-                        <input name="whitecard_tea" />
-                        <label for="whitecard_tea">分解茶</label>
-                        <input name="whitecard_balance" />
-                        <label for="whitecard_balance">天秤</label>
-                        <input name="whitecard_firework" />
-                        <label for="whitecard_firework">煙火</label>
-                        <input name="whitecard_flyhigh" />
-                        <label for="whitecard_flyhigh">平衡</label>
-                        <input name="whitecard_enchantment" />
-                        <label for="whitecard_enchantment">結界</label>
-                        <input name="whitecard_magicspirit" />
-                        <label for="whitecard_magicspirit">幻靈</label>
-                        <input name="whitecard_earthquake" />
-                        <label for="whitecard_earthquake">大地震</label>
-                        <input name="whiteCard_volcanic" />
-                        <label for="whiteCard_volcanic">火山爆發</label>
-                        <input name="whiteCard_tsunami" />
-                        <label for="whiteCard_tsunami">大海嘯</label>
-                    </div>
-                    
-                    <div class="box col-12">
-                        <label>綠卡擴充</label>
-                        <input name="greencard_hunterheal2" />
-                        <label for="greencard_hunterheal2">獵人回二</label>
-                        <input name="greencard_lifeunder11_2" />
-                        <label for="greencard_lifeunder11_2">弱者回二</label>
-                    </div>
-                    
+                  <div class="col-12">
                     <input id="submit" type="submit" value=" 建立 " />
                   </div>
                 </div>
@@ -456,94 +449,3 @@
             </section>
           </div>
         </div>
-
-        <!--[Sidebar]-->
-        <div id="sidebar">
-          <div class="inner">
-
-            <!--[Menu]-->
-            <nav id="menu">
-              <header class="major">
-                <h2>選單</h2>
-              </header>
-              <ul>
-                <li><a href="main.html">首頁</a></li>
-                <li><a href="script_info.html">伺服器資訊</a></li>
-                <li><a href="version.html">版本紀錄</a></li>
-                <li><span class="opener">遊戲規則</span>
-                  <ul>
-                    <li><a href="rule.html#rule">基本規則</a></li>
-                    <li><a href="rule.html#rule_purpose">遊戲背景</a></li>
-                    <li><a href="rule.html#rule_win">勝利條件</a></li>
-                    <li><a href="rule.html#rule_plcnt">人數配置</a></li>
-                    <li><a href="rule.html#rule_cast">陣營屬下的角色</a></li>
-                    <li><a href="rule.html#rule_role">角色介紹</a></li>
-                    <li><a href="rule.html#rule_location">區域介紹</a></li>
-                    <li><a href="rule.html#rule_blackcard">黑卡介紹</a></li>
-                    <li><a href="rule.html#rule_whitecard">白卡介紹</a></li>
-                    <li><a href="rule.html#rule_greencard">綠卡介紹</a></li>
-                    <li><a href="rule.html#round">遊戲流程</a></li>
-                    <li><a href="rule.html#system">遊戲系統</a></li>
-                  </ul>
-                </li>
-                <li><span class="opener">過去紀錄</span>
-                  <ul>
-                    <li><a href="oldlog_list.html">全部顯示</a></li>
-                    <li><a href="oldlog_list.html?filter=noabandon">隱藏廢棄</a></li>
-                  </ul>
-                </li>
-                <li><span class="opener">頭像</span>
-                  <ul>
-                    <li><a href="icon_view.html">頭像一覽</a></li>
-                    <li><a href="icon_upload.html">頭像上傳</a></li>
-                  </ul>
-                </li>
-                <li><a href="faq.html">Ｑ＆Ａ</a></li>
-                <li><span class="opener">場次統計</span>
-                  <ul>
-                    <li><a href="stat.html?count=25">最近 25 場</a></li>
-                    <li><a href="stat.html?count=50">最近 50 場</a></li>
-                    <li><a href="stat.html?count=100">最近 100 場</a></li>
-                  </ul>
-                </li>
-                <li><span class="opener">連結</span>
-                  <ul>
-                    <li><a href="https://www.facebook.com/groups/789475714409882/">Facebook社團</a></li>
-                    <li><a href="bbs_list.html">討論區</a></li>
-                    <li><a href="http://diam.ngct.net/">鑽石伺服器（人狼）</a></li>
-                    <li><a href="http://higurashi.nctucs.org/">寒蟬伺服器（人狼）</a></li>
-                    <li><a href="http://touhou.jigokutushin.net/touhou/index.php">幻想鄉伺服器（人狼）</a></li>
-                    <li><a href="http://cheshire.pinomeng.com:82/main.html">鸚鵡實驗站（人狼）</a></li>
-                    <li><a href="http://cheshire.pinomeng.com:83/main.html">鸚鵡備份站（人狼）</a></li>
-                    <li><a href="http://jinroh.surl.tw/">人狼物語</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </nav>
-
-            <!--[Footer]-->
-            <footer id="footer">
-              <p class="copyright">
-                <img src="./images/grading_12.png" width="210" height="69" alt=""  class="image" />
-                <br/>Powered by<code><a href="http://liftweb.net/">Liftweb</a></code>.
-                <br/>Copyright 2019, <code>Plummtw</code>.
-                <br/>Admin by <code>赤坂なつき（柴郡猫）◆5PpFnM6Lus</code>.
-                <br/>Email to <code>mm018347★gmail.com</code>（★→@）.
-              </p>
-            </footer>
-
-          </div>
-        </div>
-
-      </div>
-
-      <!--[Scripts]-->
-      <script src="assets/js/jquery.min.js"></script>
-      <script src="assets/js/browser.min.js"></script>
-      <script src="assets/js/breakpoints.min.js"></script>
-      <script src="assets/js/util.js"></script>
-      <script src="assets/js/main.js"></script>
-
-    </div>
-  </body>
-</html>

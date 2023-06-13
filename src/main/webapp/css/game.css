@@ -350,3 +350,7 @@ a:hover{  color: #FF0000;}
 }
 /* CheckSelfVote() */
 .self-vote{margin: 5px 0;}
+
+#header {
+  padding: 7em 0 1em 0;
+}

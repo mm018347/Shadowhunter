@@ -94,12 +94,14 @@ class OldLogSnippet {
   def view = {
     val room_no = 
       try { S.param("room_no").getOrElse("0").toLong }
-      catch { case e:Exception => 0}
-    var room_box = Room.find(By(Room.id, room_no)) 
+      catch { case e:Exception => 0L }
+
+    var room_box: Box[Room] = if (room_no == 0L) Empty else Room.find(By(Room.id, room_no))
     if (room_box.isEmpty) {
-      for (room <- CurrentRoom.get) {
+      val current_id = CurrentRoom.get.map(_.id.is).openOr(0L)
+      if (current_id != 0L && current_id != room_no) {
         // Reload Room
-        room_box = Room.find(By(Room.id, room.id.is))
+        room_box = Room.find(By(Room.id, current_id))
       }
     }
     

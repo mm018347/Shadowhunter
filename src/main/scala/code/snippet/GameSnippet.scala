@@ -42,12 +42,9 @@ class GameCheckSnippet {
     val room_no = 
       try { S.param("room_no").getOrElse("0").toLong }
       catch { case e:Exception => 0}
-    var room_box = Room.find(By(Room.id, room_no)) 
+    var room_box = if (room_no != 0) Room.find(By(Room.id, room_no)) else Empty
     if (room_box.isEmpty) {
-      for (room <- CurrentRoom.get) {
-        // Reload Room
-        room_box = Room.find(By(Room.id, room.id.is))
-      }
+      room_box = CurrentRoom.get
     }
     
     if (room_box.isEmpty) {
